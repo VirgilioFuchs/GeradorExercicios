@@ -113,7 +113,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | SCAF-01 | Phase 1 | Pending |
 | SCAF-02 | Phase 1 | Pending |
 | SCAF-03 | Phase 1 | Pending |
-| SCAF-04 | Phase 1 | Pending |
+| SCAF-04 | Phase 3 | Pending |
 | MODL-01 | Phase 1 | Pending |
 | MODL-02 | Phase 1 | Pending |
 | MODL-03 | Phase 1 | Pending |
@@ -124,22 +124,22 @@ Deferred to future release. Tracked but not in current roadmap.
 | GEN-02 | Phase 1 | Pending |
 | GEN-03 | Phase 1 | Pending |
 | GEN-04 | Phase 1 | Pending |
-| VALD-01 | Phase 1 | Pending |
-| VALD-02 | Phase 1 | Pending |
-| VALD-03 | Phase 1 | Pending |
-| VALD-04 | Phase 1 | Pending |
-| VALD-05 | Phase 1 | Pending |
-| ERR-01 | Phase 1 | Pending |
-| ERR-02 | Phase 1 | Pending |
-| ERR-03 | Phase 1 | Pending |
-| ERR-04 | Phase 1 | Pending |
+| VALD-01 | Phase 2 | Pending |
+| VALD-02 | Phase 2 | Pending |
+| VALD-03 | Phase 2 | Pending |
+| VALD-04 | Phase 2 | Pending |
+| VALD-05 | Phase 2 | Pending |
+| ERR-01 | Phase 2 | Pending |
+| ERR-02 | Phase 2 | Pending |
+| ERR-03 | Phase 2 | Pending |
+| ERR-04 | Phase 2 | Pending |
 | CLI-01 | Phase 1 | Pending |
 | CLI-02 | Phase 1 | Pending |
 | CLI-03 | Phase 1 | Pending |
-| TEST-01 | Phase 1 | Pending |
-| TEST-02 | Phase 1 | Pending |
-| LOG-01 | Phase 2 | Pending |
-| LOG-02 | Phase 2 | Pending |
+| TEST-01 | Phase 3 | Pending |
+| TEST-02 | Phase 3 | Pending |
+| LOG-01 | Phase 3 | Pending |
+| LOG-02 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 28 total
