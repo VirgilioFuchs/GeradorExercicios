@@ -110,20 +110,20 @@ Deferred to future release. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SCAF-01 | Phase 1 | Pending |
-| SCAF-02 | Phase 1 | Pending |
-| SCAF-03 | Phase 1 | Pending |
+| SCAF-01 | Phase 1 | Complete |
+| SCAF-02 | Phase 1 | Complete |
+| SCAF-03 | Phase 1 | Complete |
 | SCAF-04 | Phase 3 | Pending |
-| MODL-01 | Phase 1 | Pending |
-| MODL-02 | Phase 1 | Pending |
-| MODL-03 | Phase 1 | Pending |
-| PRMT-01 | Phase 1 | Pending |
-| PRMT-02 | Phase 1 | Pending |
-| PRMT-03 | Phase 1 | Pending |
-| GEN-01 | Phase 1 | Pending |
-| GEN-02 | Phase 1 | Pending |
-| GEN-03 | Phase 1 | Pending |
-| GEN-04 | Phase 1 | Pending |
+| MODL-01 | Phase 1 | Complete |
+| MODL-02 | Phase 1 | Complete |
+| MODL-03 | Phase 1 | Complete |
+| PRMT-01 | Phase 1 | Complete |
+| PRMT-02 | Phase 1 | Complete |
+| PRMT-03 | Phase 1 | Complete |
+| GEN-01 | Phase 1 | Complete |
+| GEN-02 | Phase 1 | Complete |
+| GEN-03 | Phase 1 | Complete |
+| GEN-04 | Phase 1 | Complete |
 | VALD-01 | Phase 2 | Pending |
 | VALD-02 | Phase 2 | Pending |
 | VALD-03 | Phase 2 | Pending |
@@ -133,9 +133,9 @@ Deferred to future release. Tracked but not in current roadmap.
 | ERR-02 | Phase 2 | Pending |
 | ERR-03 | Phase 2 | Pending |
 | ERR-04 | Phase 2 | Pending |
-| CLI-01 | Phase 1 | Pending |
-| CLI-02 | Phase 1 | Pending |
-| CLI-03 | Phase 1 | Pending |
+| CLI-01 | Phase 1 | Complete |
+| CLI-02 | Phase 1 | Complete |
+| CLI-03 | Phase 1 | Complete |
 | TEST-01 | Phase 3 | Pending |
 | TEST-02 | Phase 3 | Pending |
 | LOG-01 | Phase 3 | Pending |

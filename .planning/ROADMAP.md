@@ -9,7 +9,7 @@
 
 | # | Phase | Goal | Requirements | Success Criteria |
 |---|-------|------|--------------|------------------|
-| 1 | Project Setup & LLM Pipeline | Estrutura modular e geração via LLM funcionando | SCAF-*, MODL-*, PRMT-*, GEN-*, CLI-* | 5 |
+| 1 | Project Setup & LLM Pipeline | Estrutura modular e geração via LLM funcionando | SCAF-*, MODL-*, PRMT-*, GEN-*, CLI-* | 5/5 ✓ |
 | 2 | Validation & Error Handling | Respostas validadas e erros tratados explicitamente | VALD-*, ERR-* | 4 |
 | 3 | Tests, Logging & Docs | Qualidade verificável e projeto documentado | TEST-*, LOG-*, SCAF-04 | 4 |
 
@@ -19,17 +19,21 @@
 
 ## Phase Details
 
-### Phase 1: Project Setup & LLM Pipeline
+### Phase 1: Project Setup & LLM Pipeline (Complete)
 **Goal:** Estabelecer estrutura do projeto e pipeline de geração LLM end-to-end com saída JSON
 **Mode:** mvp
+**Status:** Complete (verified 2026-09-01)
 **Requirements:** SCAF-01, SCAF-02, SCAF-03, MODL-01, MODL-02, MODL-03, PRMT-01, PRMT-02, PRMT-03, GEN-01, GEN-02, GEN-03, GEN-04, CLI-01, CLI-02, CLI-03
 
+**Plans:**
+- [x] 01-01: Project Scaffolding, Models, Prompts, Structured Outputs Generator, and CLI Runner (completed 2026-09-01)
+
 **Success Criteria:**
-1. Executar `python main.py` produz JSON com lista `exercicios` contendo enunciado, resposta e explicação
-2. Módulos separados existem (`main`, `generator`, `prompts`, `models`) com responsabilidades distintas
-3. Chave de API lida de `LLM_API_KEY` em `.env`; `.env.example` presente sem segredos
-4. Prompt centralizado instrui tópico, dificuldade, quantidade e formato JSON exclusivo
-5. Gerador usa SDK OpenAI com Structured Outputs ou parsing tipado equivalente
+1. [x] Executar `python main.py` produz JSON com lista `exercicios` contendo enunciado, resposta e explicação
+2. [x] Módulos separados existem (`main`, `generator`, `prompts`, `models`) com responsabilidades distintas
+3. [x] Chave de API lida de `LLM_API_KEY` em `.env`; `.env.example` presente sem segredos
+4. [x] Prompt centralizado instrui tópico, dificuldade, quantidade e formato JSON exclusivo
+5. [x] Gerador usa SDK OpenAI com Structured Outputs ou parsing tipado equivalente
 
 ### Phase 2: Validation & Error Handling
 **Goal:** Garantir que apenas saídas estruturalmente válidas são aceitas, com erros claros
