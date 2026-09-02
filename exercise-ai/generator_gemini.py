@@ -10,7 +10,7 @@ from google.genai import types
 from models import ExerciseBatch, GenerationRequest
 import prompts
 
-DEFAULT_GEMINI_MODEL = "gemini-2.0-flash"
+DEFAULT_GEMINI_MODEL = "gemini-2.5-pro"
 
 
 def get_client() -> genai.Client:

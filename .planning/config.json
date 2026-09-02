@@ -5,10 +5,10 @@
   "commit_docs": true,
   "model_profile": "adaptive",
   "workflow": {
-    "research": true,
+    "research": false,
     "plan_check": true,
     "verifier": true,
-    "nyquist_validation": false,
+    "nyquist_validation": true,
     "auto_advance": true,
     "_auto_chain_active": true
   },
