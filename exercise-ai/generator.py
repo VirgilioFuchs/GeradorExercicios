@@ -1,9 +1,35 @@
-"""LLM Generator using OpenAI Structured Outputs."""
+"""LLM Generator — dispatches to OpenAI or Gemini based on environment."""
 
 import os
+
 from openai import OpenAI, OpenAIError
+
 from models import ExerciseBatch, GenerationRequest
 import prompts
+
+
+def _resolve_provider() -> str:
+    """Escolhe o provedor LLM com base em LLM_PROVIDER ou chaves disponíveis."""
+    explicit = os.getenv("LLM_PROVIDER", "").strip().lower()
+    if explicit in {"openai", "gemini"}:
+        return explicit
+
+    has_gemini = bool(os.getenv("GEMINI_API_KEY", "").strip())
+    has_openai = bool(os.getenv("LLM_API_KEY", "").strip())
+
+    if has_gemini and not has_openai:
+        return "gemini"
+    if has_openai and not has_gemini:
+        return "openai"
+    if has_gemini:
+        return "gemini"
+    if has_openai:
+        return "openai"
+
+    raise ValueError(
+        "Nenhuma chave de API configurada. "
+        "Defina GEMINI_API_KEY ou LLM_API_KEY no arquivo .env."
+    )
 
 
 def get_client() -> OpenAI:
@@ -16,8 +42,11 @@ def get_client() -> OpenAI:
     return OpenAI(api_key=api_key.strip(), timeout=30.0)
 
 
-def generate_exercises(request: GenerationRequest, model: str = "gpt-4o-mini") -> ExerciseBatch:
-    """Gera exercícios matemáticos estruturados usando OpenAI Structured Outputs."""
+def _generate_with_openai(
+    request: GenerationRequest,
+    model: str = "gpt-4o-mini",
+) -> ExerciseBatch:
+    """Gera exercícios usando OpenAI Structured Outputs."""
     client = get_client()
     system_prompt, user_prompt = prompts.build_prompts(request)
 
@@ -37,9 +66,26 @@ def generate_exercises(request: GenerationRequest, model: str = "gpt-4o-mini") -
             raise RuntimeError(f"O modelo recusou a geração: {message.refusal}")
 
         if message.parsed is None:
-            raise RuntimeError("Não foi possível obter a estrutura de exercícios da resposta do modelo.")
+            raise RuntimeError(
+                "Não foi possível obter a estrutura de exercícios da resposta do modelo."
+            )
 
         return message.parsed
 
     except OpenAIError as exc:
         raise RuntimeError(f"Erro na chamada à API da OpenAI: {exc}") from exc
+
+
+def generate_exercises(
+    request: GenerationRequest,
+    model: str | None = None,
+) -> ExerciseBatch:
+    """Gera exercícios matemáticos estruturados via OpenAI ou Gemini."""
+    provider = _resolve_provider()
+
+    if provider == "gemini":
+        from generator_gemini import DEFAULT_GEMINI_MODEL, generate_exercises as generate_gemini
+
+        return generate_gemini(request, model=model or DEFAULT_GEMINI_MODEL)
+
+    return _generate_with_openai(request, model=model or "gpt-4o-mini")
