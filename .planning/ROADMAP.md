@@ -11,7 +11,7 @@
 |---|-------|------|--------------|------------------|
 | 1 | Project Setup & LLM Pipeline | Estrutura modular e geração via LLM funcionando | SCAF-*, MODL-*, PRMT-*, GEN-*, CLI-* | 5/5 ✓ |
 | 2 | Validation & Error Handling | Respostas validadas e erros tratados explicitamente | VALD-*, ERR-* | 4/4 ✓ |
-| 3 | Tests, Logging & Docs | Qualidade verificável e projeto documentado | TEST-*, LOG-*, SCAF-04 | 4 |
+| 3 | Tests, Logging & Docs | Qualidade verificável e projeto documentado | TEST-*, LOG-*, SCAF-04 | 4/4 ✓ |
 
 **Total:** 3 phases | 28 v1 requirements | 100% coverage ✓
 
@@ -56,24 +56,25 @@
 3. [x] Ausência de `LLM_API_KEY` produz erro claro antes da chamada à API
 4. [x] Erros de rede, timeout e rate limit são capturados e reportados sem silenciar exceções
 
-### Phase 3: Tests, Logging & Docs
+### Phase 3: Tests, Logging & Docs (Complete)
 
 **Goal:** Cobertura de testes do validador, observabilidade básica e documentação de uso
 **Mode:** mvp
+**Status:** Complete (verified 2026-09-04)
 **Requirements:** TEST-01, TEST-02, LOG-01, LOG-02, SCAF-04
 
 **Plans:** 1/1 plans complete
 
 Plans:
 
-- [x] 03-01-PLAN.md — Durable pytest suite, LOG-01/02 redaction, root README
+- [x] 03-01: Durable pytest suite, LOG-01/02 redaction, root README (completed 2026-09-04)
 
 **Success Criteria:**
 
-1. `pytest` passa com casos: JSON válido, inválido, chave ausente, campo faltando, quantidade errada, lista vazia
-2. Testes não fazem chamadas reais ao LLM (mocks ou dados estáticos)
-3. Logs registram início, parâmetros (sem segredos), sucesso/falha e motivo de validação
-4. `README.md` documenta setup, variáveis de ambiente e como executar o projeto
+1. [x] `pytest` passa com casos: JSON válido, inválido, chave ausente, campo faltando, quantidade errada, lista vazia
+2. [x] Testes não fazem chamadas reais ao LLM (mocks ou dados estáticos)
+3. [x] Logs registram início, parâmetros (sem segredos), sucesso/falha e motivo de validação
+4. [x] `README.md` documenta setup, variáveis de ambiente e como executar o projeto
 
 ---
 
