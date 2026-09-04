@@ -1,21 +1,18 @@
 ---
 gsd_state_version: 1.0
 milestone: v1
-milestone_name: MVP
-current_phase: 2
-current_phase_name: Validation & Error Handling
-status: ready_to_discuss
-stopped_at: Phase 1 completed and verified (16/16 requirements satisfied)
-last_updated: "2026-09-02T12:56:33.889Z"
-last_activity: 2026-09-02
-last_activity_desc: Completed quick task 260902-dt4 - adicione um generator.py para o gemini
-state_head: b2dd2816f4cc3f448d5b4166ebdc959c6dd4d9a5
+current_phase: 3
+status: completed
+stopped_at: Phase 3 complete — all phases complete
+last_updated: "2026-09-04T13:14:07.720Z"
+last_activity: 2026-09-04
+state_head: b557da92739ab93ae780c9ad5f2026dd4015341b
 progress:
   total_phases: 3
-  completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
-  percent: 33
+  completed_phases: 3
+  total_plans: 3
+  completed_plans: 3
+milestone_name: MVP
 ---
 
 # Project State
@@ -25,37 +22,45 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-01)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato
-**Current focus:** Phase 2 — Validation & Error Handling
+**Current focus:** Phase 3 — Tests, Logging & Docs
 
 ## Current Position
 
-Phase: 2 of 3 (Validation & Error Handling) — READY TO DISCUSS / PLAN
-Plan: 0 of ? in current phase
-Status: Ready to discuss
-Last activity: 2026-09-02 — Completed quick task 260902-dt4: adicione um generator.py para o gemini
+Phase: 3
+Plan: Not started
+Status: All phases complete
+Last activity: 2026-09-04 — Phase 3 learnings extracted
 
-Progress: [███░░░░░░░] 33%
+Progress: [█████████░] 90%
 
 ## Performance Metrics
 
 **Velocity:**
 
 - Total plans completed: 1
-- Average duration: ~15 min
-- Total execution time: 0.25 hours
+- Average duration: ~18 min
+- Total execution time: 0.92 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1 | 1/1 | 15 min | 15 min |
+| 2 | 1/1 | 25 min | 25 min |
+| 3 | 1 | - | - |
 
 **Recent Trend:**
 
-- Last 5 plans: [15 min]
+- Last 5 plans: [15 min, 25 min, 15 min]
 - Trend: Stable
 
 *Updated after each plan completion*
+**Per-Plan Metrics:**
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 02 P01 | 25 min | 2 tasks | 4 files |
+| Phase 03 P01 | 15 min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -68,6 +73,8 @@ Recent decisions affecting current work:
 - [Phase 1]: Módulos em `exercise-ai/` com campos em português
 - [Phase 1]: Chave `LLM_API_KEY` via `python-dotenv` e entrada demo no MVP
 - [Phase 1]: Padrão de erro claro em `sys.stderr` sem mascarar exceções
+- [Phase 3]: TEST-02 chave ausente = missing/invalid exercicios on validator (not API env keys)
+- [Phase 3]: LOG-01 via stderr logging with dynamic stream; LOG-02 [API:*] type+status only
 
 ### Pending Todos
 
@@ -92,6 +99,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-01 11:30
-Stopped at: Phase 1 complete and verified; ready for Phase 2
+Last session: 2026-09-04T12:54:21.085Z
+Stopped at: Phase 3 complete — all phases complete
 Resume file: None
+Handoff: consumed and deleted (one-shot)

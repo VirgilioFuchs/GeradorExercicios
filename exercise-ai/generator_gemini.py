@@ -1,7 +1,20 @@
-"""LLM Generator using Google Gemini structured JSON output."""
+"""LLM Generator using Google Gemini structured JSON output.
+
+GEMINI_ERROR_CLASSIFICATION:
+priority-1 N/A on this SDK — use status_code table only
+Categories (status codes):
+- auth: 401/403 → Falha de autenticação na API do Gemini. Verifique GEMINI_API_KEY.
+- rate limit: 429 → Limite de requisições da API do Gemini atingido. Tente novamente mais tarde.
+- timeout: 408/504 → Tempo esgotado ao chamar a API do Gemini.
+- connection/network (message heuristics) → Erro de conexão com a API do Gemini. Verifique a rede.
+- generic fallback → Erro na chamada à API do Gemini.
+"""
+
+from __future__ import annotations
 
 import json
 import os
+import sys
 
 from google import genai
 from google.genai import errors as genai_errors
@@ -12,16 +25,83 @@ import prompts
 
 DEFAULT_GEMINI_MODEL = "gemini-2.5-pro"
 
+_MISSING_KEY_MSG = (
+    "Nenhuma chave de API configurada. "
+    "Defina GEMINI_API_KEY ou LLM_API_KEY no arquivo .env."
+)
+
+_MSG_AUTH = "Falha de autenticação na API do Gemini. Verifique GEMINI_API_KEY."
+_MSG_RATE = "Limite de requisições da API do Gemini atingido. Tente novamente mais tarde."
+_MSG_TIMEOUT = "Tempo esgotado ao chamar a API do Gemini."
+_MSG_CONN = "Erro de conexão com a API do Gemini. Verifique a rede."
+_MSG_GENERIC = "Erro na chamada à API do Gemini."
+
+_NETWORK_HINTS = (
+    "connection",
+    "connect",
+    "network",
+    "conexão",
+    "rede",
+    "unreachable",
+    "dns",
+)
+
 
 def get_client() -> genai.Client:
     """Inicializa o cliente Gemini usando GEMINI_API_KEY do ambiente."""
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key or not api_key.strip():
-        raise ValueError(
-            "Chave de API do Gemini não configurada. "
-            "Defina a variável GEMINI_API_KEY no arquivo .env."
-        )
+        raise ValueError(_MISSING_KEY_MSG)
     return genai.Client(api_key=api_key.strip())
+
+
+def _coerce_status_code(exc: BaseException) -> int | None:
+    raw = getattr(exc, "status_code", None)
+    if raw is None:
+        raw = getattr(exc, "code", None)
+    if raw is None:
+        return None
+    try:
+        return int(raw)
+    except (TypeError, ValueError):
+        return None
+
+
+def _redact_env_secrets(text: str) -> str:
+    """Replace live env API key values so debug dumps never echo secrets."""
+    for name in ("LLM_API_KEY", "GEMINI_API_KEY"):
+        val = os.getenv(name, "")
+        if val and val.strip() and val in text:
+            text = text.replace(val, "[REDACTED]")
+    return text
+
+
+def _gemini_error_detail(exc: BaseException) -> str:
+    """Build sanitized [API:gemini] detail: type + status/code only (no raw str(exc))."""
+    parts = [type(exc).__name__]
+    code = _coerce_status_code(exc)
+    if code is not None:
+        parts.append(f"status={code}")
+    return " ".join(parts)
+
+
+def map_gemini_error(exc: BaseException) -> RuntimeError:
+    """Map Gemini API errors via status_code table; log [API:gemini] detail."""
+    print(f"[API:gemini] {_gemini_error_detail(exc)}", file=sys.stderr)
+
+    code = _coerce_status_code(exc)
+    # Classification may read message/str for network heuristics only — never log it.
+    body = f"{getattr(exc, 'message', '')} {exc}".lower()
+
+    if code in {401, 403}:
+        return RuntimeError(_MSG_AUTH)
+    if code == 429:
+        return RuntimeError(_MSG_RATE)
+    if code in {408, 504}:
+        return RuntimeError(_MSG_TIMEOUT)
+    if any(hint in body for hint in _NETWORK_HINTS):
+        return RuntimeError(_MSG_CONN)
+    return RuntimeError(_MSG_GENERIC)
 
 
 def generate_exercises(
@@ -43,14 +123,20 @@ def generate_exercises(
             ),
         )
     except genai_errors.APIError as exc:
-        raise RuntimeError(f"Erro na chamada à API do Gemini: {exc}") from exc
+        raise map_gemini_error(exc) from exc
 
     if not response.text:
+        print("[API:gemini] empty response.text", file=sys.stderr)
         raise RuntimeError("A API do Gemini retornou uma resposta vazia.")
 
     try:
         return ExerciseBatch.model_validate(json.loads(response.text))
     except (json.JSONDecodeError, ValueError) as exc:
+        safe_preview = _redact_env_secrets(repr(response.text))
+        print(
+            f"[API:gemini] unparseable response: {safe_preview}",
+            file=sys.stderr,
+        )
         raise RuntimeError(
             "Não foi possível interpretar a estrutura de exercícios retornada pelo Gemini."
         ) from exc

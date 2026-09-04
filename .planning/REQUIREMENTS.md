@@ -10,7 +10,7 @@
 - [ ] **SCAF-01**: Projeto Python com estrutura modular (`main.py`, `generator.py`, `validator.py`, `prompts.py`, `models.py`)
 - [ ] **SCAF-02**: `requirements.txt` com dependências mínimas documentadas
 - [ ] **SCAF-03**: `.env.example` documenta `LLM_API_KEY`; `.env` no `.gitignore`
-- [ ] **SCAF-04**: `README.md` com instruções de setup e execução
+- [x] **SCAF-04**: `README.md` com instruções de setup e execução
 
 ### Data Models
 
@@ -33,18 +33,18 @@
 
 ### Validation
 
-- [ ] **VALD-01**: Validador rejeita JSON inválido ou estrutura ausente
-- [ ] **VALD-02**: Validador verifica presença da chave `exercicios`
-- [ ] **VALD-03**: Validador verifica quantidade de exercícios igual à solicitada
-- [ ] **VALD-04**: Validador verifica campos obrigatórios não vazios em cada exercício
-- [ ] **VALD-05**: Validador retorna motivo claro de falha para cada caso
+- [x] **VALD-01**: Validador rejeita JSON inválido ou estrutura ausente
+- [x] **VALD-02**: Validador verifica presença da chave `exercicios`
+- [x] **VALD-03**: Validador verifica quantidade de exercícios igual à solicitada
+- [x] **VALD-04**: Validador verifica campos obrigatórios não vazios em cada exercício
+- [x] **VALD-05**: Validador retorna motivo claro de falha para cada caso
 
 ### Error Handling
 
-- [ ] **ERR-01**: Erro claro quando chave de API está ausente
-- [ ] **ERR-02**: Tratamento de erro de rede, timeout e rate limit
-- [ ] **ERR-03**: Tratamento de resposta vazia ou estrutura inválida
-- [ ] **ERR-04**: Erros não são silenciados; mensagens úteis para desenvolvimento
+- [x] **ERR-01**: Erro claro quando chave de API está ausente
+- [x] **ERR-02**: Tratamento de erro de rede, timeout e rate limit
+- [x] **ERR-03**: Tratamento de resposta vazia ou estrutura inválida
+- [x] **ERR-04**: Erros não são silenciados; mensagens úteis para desenvolvimento
 
 ### CLI & Output
 
@@ -54,13 +54,13 @@
 
 ### Testing
 
-- [ ] **TEST-01**: Testes unitários do validador sem chamadas reais ao LLM
-- [ ] **TEST-02**: Casos: JSON válido, JSON inválido, chave ausente, campo faltando, quantidade errada, lista vazia
+- [x] **TEST-01**: Testes unitários do validador sem chamadas reais ao LLM
+- [x] **TEST-02**: Casos: JSON válido, JSON inválido, chave ausente, campo faltando, quantidade errada, lista vazia
 
 ### Logging
 
-- [ ] **LOG-01**: Logs de desenvolvimento registram início, parâmetros (sem segredos), sucesso/falha e motivo de validação
-- [ ] **LOG-02**: Chave de API e dados sensíveis nunca aparecem em logs
+- [x] **LOG-01**: Logs de desenvolvimento registram início, parâmetros (sem segredos), sucesso/falha e motivo de validação
+- [x] **LOG-02**: Chave de API e dados sensíveis nunca aparecem em logs
 
 ## v2 Requirements
 
@@ -113,7 +113,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | SCAF-01 | Phase 1 | Complete |
 | SCAF-02 | Phase 1 | Complete |
 | SCAF-03 | Phase 1 | Complete |
-| SCAF-04 | Phase 3 | Pending |
+| SCAF-04 | Phase 3 | Complete |
 | MODL-01 | Phase 1 | Complete |
 | MODL-02 | Phase 1 | Complete |
 | MODL-03 | Phase 1 | Complete |
@@ -124,24 +124,25 @@ Deferred to future release. Tracked but not in current roadmap.
 | GEN-02 | Phase 1 | Complete |
 | GEN-03 | Phase 1 | Complete |
 | GEN-04 | Phase 1 | Complete |
-| VALD-01 | Phase 2 | Pending |
-| VALD-02 | Phase 2 | Pending |
-| VALD-03 | Phase 2 | Pending |
-| VALD-04 | Phase 2 | Pending |
-| VALD-05 | Phase 2 | Pending |
-| ERR-01 | Phase 2 | Pending |
-| ERR-02 | Phase 2 | Pending |
-| ERR-03 | Phase 2 | Pending |
-| ERR-04 | Phase 2 | Pending |
+| VALD-01 | Phase 2 | Complete |
+| VALD-02 | Phase 2 | Complete |
+| VALD-03 | Phase 2 | Complete |
+| VALD-04 | Phase 2 | Complete |
+| VALD-05 | Phase 2 | Complete |
+| ERR-01 | Phase 2 | Complete |
+| ERR-02 | Phase 2 | Complete |
+| ERR-03 | Phase 2 | Complete |
+| ERR-04 | Phase 2 | Complete |
 | CLI-01 | Phase 1 | Complete |
 | CLI-02 | Phase 1 | Complete |
 | CLI-03 | Phase 1 | Complete |
-| TEST-01 | Phase 3 | Pending |
-| TEST-02 | Phase 3 | Pending |
-| LOG-01 | Phase 3 | Pending |
-| LOG-02 | Phase 3 | Pending |
+| TEST-01 | Phase 3 | Complete |
+| TEST-02 | Phase 3 | Complete |
+| LOG-01 | Phase 3 | Complete |
+| LOG-02 | Phase 3 | Complete |
 
 **Coverage:**
+
 - v1 requirements: 28 total
 - Mapped to phases: 28
 - Unmapped: 0 ✓
