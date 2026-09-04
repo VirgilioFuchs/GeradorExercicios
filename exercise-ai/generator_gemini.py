@@ -67,11 +67,30 @@ def _coerce_status_code(exc: BaseException) -> int | None:
         return None
 
 
+def _redact_env_secrets(text: str) -> str:
+    """Replace live env API key values so debug dumps never echo secrets."""
+    for name in ("LLM_API_KEY", "GEMINI_API_KEY"):
+        val = os.getenv(name, "")
+        if val and val.strip() and val in text:
+            text = text.replace(val, "[REDACTED]")
+    return text
+
+
+def _gemini_error_detail(exc: BaseException) -> str:
+    """Build sanitized [API:gemini] detail: type + status/code only (no raw str(exc))."""
+    parts = [type(exc).__name__]
+    code = _coerce_status_code(exc)
+    if code is not None:
+        parts.append(f"status={code}")
+    return " ".join(parts)
+
+
 def map_gemini_error(exc: BaseException) -> RuntimeError:
     """Map Gemini API errors via status_code table; log [API:gemini] detail."""
-    print(f"[API:gemini] {type(exc).__name__}: {exc}", file=sys.stderr)
+    print(f"[API:gemini] {_gemini_error_detail(exc)}", file=sys.stderr)
 
     code = _coerce_status_code(exc)
+    # Classification may read message/str for network heuristics only — never log it.
     body = f"{getattr(exc, 'message', '')} {exc}".lower()
 
     if code in {401, 403}:
@@ -113,8 +132,9 @@ def generate_exercises(
     try:
         return ExerciseBatch.model_validate(json.loads(response.text))
     except (json.JSONDecodeError, ValueError) as exc:
+        safe_preview = _redact_env_secrets(repr(response.text))
         print(
-            f"[API:gemini] unparseable response: {response.text!r}",
+            f"[API:gemini] unparseable response: {safe_preview}",
             file=sys.stderr,
         )
         raise RuntimeError(

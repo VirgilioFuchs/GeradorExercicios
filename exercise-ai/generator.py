@@ -52,9 +52,29 @@ def get_client() -> OpenAI:
     return OpenAI(api_key=api_key.strip(), timeout=30.0)
 
 
+def _redact_env_secrets(text: str) -> str:
+    """Replace live env API key values so debug dumps never echo secrets."""
+    for name in ("LLM_API_KEY", "GEMINI_API_KEY"):
+        val = os.getenv(name, "")
+        if val and val.strip() and val in text:
+            text = text.replace(val, "[REDACTED]")
+    return text
+
+
+def _openai_error_detail(exc: BaseException) -> str:
+    """Build sanitized [API:openai] detail: type + status/code only (no raw str(exc))."""
+    parts = [type(exc).__name__]
+    status = getattr(exc, "status_code", None)
+    if status is None:
+        status = getattr(exc, "code", None)
+    if status is not None:
+        parts.append(f"status={status}")
+    return " ".join(parts)
+
+
 def map_openai_error(exc: BaseException) -> RuntimeError:
     """Map typed OpenAI errors to plain-PT RuntimeError; log [API:openai] detail."""
-    print(f"[API:openai] {type(exc).__name__}: {exc}", file=sys.stderr)
+    print(f"[API:openai] {_openai_error_detail(exc)}", file=sys.stderr)
 
     if isinstance(exc, APITimeoutError):
         return RuntimeError("Tempo esgotado ao chamar a API da OpenAI.")
@@ -68,7 +88,7 @@ def map_openai_error(exc: BaseException) -> RuntimeError:
         return RuntimeError(
             "Falha de autenticação na API da OpenAI. Verifique LLM_API_KEY."
         )
-    return RuntimeError(f"Erro na chamada à API da OpenAI: {exc}")
+    return RuntimeError("Erro na chamada à API da OpenAI.")
 
 
 def _generate_with_openai(
@@ -92,11 +112,12 @@ def _generate_with_openai(
         message = completion.choices[0].message
 
         if message.refusal:
+            safe_refusal = _redact_env_secrets(str(message.refusal))
             print(
-                f"[API:openai] refusal: {message.refusal}",
+                f"[API:openai] refusal: {safe_refusal}",
                 file=sys.stderr,
             )
-            raise RuntimeError(f"O modelo recusou a geração: {message.refusal}")
+            raise RuntimeError(f"O modelo recusou a geração: {safe_refusal}")
 
         if message.parsed is None:
             print(
