@@ -7,29 +7,29 @@
 
 ### Project Scaffold
 
-- [ ] **SCAF-01**: Projeto Python com estrutura modular (`main.py`, `generator.py`, `validator.py`, `prompts.py`, `models.py`)
-- [ ] **SCAF-02**: `requirements.txt` com dependências mínimas documentadas
-- [ ] **SCAF-03**: `.env.example` documenta `LLM_API_KEY`; `.env` no `.gitignore`
+- [x] **SCAF-01**: Projeto Python com estrutura modular (`main.py`, `generator.py`, `validator.py`, `prompts.py`, `models.py`)
+- [x] **SCAF-02**: `requirements.txt` com dependências mínimas documentadas
+- [x] **SCAF-03**: `.env.example` documenta `LLM_API_KEY`; `.env` no `.gitignore`
 - [x] **SCAF-04**: `README.md` com instruções de setup e execução
 
 ### Data Models
 
-- [ ] **MODL-01**: Modelo `Exercise` com campos `enunciado`, `resposta`, `explicacao`
-- [ ] **MODL-02**: Modelo de lote com chave `exercicios` (lista de exercícios)
-- [ ] **MODL-03**: Modelo de entrada com `materia`, `topico`, `dificuldade`, `quantidade`
+- [x] **MODL-01**: Modelo `Exercise` com campos `enunciado`, `resposta`, `explicacao`
+- [x] **MODL-02**: Modelo de lote com chave `exercicios` (lista de exercícios)
+- [x] **MODL-03**: Modelo de entrada com `materia`, `topico`, `dificuldade`, `quantidade`
 
 ### Prompts
 
-- [ ] **PRMT-01**: Template de prompt centralizado em `prompts.py`
-- [ ] **PRMT-02**: Prompt instrui modelo a respeitar tópico, dificuldade e quantidade exata
-- [ ] **PRMT-03**: Prompt exige retorno somente JSON, sem texto extra
+- [x] **PRMT-01**: Template de prompt centralizado em `prompts.py`
+- [x] **PRMT-02**: Prompt instrui modelo a respeitar tópico, dificuldade e quantidade exata
+- [x] **PRMT-03**: Prompt exige retorno somente JSON, sem texto extra
 
 ### Generation
 
-- [ ] **GEN-01**: Usuário pode gerar exercícios informando matéria, tópico, dificuldade e quantidade
-- [ ] **GEN-02**: Gerador chama LLM via SDK (preferir Structured Outputs quando disponível)
-- [ ] **GEN-03**: Gerador converte resposta para estrutura de dados tipada
-- [ ] **GEN-04**: Chave de API carregada de variável de ambiente (nunca hardcoded)
+- [x] **GEN-01**: Usuário pode gerar exercícios informando matéria, tópico, dificuldade e quantidade
+- [x] **GEN-02**: Gerador chama LLM via SDK (preferir Structured Outputs quando disponível)
+- [x] **GEN-03**: Gerador converte resposta para estrutura de dados tipada
+- [x] **GEN-04**: Chave de API carregada de variável de ambiente (nunca hardcoded)
 
 ### Validation
 
@@ -48,9 +48,9 @@
 
 ### CLI & Output
 
-- [ ] **CLI-01**: `python main.py` executa fluxo completo com entrada de demonstração ou parâmetros
-- [ ] **CLI-02**: Saída final é JSON válido no formato especificado
-- [ ] **CLI-03**: Fluxo: entrada → geração → validação → saída ou erro
+- [x] **CLI-01**: `python main.py` executa fluxo completo com entrada de demonstração ou parâmetros
+- [x] **CLI-02**: Saída final é JSON válido no formato especificado
+- [x] **CLI-03**: Fluxo: entrada → geração → validação → saída ou erro
 
 ### Testing
 
