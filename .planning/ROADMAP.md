@@ -62,7 +62,7 @@
 **Mode:** mvp
 **Requirements:** TEST-01, TEST-02, LOG-01, LOG-02, SCAF-04
 
-**Plans:** 1/1 plans executed
+**Plans:** 1/1 plans complete
 
 Plans:
 
