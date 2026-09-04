@@ -1,19 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1
-milestone_name: backlog)
-status: Awaiting next milestone
-stopped_at: Phase 3 complete — all phases complete
-last_updated: "2026-09-04T13:42:20.185Z"
+milestone: v1.1
+milestone_name: Qualidade do exercício
+status: planning
+last_updated: "2026-09-04T14:00:11.074Z"
 last_activity: 2026-09-04
-last_activity_desc: Milestone v1 completed and archived
-state_head: 9f9d7c009698236ba381a859de100b55c4d92c43
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 3
-  completed_plans: 3
-current_phase: 3
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -27,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-09-01)
 
 ## Current Position
 
-Phase: Milestone v1 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-09-04 — Milestone v1 completed and archived
+Status: Defining requirements
+Last activity: 2026-09-04 — Milestone v1.1 started
 
 ## Performance Metrics
 
