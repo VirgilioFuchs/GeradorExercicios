@@ -1,0 +1,81 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-09-04T15:05:54.370Z",
+  "phase": "4",
+  "phase_name": "CLI argparse",
+  "phase_dir": ".planning/phases/04-cli-argparse",
+  "plan": 1,
+  "task": 1,
+  "total_tasks": 3,
+  "status": "paused",
+  "completed_tasks": [
+    {
+      "id": "discuss",
+      "name": "Discuss-phase 4 — CONTEXT + DISCUSSION-LOG",
+      "status": "done",
+      "commit": "7db21a3"
+    },
+    {
+      "id": "plan",
+      "name": "Plan-phase 4 — 04-01-PLAN.md + COVERAGE.md",
+      "status": "done",
+      "commit": "b8858bb"
+    },
+    {
+      "id": "check",
+      "name": "Plan-checker PASSED (0 blockers, 5 warnings)",
+      "status": "done",
+      "commit": null
+    }
+  ],
+  "remaining_tasks": [
+    {
+      "id": 1,
+      "name": "checkpoint:decision D-14 one-way stdout contract (proceed-d14 vs abort-revisit)",
+      "status": "not_started"
+    },
+    {
+      "id": 2,
+      "name": "tracer — argparse → run(request) → text stdout + required --out",
+      "status": "not_started"
+    },
+    {
+      "id": 3,
+      "name": "expansion — validation, --provider, PT help, README, ROADMAP criteria",
+      "status": "not_started"
+    }
+  ],
+  "blockers": [],
+  "async_jobs": [],
+  "human_actions_pending": [
+    {
+      "action": "Confirm D-14 checkpoint (proceed-d14) during execute Task 1 — one-way break of v1 JSON-only stdout",
+      "context": "Plan has gate=blocking-human; auto-advance cannot skip. User asked plan without auto-execute.",
+      "blocking": true
+    }
+  ],
+  "decisions": [
+    {
+      "decision": "Skip research for Phase 4",
+      "rationale": "User chose option 2; research_enabled=false; CONTEXT D-01..D-20 complete",
+      "phase": "4"
+    },
+    {
+      "decision": "D-14 dual output: stdout text + required --out JSON",
+      "rationale": "Discuss-phase locked; supersedes ROADMAP success criterion #1 JSON-on-stdout",
+      "phase": "4"
+    },
+    {
+      "decision": "Do not auto-execute after plan",
+      "rationale": "User requested sem auto",
+      "phase": "4"
+    }
+  ],
+  "uncommitted_files": [
+    ".planning/.gsd-allow-shrink",
+    ".planning/_init_plan4.json",
+    ".planning/state.json"
+  ],
+  "next_action": "Run $gsd-execute-phase 4; first stop is Task 1 human checkpoint for D-14 (proceed-d14). Do not implement until checkpoint confirmed.",
+  "context_notes": "v1.1 Qualidade do exercício; Phase 4 planned and checker-passed. Execution not started. Optional checker warnings: add provider key_link, name PT argparse error() mechanism, optional VALIDATION.md if Nyquist re-enabled."
+}
