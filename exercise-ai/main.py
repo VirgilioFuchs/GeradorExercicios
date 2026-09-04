@@ -32,13 +32,12 @@ def run_demo() -> None:
     )
 
     try:
-        # Etapa 1: Geração via LLM
+        print("Gerando…", file=sys.stderr)
         batch = generate_exercises(request)
 
-        # Etapa 2: Validação estrutural do lote
+        print("Validando…", file=sys.stderr)
         validated_batch = validate_exercise_batch(batch, request)
 
-        # Etapa 3: Formatação e saída JSON em stdout com caracteres UTF-8
         output_json = json.dumps(
             validated_batch.model_dump(),
             indent=2,
@@ -47,13 +46,13 @@ def run_demo() -> None:
         print(output_json)
 
     except ValueError as val_err:
-        print(f"Erro de configuração ou validação: {val_err}", file=sys.stderr)
+        print(str(val_err), file=sys.stderr)
         sys.exit(1)
     except RuntimeError as run_err:
-        print(f"Erro na execução da geração: {run_err}", file=sys.stderr)
+        print(str(run_err), file=sys.stderr)
         sys.exit(1)
     except Exception as exc:
-        print(f"Erro inesperado: {exc}", file=sys.stderr)
+        print(str(exc), file=sys.stderr)
         sys.exit(1)
 
 
