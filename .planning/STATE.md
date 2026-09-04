@@ -1,18 +1,18 @@
 ---
 gsd_state_version: 1.0
 milestone: v1
+milestone_name: backlog)
 status: Awaiting next milestone
 stopped_at: Phase 3 complete — all phases complete
-last_updated: "2026-09-04T13:36:03.819Z"
+last_updated: "2026-09-04T13:42:20.185Z"
 last_activity: 2026-09-04
 last_activity_desc: Milestone v1 completed and archived
-state_head: a3fe48a1864dc461876ebf08f46335e4b1809546
+state_head: 9f9d7c009698236ba381a859de100b55c4d92c43
 progress:
   total_phases: 3
   completed_phases: 3
   total_plans: 3
   completed_plans: 3
-milestone_name: MVP
 current_phase: 3
 ---
 
@@ -87,8 +87,6 @@ None yet.
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
-| 260902-dq9 | adicione o formato da api key do gemini também | 2026-09-02 | 902973e | [260902-dq9-adicione-o-formato-da-api-key-do-gemini-](./quick/260902-dq9-adicione-o-formato-da-api-key-do-gemini-/) |
-| 260902-dt4 | adicione um generator.py para o gemini | 2026-09-02 | 449e3ae | [260902-dt4-adicione-um-generator-py-para-o-gemini-a](./quick/260902-dt4-adicione-um-generator-py-para-o-gemini-a/) |
 
 ## Deferred Items
 
