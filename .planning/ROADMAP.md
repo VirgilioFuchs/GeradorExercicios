@@ -10,7 +10,7 @@
 | # | Phase | Goal | Requirements | Success Criteria |
 |---|-------|------|--------------|------------------|
 | 1 | Project Setup & LLM Pipeline | Estrutura modular e geração via LLM funcionando | SCAF-*, MODL-*, PRMT-*, GEN-*, CLI-* | 5/5 ✓ |
-| 2 | Validation & Error Handling | Respostas validadas e erros tratados explicitamente | VALD-*, ERR-* | 4 |
+| 2 | Validation & Error Handling | Respostas validadas e erros tratados explicitamente | VALD-*, ERR-* | 4/4 ✓ |
 | 3 | Tests, Logging & Docs | Qualidade verificável e projeto documentado | TEST-*, LOG-*, SCAF-04 | 4 |
 
 **Total:** 3 phases | 28 v1 requirements | 100% coverage ✓
@@ -38,18 +38,23 @@
 4. [x] Prompt centralizado instrui tópico, dificuldade, quantidade e formato JSON exclusivo
 5. [x] Gerador usa SDK OpenAI com Structured Outputs ou parsing tipado equivalente
 
-### Phase 2: Validation & Error Handling
+### Phase 2: Validation & Error Handling (Complete)
 
 **Goal:** Garantir que apenas saídas estruturalmente válidas são aceitas, com erros claros
 **Mode:** mvp
+**Status:** Complete (verified 2026-09-04)
 **Requirements:** VALD-01, VALD-02, VALD-03, VALD-04, VALD-05, ERR-01, ERR-02, ERR-03, ERR-04
+
+**Plans:**
+
+- [x] 02-01: Semantic validator, API error mapping, and fail-fast CLI (completed 2026-09-04)
 
 **Success Criteria:**
 
-1. Validador rejeita JSON inválido, chave `exercicios` ausente, quantidade incorreta e campos vazios
-2. Cada falha de validação retorna mensagem específica identificando o problema
-3. Ausência de `LLM_API_KEY` produz erro claro antes da chamada à API
-4. Erros de rede, timeout e rate limit são capturados e reportados sem silenciar exceções
+1. [x] Validador rejeita JSON inválido, chave `exercicios` ausente, quantidade incorreta e campos vazios
+2. [x] Cada falha de validação retorna mensagem específica identificando o problema
+3. [x] Ausência de `LLM_API_KEY` produz erro claro antes da chamada à API
+4. [x] Erros de rede, timeout e rate limit são capturados e reportados sem silenciar exceções
 
 ### Phase 3: Tests, Logging & Docs
 

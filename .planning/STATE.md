@@ -24,7 +24,7 @@ milestone_name: MVP
 See: .planning/PROJECT.md (updated 2026-09-01)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato
-**Current focus:** Phase 02 — Validation & Error Handling
+**Current focus:** Phase 3 — Tests, Logging & Docs
 
 ## Current Position
 
@@ -33,26 +33,26 @@ Plan: Not started
 Status: Ready to plan
 Last activity: 2026-09-04 — Phase 02 complete, transitioned to Phase 3
 
-Progress: [███░░░░░░░] 33%
+Progress: [██████░░░░] 67%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 1
-- Average duration: ~15 min
-- Total execution time: 0.25 hours
+- Total plans completed: 2
+- Average duration: ~20 min
+- Total execution time: 0.67 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1 | 1/1 | 15 min | 15 min |
-| 02 | 1 | - | - |
+| 2 | 1/1 | 25 min | 25 min |
 
 **Recent Trend:**
 
-- Last 5 plans: [15 min]
+- Last 5 plans: [15 min, 25 min]
 - Trend: Stable
 
 *Updated after each plan completion*
