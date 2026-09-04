@@ -62,6 +62,11 @@
 **Mode:** mvp
 **Requirements:** TEST-01, TEST-02, LOG-01, LOG-02, SCAF-04
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 03-01-PLAN.md — Durable pytest suite, LOG-01/02 redaction, root README
+
 **Success Criteria:**
 
 1. `pytest` passa com casos: JSON válido, inválido, chave ausente, campo faltando, quantidade errada, lista vazia
