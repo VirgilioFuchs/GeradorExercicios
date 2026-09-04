@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Qualidade do exercício
 status: planning
-last_updated: "2026-09-04T14:00:11.074Z"
+last_updated: "2026-09-04T14:10:00.000Z"
 last_activity: 2026-09-04
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -17,23 +17,25 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-01)
+See: .planning/PROJECT.md (updated 2026-09-04)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato
-**Current focus:** Awaiting next milestone (`$gsd-new-milestone`)
+**Current focus:** Phase 4 — CLI argparse (v1.1)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 4 of 6 (CLI argparse) — milestone phases 4–6
 Plan: —
-Status: Defining requirements
-Last activity: 2026-09-04 — Milestone v1.1 started
+Status: Ready to plan
+Last activity: 2026-09-04 — v1.1 roadmap created (phases 4–6)
+
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 1
+- Total plans completed: 3 (v1)
 - Average duration: ~18 min
 - Total execution time: 0.92 hours
 
@@ -43,7 +45,10 @@ Last activity: 2026-09-04 — Milestone v1.1 started
 |-------|-------|-------|----------|
 | 1 | 1/1 | 15 min | 15 min |
 | 2 | 1/1 | 25 min | 25 min |
-| 3 | 1 | - | - |
+| 3 | 1/1 | 15 min | 15 min |
+| 4 | 0/? | - | - |
+| 5 | 0/? | - | - |
+| 6 | 0/? | - | - |
 
 **Recent Trend:**
 
@@ -51,6 +56,7 @@ Last activity: 2026-09-04 — Milestone v1.1 started
 - Trend: Stable
 
 *Updated after each plan completion*
+
 **Per-Plan Metrics:**
 
 | Plan | Duration | Tasks | Files |
@@ -71,6 +77,7 @@ Recent decisions affecting current work:
 - [Phase 1]: Padrão de erro claro em `sys.stderr` sem mascarar exceções
 - [Phase 3]: TEST-02 chave ausente = missing/invalid exercicios on validator (not API env keys)
 - [Phase 3]: LOG-01 via stderr logging with dynamic stream; LOG-02 [API:*] type+status only
+- [v1.1]: Milestone = qualidade incremental (CLI + RELY + MATH); phases 4–6 continue numbering from v1
 
 ### Pending Todos
 
@@ -89,15 +96,12 @@ None yet.
 
 | Category | Item | Status | Deferred At | Milestone |
 |----------|------|--------|-------------|-----------|
-| *(none)* | | | | |
+| Ops | GitHub Actions CI (CI-01) | Deferred | 2026-09-04 | past v1.1 |
+| Product | MySQL / analytics / personalização / agente | Deferred | 2026-09-04 | v2+ |
+| Reliability | Provider failover automático | Deferred | 2026-09-04 | past v1.1 |
 
 ## Session Continuity
 
-Last session: 2026-09-04T12:54:21.085Z
-Stopped at: Phase 3 complete — all phases complete
+Last session: 2026-09-04
+Stopped at: v1.1 ROADMAP created — ready for `/gsd-plan-phase 4`
 Resume file: None
-Handoff: consumed and deleted (one-shot)
-
-## Operator Next Steps
-
-- Start the next milestone with /gsd-new-milestone

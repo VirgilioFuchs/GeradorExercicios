@@ -54,18 +54,18 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CLI-04 | TBD | Pending |
-| RELY-01 | TBD | Pending |
-| RELY-02 | TBD | Pending |
-| ERR-05 | TBD | Pending |
-| MATH-01 | TBD | Pending |
-| MATH-02 | TBD | Pending |
+| CLI-04 | Phase 4 | Pending |
+| RELY-01 | Phase 5 | Pending |
+| RELY-02 | Phase 5 | Pending |
+| ERR-05 | Phase 5 | Pending |
+| MATH-01 | Phase 6 | Pending |
+| MATH-02 | Phase 6 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 6 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 6
+- Mapped to phases: 6/6 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-09-04*
-*Last updated: 2026-09-04 after v1.1 requirements confirmation*
+*Last updated: 2026-09-04 after v1.1 roadmap creation*
