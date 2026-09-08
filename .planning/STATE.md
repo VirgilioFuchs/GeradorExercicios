@@ -5,11 +5,11 @@ milestone_name: Qualidade do exercício
 current_phase: 4
 current_phase_name: CLI argparse
 status: executing
-stopped_at: v1.1 ROADMAP created — ready for `/gsd-plan-phase 4`
-last_updated: "2026-09-04T15:01:50.376Z"
-last_activity: 2026-09-04
-last_activity_desc: v1.1 roadmap created (phases 4–6)
-state_head: b8858bbc6207c19961df0ab93c6b563b304b9f5b
+stopped_at: Session resumed — Phase 4 planned; awaiting execute (D-14 checkpoint)
+last_updated: "2026-09-08T12:12:29.775Z"
+last_activity: 2026-09-08
+last_activity_desc: Phase 4 execution started
+state_head: 338c137f8a8f11c18a2ce1ecbf6c1b5e6b6b922c
 progress:
   total_phases: 3
   completed_phases: 0
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-04)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato
-**Current focus:** Phase 4 — CLI argparse (v1.1)
+**Current focus:** Phase 4 — CLI argparse
 
 ## Current Position
 
-Phase: 4 (CLI argparse) — READY TO EXECUTE
-Plan: —
-Status: Ready to execute
-Last activity: 2026-09-04 — v1.1 roadmap created (phases 4–6)
+Phase: 4 (CLI argparse) — EXECUTING
+Plan: 1 of 1
+Status: Executing Phase 4
+Last activity: 2026-09-08 — Phase 4 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -50,7 +50,7 @@ Progress: [░░░░░░░░░░] 0%
 | 1 | 1/1 | 15 min | 15 min |
 | 2 | 1/1 | 25 min | 25 min |
 | 3 | 1/1 | 15 min | 15 min |
-| 4 | 0/? | - | - |
+| 4 | 0/1 | - | - |
 | 5 | 0/? | - | - |
 | 6 | 0/? | - | - |
 
@@ -64,7 +64,7 @@ Progress: [░░░░░░░░░░] 0%
 **Per-Plan Metrics:**
 
 | Plan | Duration | Tasks | Files |
-|------|----------|-------|-------|
+|------|----------|-------|------|
 | Phase 02 P01 | 25 min | 2 tasks | 4 files |
 | Phase 03 P01 | 15 min | 3 tasks | 9 files |
 
@@ -75,13 +75,15 @@ Progress: [░░░░░░░░░░] 0%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- [Phase 1]: OpenAI API com Structured Outputs (`gpt-4o-mini` + Pydantic v2)
-- [Phase 1]: Módulos em `exercise-ai/` com campos em português
-- [Phase 1]: Chave `LLM_API_KEY` via `python-dotenv` e entrada demo no MVP
-- [Phase 1]: Padrão de erro claro em `sys.stderr` sem mascarar exceções
+- [Phase 1]: OpenAI API com Structured Outputs (gpt-4o-mini + Pydantic v2)
+- [Phase 1]: Módulos em exercise-ai/ com campos em português
+- [Phase 1]: Chave LLM_API_KEY via python-dotenv e entrada demo no MVP
+- [Phase 1]: Padrão de erro claro em sys.stderr sem mascarar exceções
 - [Phase 3]: TEST-02 chave ausente = missing/invalid exercicios on validator (not API env keys)
 - [Phase 3]: LOG-01 via stderr logging with dynamic stream; LOG-02 [API:*] type+status only
 - [v1.1]: Milestone = qualidade incremental (CLI + RELY + MATH); phases 4–6 continue numbering from v1
+- [Phase 4]: D-14 dual output — stdout text + required --out JSON (supersedes ROADMAP JSON-on-stdout criterion)
+- [Phase 4]: Skip research; plan without auto-execute
 
 ### Pending Todos
 
@@ -89,7 +91,7 @@ None yet.
 
 ### Blockers/Concerns
 
-None yet.
+- Human must confirm D-14 (proceed-d14) at execute Task 1 before any tracer edits (one-way break of v1 JSON-only stdout)
 
 ### Quick Tasks Completed
 
@@ -106,6 +108,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-04
-Stopped at: v1.1 ROADMAP created — ready for `/gsd-plan-phase 4`
-Resume file: None
+Last session: 2026-09-08
+Stopped at: Session resumed, awaiting user choice — primary: execute Phase 4 (D-14 checkpoint first)
+Resume file: .planning/phases/04-cli-argparse/.continue-here.md

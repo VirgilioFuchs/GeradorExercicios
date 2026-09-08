@@ -41,12 +41,15 @@ v1.1 endurece o pipeline MVP já shipped: CLI usável sem editar código, regene
 **Requirements:** CLI-04
 **Mode:** mvp
 **Success Criteria** (what must be TRUE):
+
   1. Usuário executa o gerador com `--materia`, `--topico`, `--dificuldade`, `--quantidade` e `--out` obrigatório; recebe texto legível no stdout e JSON válido no arquivo `--out` (D-14)
   2. Argumentos inválidos ou `--out` ausente produzem mensagem de uso clara em português no stderr (exit não-zero) sem chamar o LLM
   3. README documenta a invocação por argumentos (incluindo `--provider` e `--out`)
-**Plans:** 1 plan
+
+**Plans:** 1/1 plans executed
 Plans:
-- [ ] 04-01-PLAN.md — CLI argparse tracer (text stdout + required --out) then full flags/provider/docs
+
+- [x] 04-01-PLAN.md — CLI argparse tracer (text stdout + required --out) then full flags/provider/docs
 
 ### Phase 5: Reliability & Error Edges
 
@@ -55,10 +58,12 @@ Plans:
 **Requirements:** RELY-01, RELY-02, ERR-05
 **Mode:** mvp
 **Success Criteria** (what must be TRUE):
+
   1. Após falha de validação, o sistema tenta regenerar no máximo 1–2 vezes e para (sem loop infinito); sucesso na regeneração entrega JSON válido
   2. Se todas as tentativas falham, o usuário vê erro claro de validação (não hang nem retry silencioso)
   3. Logs (stderr) registram duração da chamada LLM sem segredos (API keys / payloads sensíveis)
   4. Empty OpenAI `choices` e falhas Gemini não-`APIError` produzem o mesmo tipo de erro mapeado/usuário que os demais erros de API (fecha WR-03/WR-04)
+
 **Plans**: TBD
 
 ### Phase 6: Math Quality
@@ -68,9 +73,11 @@ Plans:
 **Requirements:** MATH-01, MATH-02
 **Mode:** mvp
 **Success Criteria** (what must be TRUE):
+
   1. Validador rejeita respostas matematicamente inconsistentes nos casos básicos definidos na discuss/plan da fase (testável sem LLM real)
   2. Falha matemática produz mensagem clara identificando o problema (distinta de falha estrutural genérica)
   3. Quando aplicável, falha matemática dispara o caminho de regeneração limitada (RELY-01); esgotadas as tentativas, o fluxo falha de forma previsível
+
 **Plans**: TBD
 
 ---
@@ -79,7 +86,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 4. CLI argparse | 0/? | Not started | - |
+| 4. CLI argparse | 1/1 | In Progress|  |
 | 5. Reliability & Error Edges | 0/? | Not started | - |
 | 6. Math Quality | 0/? | Not started | - |
 
