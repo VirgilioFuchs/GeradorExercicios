@@ -204,3 +204,53 @@ def test_cli_missing_provider_key_specific_message(monkeypatch, tmp_path):
     msg = err.getvalue()
     assert "LLM_API_KEY" in msg
     assert "openai" in msg.lower()
+
+
+def test_cli_rejects_max_retries_outside_range():
+    with patch.object(reliability, "generate_exercises") as gen:
+        with pytest.raises(SystemExit) as se:
+            main.main(["--max-retries", "4", "--out", "x.json"])
+    assert se.value.code == 2
+    assert gen.call_count == 0
+
+    err = io.StringIO()
+    with contextlib.redirect_stderr(err):
+        with pytest.raises(SystemExit):
+            main.main(["--max-retries", "-1", "--out", "x.json"])
+    assert "max-retries" in err.getvalue().lower()
+    assert gen.call_count == 0
+
+
+def test_cli_max_retries_passes_to_run(demo_batch, tmp_path, monkeypatch):
+    monkeypatch.delenv("RELY_MAX_RETRIES", raising=False)
+    out_path = tmp_path / "out.json"
+    with patch.object(reliability, "generate_exercises", return_value=demo_batch) as gen:
+        with patch.object(main, "resolve_max_retries", wraps=main.resolve_max_retries) as resolv:
+            main.main(["--out", str(out_path), "--max-retries", "0"])
+    assert gen.call_count == 1
+    assert resolv.call_args.args[0] == 0
+    assert out_path.exists()
+
+
+def test_multi_attempt_failure_no_out_empty_stdout(tmp_path):
+    """Exhausted regenerations leave no --out and empty stdout (D-14)."""
+    out_path = tmp_path / "batch.json"
+    request = GenerationRequest(
+        materia="Matemática",
+        topico="Equação do primeiro grau",
+        dificuldade=DificuldadeEnum.FACIL,
+        quantidade=3,
+    )
+    bad = ExerciseBatch(
+        exercicios=[Exercise(enunciado="e1", resposta="", explicacao="x1")]
+    )
+    out, err = io.StringIO(), io.StringIO()
+    with patch.object(reliability, "generate_exercises", return_value=bad) as gen:
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            with pytest.raises(SystemExit) as se:
+                main.run(request, out_path=out_path, max_retries=2)
+    assert se.value.code == 1
+    assert gen.call_count == 3
+    assert out.getvalue() == ""
+    assert not out_path.exists()
+    assert "2ª Regeneração" in err.getvalue()

@@ -17,6 +17,7 @@ Copie `exercise-ai/.env.example` para `exercise-ai/.env` (ou `.env` na raiz do r
 | `LLM_API_KEY` | Chave da API OpenAI (formato `sk-...`) |
 | `GEMINI_API_KEY` | Chave da API Google Gemini (formato `AIza...`) |
 | `LLM_PROVIDER` | Opcional: `openai` ou `gemini`. Se omitido, o provedor é detectado pelas chaves disponíveis |
+| `RELY_MAX_RETRIES` | Regenerações após a primeira tentativa (`0`–`3`). Padrão `1` se omitido. Sobrescrito por `--max-retries` |
 
 ## Como executar
 
@@ -35,6 +36,7 @@ python exercise-ai/main.py \
   --dificuldade facil \
   --quantidade 3 \
   --provider openai \
+  --max-retries 1 \
   --out exercicios.json
 ```
 
@@ -46,8 +48,13 @@ python exercise-ai/main.py \
 | `--dificuldade` | não | `facil` \| `medio` \| `dificil` (padrão: facil) |
 | `--quantidade` | não | Inteiro de 1 a 40 (padrão: 3) |
 | `--provider` | não | `openai` \| `gemini` para esta execução |
+| `--max-retries` | não | Regenerações após a 1ª tentativa (`0`–`3`). Se omitido: `RELY_MAX_RETRIES` ou padrão `1` |
 
 Ajuda em português: `python exercise-ai/main.py --help`
+
+### Regeneração e Phase 6
+
+Em falha de validação estrutural ou resposta LLM inválida, o gerador regenera até N vezes com o **mesmo prompt** (sem apêndice de erro). Falhas matemáticas futuras (Phase 6) reutilizarão o mesmo caminho (`generate_validated_batch`). Auth, timeout, rate-limit e conexão **não** regeneram.
 
 ## Como testar
 
@@ -61,7 +68,7 @@ pytest exercise-ai -q
 
 - **Sucesso (stdout):** texto legível por exercício (`### Exercício N`, `Enunciado:`, `Resposta:`, `Explicação:`).
 - **Sucesso (arquivo `--out`):** JSON UTF-8 do lote (`exercicios`), indentado, `ensure_ascii=False`.
-- **Stderr:** rótulos de estágio (`Gerando…`, `Validando…`), eventos de desenvolvimento (início, parâmetros sem segredos, sucesso/falha) e detalhes `[VALIDAÇÃO]` / `[API:openai|gemini]`.
+- **Stderr:** rótulos de estágio (`Gerando…`, `Validando…`, `Nª Regeneração`), duração agregada (`total_ms` + `chamadas`), eventos de desenvolvimento (início, parâmetros sem segredos, sucesso/falha) e detalhes `[VALIDAÇÃO]` / `[API:openai|gemini]`. O motivo de erro só aparece após esgotar regenerações.
 
 Exemplo mínimo do JSON em `--out`:
 
