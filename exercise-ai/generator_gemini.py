@@ -85,8 +85,22 @@ def _gemini_error_detail(exc: BaseException) -> str:
     return " ".join(parts)
 
 
+def invalid_llm_response(msg: str) -> RuntimeError:
+    """Typed invalid-response RuntimeError — retriable for reliability loop (D-19)."""
+    err = RuntimeError(msg)
+    err.retriable = True
+    return err
+
+
+def _permanent_api_error(msg: str) -> RuntimeError:
+    """Auth/timeout/rate-limit/connection/generic mapped — not retriable (D-06)."""
+    err = RuntimeError(msg)
+    err.retriable = False
+    return err
+
+
 def map_gemini_error(exc: BaseException) -> RuntimeError:
-    """Map Gemini API errors via status_code table; log [API:gemini] detail."""
+    """Map Gemini API/transport errors via status_code table; log [API:gemini] detail."""
     print(f"[API:gemini] {_gemini_error_detail(exc)}", file=sys.stderr)
 
     code = _coerce_status_code(exc)
@@ -94,14 +108,14 @@ def map_gemini_error(exc: BaseException) -> RuntimeError:
     body = f"{getattr(exc, 'message', '')} {exc}".lower()
 
     if code in {401, 403}:
-        return RuntimeError(_MSG_AUTH)
+        return _permanent_api_error(_MSG_AUTH)
     if code == 429:
-        return RuntimeError(_MSG_RATE)
+        return _permanent_api_error(_MSG_RATE)
     if code in {408, 504}:
-        return RuntimeError(_MSG_TIMEOUT)
+        return _permanent_api_error(_MSG_TIMEOUT)
     if any(hint in body for hint in _NETWORK_HINTS):
-        return RuntimeError(_MSG_CONN)
-    return RuntimeError(_MSG_GENERIC)
+        return _permanent_api_error(_MSG_CONN)
+    return _permanent_api_error(_MSG_GENERIC)
 
 
 def generate_exercises(
@@ -124,10 +138,12 @@ def generate_exercises(
         )
     except genai_errors.APIError as exc:
         raise map_gemini_error(exc) from exc
+    except Exception as exc:
+        raise map_gemini_error(exc) from exc
 
     if not response.text:
         print("[API:gemini] empty response.text", file=sys.stderr)
-        raise RuntimeError("A API do Gemini retornou uma resposta vazia.")
+        raise invalid_llm_response("A API do Gemini retornou uma resposta vazia.")
 
     try:
         return ExerciseBatch.model_validate(json.loads(response.text))
@@ -137,6 +153,6 @@ def generate_exercises(
             f"[API:gemini] unparseable response: {safe_preview}",
             file=sys.stderr,
         )
-        raise RuntimeError(
+        raise invalid_llm_response(
             "Não foi possível interpretar a estrutura de exercícios retornada pelo Gemini."
         ) from exc

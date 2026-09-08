@@ -137,7 +137,7 @@ def test_exhaustion_default_one_retry(request_demo, tmp_path):
 
 
 def test_unmarked_runtime_error_no_retry(request_demo, tmp_path):
-    """Task 1: unmarked RuntimeError fails through (permanent until ERR-05 markers)."""
+    """Unmarked RuntimeError fails through (permanent until ERR-05 markers)."""
     out_path = tmp_path / "batch.json"
     out, err = io.StringIO(), io.StringIO()
     with patch.object(
@@ -151,4 +151,41 @@ def test_unmarked_runtime_error_no_retry(request_demo, tmp_path):
     assert se.value.code == 1
     assert gen.call_count == 1
     assert "1ª Regeneração" not in err.getvalue()
+    assert not out_path.exists()
+
+
+def test_retriable_invalid_response_then_success(demo_batch, request_demo, tmp_path):
+    """Invalid LLM response once then success → regen + call_count == 2."""
+    out_path = tmp_path / "batch.json"
+    retriable = RuntimeError("estrutura ausente")
+    retriable.retriable = True
+    effects = [retriable, demo_batch]
+    out, err = io.StringIO(), io.StringIO()
+    with patch.object(reliability, "generate_exercises", side_effect=effects) as gen:
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            main.run(request_demo, out_path=out_path, max_retries=1)
+    assert gen.call_count == 2
+    assert gen.call_count <= 1 + 1
+    stderr = err.getvalue()
+    assert "1ª Regeneração" in stderr
+    assert "chamadas=2" in stderr
+    assert out_path.exists()
+    assert "### Exercício 1" in out.getvalue()
+
+
+def test_permanent_auth_no_regen(request_demo, tmp_path):
+    """Permanent auth RuntimeError → call_count == 1, no regen label."""
+    out_path = tmp_path / "batch.json"
+    auth = RuntimeError("Falha de autenticação na API da OpenAI. Verifique LLM_API_KEY.")
+    auth.retriable = False
+    out, err = io.StringIO(), io.StringIO()
+    with patch.object(reliability, "generate_exercises", side_effect=auth) as gen:
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            with pytest.raises(SystemExit) as se:
+                main.run(request_demo, out_path=out_path, max_retries=3)
+    assert se.value.code == 1
+    assert gen.call_count == 1
+    assert gen.call_count <= 1 + 3
+    assert "1ª Regeneração" not in err.getvalue()
+    assert "autentic" in err.getvalue().lower()
     assert not out_path.exists()
