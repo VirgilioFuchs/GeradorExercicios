@@ -1,152 +1,72 @@
 # Requirements: Gerador de Exercícios com IA
 
-**Defined:** 2026-09-01
+**Defined:** 2026-09-04
 **Core Value:** O usuário consegue gerar exercícios de matemática confiáveis e estruturados a partir de parâmetros simples, com validação que garante formato correto antes de usar o resultado.
+**Milestone:** v1.1 Qualidade do exercício
 
-## v1 Requirements
+## v1.1 Requirements
 
-### Project Scaffold
+Requirements for this milestone. Each maps to roadmap phases.
 
-- [ ] **SCAF-01**: Projeto Python com estrutura modular (`main.py`, `generator.py`, `validator.py`, `prompts.py`, `models.py`)
-- [ ] **SCAF-02**: `requirements.txt` com dependências mínimas documentadas
-- [ ] **SCAF-03**: `.env.example` documenta `LLM_API_KEY`; `.env` no `.gitignore`
-- [x] **SCAF-04**: `README.md` com instruções de setup e execução
+### CLI
 
-### Data Models
-
-- [ ] **MODL-01**: Modelo `Exercise` com campos `enunciado`, `resposta`, `explicacao`
-- [ ] **MODL-02**: Modelo de lote com chave `exercicios` (lista de exercícios)
-- [ ] **MODL-03**: Modelo de entrada com `materia`, `topico`, `dificuldade`, `quantidade`
-
-### Prompts
-
-- [ ] **PRMT-01**: Template de prompt centralizado em `prompts.py`
-- [ ] **PRMT-02**: Prompt instrui modelo a respeitar tópico, dificuldade e quantidade exata
-- [ ] **PRMT-03**: Prompt exige retorno somente JSON, sem texto extra
-
-### Generation
-
-- [ ] **GEN-01**: Usuário pode gerar exercícios informando matéria, tópico, dificuldade e quantidade
-- [ ] **GEN-02**: Gerador chama LLM via SDK (preferir Structured Outputs quando disponível)
-- [ ] **GEN-03**: Gerador converte resposta para estrutura de dados tipada
-- [ ] **GEN-04**: Chave de API carregada de variável de ambiente (nunca hardcoded)
-
-### Validation
-
-- [x] **VALD-01**: Validador rejeita JSON inválido ou estrutura ausente
-- [x] **VALD-02**: Validador verifica presença da chave `exercicios`
-- [x] **VALD-03**: Validador verifica quantidade de exercícios igual à solicitada
-- [x] **VALD-04**: Validador verifica campos obrigatórios não vazios em cada exercício
-- [x] **VALD-05**: Validador retorna motivo claro de falha para cada caso
-
-### Error Handling
-
-- [x] **ERR-01**: Erro claro quando chave de API está ausente
-- [x] **ERR-02**: Tratamento de erro de rede, timeout e rate limit
-- [x] **ERR-03**: Tratamento de resposta vazia ou estrutura inválida
-- [x] **ERR-04**: Erros não são silenciados; mensagens úteis para desenvolvimento
-
-### CLI & Output
-
-- [ ] **CLI-01**: `python main.py` executa fluxo completo com entrada de demonstração ou parâmetros
-- [ ] **CLI-02**: Saída final é JSON válido no formato especificado
-- [ ] **CLI-03**: Fluxo: entrada → geração → validação → saída ou erro
-
-### Testing
-
-- [x] **TEST-01**: Testes unitários do validador sem chamadas reais ao LLM
-- [x] **TEST-02**: Casos: JSON válido, JSON inválido, chave ausente, campo faltando, quantidade errada, lista vazia
-
-### Logging
-
-- [x] **LOG-01**: Logs de desenvolvimento registram início, parâmetros (sem segredos), sucesso/falha e motivo de validação
-- [x] **LOG-02**: Chave de API e dados sensíveis nunca aparecem em logs
-
-## v2 Requirements
-
-Deferred to future release. Tracked but not in current roadmap.
+- [x] **CLI-04**: Usuário passa matéria, tópico, dificuldade e quantidade via argumentos de linha de comando (`argparse`)
 
 ### Reliability
 
-- **RELY-01**: Regeneração automática com máximo de 1–2 tentativas após falha de validação
-- **RELY-02**: Log de duração da chamada LLM
+- [x] **RELY-01**: Após falha de validação, o sistema regenera automaticamente no máximo 1–2 vezes (sem loop infinito)
+- [x] **RELY-02**: Logs registram duração da chamada LLM (sem segredos)
+- [x] **ERR-05**: Empty OpenAI `choices` e falhas Gemini não-`APIError` usam o mesmo caminho de erro mapeado (fecha WR-03/WR-04)
 
-### CLI Enhancement
+### Math quality
 
-- **CLI-04**: Argumentos de linha de comando (argparse) para todos os parâmetros de entrada
+- [ ] **MATH-01**: Validador rejeita respostas matematicamente inconsistentes em casos básicos (escopo exato na discuss/plan da fase)
+- [ ] **MATH-02**: Falha matemática gera mensagem clara e pode disparar regeneração (RELY), se aplicável
 
-### Math Validation
+## Future Requirements
 
-- **MATH-01**: Validação matemática básica de respostas (além da estrutural)
+Deferred past v1.1. Tracked but not in current roadmap.
 
-### Persistence
+### Persistence & beyond
 
 - **DB-01**: Persistência MySQL para alunos, exercícios, respostas e tentativas
-
-### Analytics
-
 - **ANLY-01**: Identificar tópicos com pior desempenho a partir de dados MySQL
-
-### Personalization
-
 - **PERS-01**: Gerar exercícios com contexto relevante do histórico do aluno
+- **AGNT-01**: Agente com ciclo de decisão e ferramentas
 
-### Agent
+### Ops
 
-- **AGNT-01**: Agente com ciclo de decisão e ferramentas (consultar DB, gerar, validar, salvar)
+- **CI-01**: GitHub Actions rodando `pytest exercise-ai -q` em PR
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| LangChain / CrewAI / AutoGen | AGENT.md — complexidade desnecessária no MVP |
-| RAG / banco vetorial | Sem necessidade de retrieval na v1 |
-| Filas / microsserviços | YAGNI para CLI local |
-| Interface web | Foco no pipeline core primeiro |
-| Agente multi-step | Somente após MySQL e análise de desempenho |
-| Validação matemática profunda | Estrutura primeiro; correção matemática em v2+ |
+| MySQL / analytics / personalização / agente | Salto de produto — pós v1.1 |
+| GitHub Actions CI | Dívida ops; não é foco de qualidade do exercício |
+| Frameworks multiagente (LangChain etc.) | Continua YAGNI no lab |
+| Validação matemática avançada (CAS completo) | MATH-01 é básico apenas |
+| Provider failover automático | Separado de RELY regeneração; defer |
 
 ## Traceability
 
+Which phases cover which requirements. Updated during roadmap creation.
+
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SCAF-01 | Phase 1 | Complete |
-| SCAF-02 | Phase 1 | Complete |
-| SCAF-03 | Phase 1 | Complete |
-| SCAF-04 | Phase 3 | Complete |
-| MODL-01 | Phase 1 | Complete |
-| MODL-02 | Phase 1 | Complete |
-| MODL-03 | Phase 1 | Complete |
-| PRMT-01 | Phase 1 | Complete |
-| PRMT-02 | Phase 1 | Complete |
-| PRMT-03 | Phase 1 | Complete |
-| GEN-01 | Phase 1 | Complete |
-| GEN-02 | Phase 1 | Complete |
-| GEN-03 | Phase 1 | Complete |
-| GEN-04 | Phase 1 | Complete |
-| VALD-01 | Phase 2 | Complete |
-| VALD-02 | Phase 2 | Complete |
-| VALD-03 | Phase 2 | Complete |
-| VALD-04 | Phase 2 | Complete |
-| VALD-05 | Phase 2 | Complete |
-| ERR-01 | Phase 2 | Complete |
-| ERR-02 | Phase 2 | Complete |
-| ERR-03 | Phase 2 | Complete |
-| ERR-04 | Phase 2 | Complete |
-| CLI-01 | Phase 1 | Complete |
-| CLI-02 | Phase 1 | Complete |
-| CLI-03 | Phase 1 | Complete |
-| TEST-01 | Phase 3 | Complete |
-| TEST-02 | Phase 3 | Complete |
-| LOG-01 | Phase 3 | Complete |
-| LOG-02 | Phase 3 | Complete |
+| CLI-04 | Phase 4 | Complete |
+| RELY-01 | Phase 5 | Complete |
+| RELY-02 | Phase 5 | Complete |
+| ERR-05 | Phase 5 | Complete |
+| MATH-01 | Phase 6 | Pending |
+| MATH-02 | Phase 6 | Pending |
 
 **Coverage:**
 
-- v1 requirements: 28 total
-- Mapped to phases: 28
-- Unmapped: 0 ✓
+- v1.1 requirements: 6 total
+- Mapped to phases: 6/6 ✓
+- Unmapped: 0
 
 ---
-*Requirements defined: 2026-09-01*
-*Last updated: 2026-09-01 after roadmap creation*
+*Requirements defined: 2026-09-04*
+*Last updated: 2026-09-04 after v1.1 roadmap creation*

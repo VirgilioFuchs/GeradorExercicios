@@ -1,43 +1,45 @@
 ---
 gsd_state_version: 1.0
-milestone: v1
-current_phase: 3
-status: completed
-stopped_at: Phase 3 complete — all phases complete
-last_updated: "2026-09-04T13:14:07.720Z"
-last_activity: 2026-09-04
-state_head: b557da92739ab93ae780c9ad5f2026dd4015341b
+milestone: v1.1
+milestone_name: Qualidade do exercício
+current_phase: 6
+current_phase_name: Math Quality
+status: planning
+stopped_at: Phase 6 context gathered
+last_updated: "2026-09-08T15:03:37.487Z"
+last_activity: 2026-09-08
+last_activity_desc: Phase 5 complete, transitioned to Phase 6
+state_head: 4982ad9183959de2e0c72618da66af8a2c33d5d0
 progress:
   total_phases: 3
-  completed_phases: 3
-  total_plans: 3
-  completed_plans: 3
-milestone_name: MVP
+  completed_phases: 2
+  total_plans: 2
+  completed_plans: 2
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-01)
+See: .planning/PROJECT.md (updated 2026-09-04)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato
-**Current focus:** Phase 3 — Tests, Logging & Docs
+**Current focus:** Phase 6 — Math Quality
 
 ## Current Position
 
-Phase: 3
+Phase: 6 — Math Quality
 Plan: Not started
-Status: All phases complete
-Last activity: 2026-09-04 — Phase 3 learnings extracted
+Status: Ready to plan
+Last activity: 2026-09-08 — Phase 5 complete (plan+execute --auto)
 
-Progress: [█████████░] 90%
+Progress: [██████░░░░] 67%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 1
+- Total plans completed: 2 (v1)
 - Average duration: ~18 min
 - Total execution time: 0.92 hours
 
@@ -47,7 +49,10 @@ Progress: [█████████░] 90%
 |-------|-------|-------|----------|
 | 1 | 1/1 | 15 min | 15 min |
 | 2 | 1/1 | 25 min | 25 min |
-| 3 | 1 | - | - |
+| 3 | 1/1 | 15 min | 15 min |
+| 4 | 1 | - | - |
+| 5 | 1 | - | - |
+| 6 | 0/? | - | - |
 
 **Recent Trend:**
 
@@ -55,10 +60,11 @@ Progress: [█████████░] 90%
 - Trend: Stable
 
 *Updated after each plan completion*
+
 **Per-Plan Metrics:**
 
 | Plan | Duration | Tasks | Files |
-|------|----------|-------|-------|
+|------|----------|-------|------|
 | Phase 02 P01 | 25 min | 2 tasks | 4 files |
 | Phase 03 P01 | 15 min | 3 tasks | 9 files |
 
@@ -69,12 +75,15 @@ Progress: [█████████░] 90%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- [Phase 1]: OpenAI API com Structured Outputs (`gpt-4o-mini` + Pydantic v2)
-- [Phase 1]: Módulos em `exercise-ai/` com campos em português
-- [Phase 1]: Chave `LLM_API_KEY` via `python-dotenv` e entrada demo no MVP
-- [Phase 1]: Padrão de erro claro em `sys.stderr` sem mascarar exceções
+- [Phase 1]: OpenAI API com Structured Outputs (gpt-4o-mini + Pydantic v2)
+- [Phase 1]: Módulos em exercise-ai/ com campos em português
+- [Phase 1]: Chave LLM_API_KEY via python-dotenv e entrada demo no MVP
+- [Phase 1]: Padrão de erro claro em sys.stderr sem mascarar exceções
 - [Phase 3]: TEST-02 chave ausente = missing/invalid exercicios on validator (not API env keys)
 - [Phase 3]: LOG-01 via stderr logging with dynamic stream; LOG-02 [API:*] type+status only
+- [v1.1]: Milestone = qualidade incremental (CLI + RELY + MATH); phases 4–6 continue numbering from v1
+- [Phase 4]: D-14 dual output — stdout text + required --out JSON (supersedes ROADMAP JSON-on-stdout criterion)
+- [Phase 4]: Skip research; plan without auto-execute
 
 ### Pending Todos
 
@@ -82,24 +91,23 @@ None yet.
 
 ### Blockers/Concerns
 
-None yet.
+- Human must confirm D-14 (proceed-d14) at execute Task 1 before any tracer edits (one-way break of v1 JSON-only stdout)
 
 ### Quick Tasks Completed
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
-| 260902-dq9 | adicione o formato da api key do gemini também | 2026-09-02 | 902973e | [260902-dq9-adicione-o-formato-da-api-key-do-gemini-](./quick/260902-dq9-adicione-o-formato-da-api-key-do-gemini-/) |
-| 260902-dt4 | adicione um generator.py para o gemini | 2026-09-02 | 449e3ae | [260902-dt4-adicione-um-generator-py-para-o-gemini-a](./quick/260902-dt4-adicione-um-generator-py-para-o-gemini-a/) |
 
 ## Deferred Items
 
 | Category | Item | Status | Deferred At | Milestone |
 |----------|------|--------|-------------|-----------|
-| *(none)* | | | | |
+| Ops | GitHub Actions CI (CI-01) | Deferred | 2026-09-04 | past v1.1 |
+| Product | MySQL / analytics / personalização / agente | Deferred | 2026-09-04 | v2+ |
+| Reliability | Provider failover automático | Deferred | 2026-09-04 | past v1.1 |
 
 ## Session Continuity
 
-Last session: 2026-09-04T12:54:21.085Z
-Stopped at: Phase 3 complete — all phases complete
-Resume file: None
-Handoff: consumed and deleted (one-shot)
+Last session: 2026-09-08T15:03:36.175Z
+Stopped at: Phase 6 context gathered
+Resume file: .planning/phases/06-math-quality/06-CONTEXT.md

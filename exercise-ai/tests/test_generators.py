@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import io
+import json
 import os
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
@@ -71,6 +72,7 @@ def test_map_openai_error_categories(exc_cls, needles):
     with contextlib.redirect_stderr(buf):
         out = generator.map_openai_error(_make_openai_exc(exc_cls))
     assert isinstance(out, RuntimeError)
+    assert getattr(out, "retriable", None) is False
     assert "[API:" not in str(out)
     stderr = buf.getvalue()
     assert "[API:openai]" in stderr
@@ -131,6 +133,7 @@ def test_map_gemini_error_status_table(obj, expected):
         out = generator_gemini.map_gemini_error(obj)
     assert isinstance(out, RuntimeError)
     assert str(out) == expected
+    assert getattr(out, "retriable", None) is False
     assert "[API:" not in str(out)
     assert "[API:gemini]" in buf.getvalue()
 
@@ -157,6 +160,7 @@ def test_gemini_empty_and_unparseable(monkeypatch):
             with patch.object(generator_gemini, "get_client", return_value=fake_client):
                 generator_gemini.generate_exercises(req)
     assert "vazia" in str(exc_info.value).lower()
+    assert getattr(exc_info.value, "retriable", None) is True
     assert "[API:gemini]" in buf.getvalue()
 
     fake_resp_bad = MagicMock()
@@ -169,7 +173,99 @@ def test_gemini_empty_and_unparseable(monkeypatch):
                 generator_gemini.generate_exercises(req)
     low = str(exc_info.value).lower()
     assert "interpretar" in low or "estrutura" in low
+    assert getattr(exc_info.value, "retriable", None) is True
     assert "[API:gemini]" in buf.getvalue()
+
+
+def test_openai_empty_choices_typed_retriable(monkeypatch):
+    """WR-03 / ERR-05: empty choices → PT RuntimeError + [API:openai], retriable."""
+    monkeypatch.setenv("LLM_API_KEY", "dummy-openai")
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("LLM_PROVIDER", raising=False)
+    req = GenerationRequest(topico="x", dificuldade=DificuldadeEnum.FACIL, quantidade=1)
+    completion = MagicMock()
+    completion.choices = []
+    client = MagicMock()
+    client.beta.chat.completions.parse.return_value = completion
+    buf = io.StringIO()
+    with contextlib.redirect_stderr(buf):
+        with pytest.raises(RuntimeError) as exc_info:
+            with patch.object(generator, "get_client", return_value=client):
+                generator._generate_with_openai(req)
+    assert getattr(exc_info.value, "retriable", None) is True
+    assert "estrutura" in str(exc_info.value).lower() or "obter" in str(exc_info.value).lower()
+    assert "[API:openai] empty choices" in buf.getvalue()
+
+
+def test_gemini_non_apierror_mapped(monkeypatch):
+    """WR-04 / ERR-05: non-APIError → map_gemini_error typed path (not bare Exception)."""
+    monkeypatch.setenv("GEMINI_API_KEY", "dummy-key-for-test")
+    monkeypatch.delenv("LLM_API_KEY", raising=False)
+    req = GenerationRequest(topico="x", dificuldade=DificuldadeEnum.FACIL, quantidade=1)
+    fake_client = MagicMock()
+    fake_client.models.generate_content.side_effect = ConnectionError("connection reset")
+    buf = io.StringIO()
+    with contextlib.redirect_stderr(buf):
+        with pytest.raises(RuntimeError) as exc_info:
+            with patch.object(generator_gemini, "get_client", return_value=fake_client):
+                generator_gemini.generate_exercises(req)
+    assert getattr(exc_info.value, "retriable", None) is False
+    assert "conexão" in str(exc_info.value).lower() or "rede" in str(exc_info.value).lower()
+    assert "[API:gemini]" in buf.getvalue()
+    assert "ConnectionError" in buf.getvalue()
+    assert fake_client.models.generate_content.call_count == 1
+
+
+def test_gemini_falls_back_on_usage_error(monkeypatch):
+    """429/503 on preferred model → try next fallback model."""
+    monkeypatch.setenv("GEMINI_API_KEY", "dummy-key-for-test")
+    req = GenerationRequest(topico="x", dificuldade=DificuldadeEnum.FACIL, quantidade=1)
+    ok = MagicMock()
+    ok.text = json.dumps(
+        {
+            "exercicios": [
+                {
+                    "enunciado": "Quanto é 1+1?",
+                    "resposta": "2",
+                    "explicacao": "Soma básica.",
+                }
+            ]
+        }
+    )
+
+    class _UsageErr(Exception):
+        status_code = 503
+        message = "overloaded"
+
+    fake_client = MagicMock()
+    fake_client.models.generate_content.side_effect = [_UsageErr(), ok]
+    buf = io.StringIO()
+    with contextlib.redirect_stderr(buf):
+        with patch.object(generator_gemini, "get_client", return_value=fake_client):
+            batch = generator_gemini.generate_exercises(req)
+    assert len(batch.exercicios) == 1
+    assert fake_client.models.generate_content.call_count == 2
+    assert "uso/capacidade" in buf.getvalue()
+    assert "gemini-3.5-flash" in buf.getvalue()
+
+
+@pytest.mark.parametrize(
+    "provider_module,factory",
+    [
+        (
+            "generator",
+            lambda: generator.invalid_llm_response("estrutura ausente"),
+        ),
+        (
+            "generator_gemini",
+            lambda: generator_gemini.invalid_llm_response("resposta vazia"),
+        ),
+    ],
+)
+def test_invalid_llm_response_helper_retriable(provider_module, factory):
+    err = factory()
+    assert isinstance(err, RuntimeError)
+    assert err.retriable is True
 
 
 def test_openai_refusal_and_parsed_none(monkeypatch):
@@ -214,4 +310,5 @@ def test_openai_refusal_and_parsed_none(monkeypatch):
                 generator._generate_with_openai(req)
     low = str(exc_info.value).lower()
     assert "estrutura" in low or "obter" in low or "parse" in low
+    assert getattr(exc_info.value, "retriable", None) is True
     assert "[API:openai]" in buf.getvalue()

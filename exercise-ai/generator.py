@@ -72,23 +72,39 @@ def _openai_error_detail(exc: BaseException) -> str:
     return " ".join(parts)
 
 
+def invalid_llm_response(msg: str) -> RuntimeError:
+    """Typed invalid-response RuntimeError — retriable for reliability loop (D-19)."""
+    err = RuntimeError(msg)
+    err.retriable = True
+    return err
+
+
+def _permanent_api_error(msg: str) -> RuntimeError:
+    """Auth/timeout/rate-limit/connection — not retriable (D-06)."""
+    err = RuntimeError(msg)
+    err.retriable = False
+    return err
+
+
 def map_openai_error(exc: BaseException) -> RuntimeError:
     """Map typed OpenAI errors to plain-PT RuntimeError; log [API:openai] detail."""
     print(f"[API:openai] {_openai_error_detail(exc)}", file=sys.stderr)
 
     if isinstance(exc, APITimeoutError):
-        return RuntimeError("Tempo esgotado ao chamar a API da OpenAI.")
+        return _permanent_api_error("Tempo esgotado ao chamar a API da OpenAI.")
     if isinstance(exc, RateLimitError):
-        return RuntimeError(
+        return _permanent_api_error(
             "Limite de requisições da API da OpenAI atingido. Tente novamente mais tarde."
         )
     if isinstance(exc, APIConnectionError):
-        return RuntimeError("Erro de conexão com a API da OpenAI. Verifique a rede.")
+        return _permanent_api_error(
+            "Erro de conexão com a API da OpenAI. Verifique a rede."
+        )
     if isinstance(exc, AuthenticationError):
-        return RuntimeError(
+        return _permanent_api_error(
             "Falha de autenticação na API da OpenAI. Verifique LLM_API_KEY."
         )
-    return RuntimeError("Erro na chamada à API da OpenAI.")
+    return _permanent_api_error("Erro na chamada à API da OpenAI.")
 
 
 def _generate_with_openai(
@@ -109,6 +125,12 @@ def _generate_with_openai(
             response_format=ExerciseBatch,
         )
 
+        if not getattr(completion, "choices", None):
+            print("[API:openai] empty choices", file=sys.stderr)
+            raise invalid_llm_response(
+                "Não foi possível obter a estrutura de exercícios da resposta do modelo."
+            )
+
         message = completion.choices[0].message
 
         if message.refusal:
@@ -117,14 +139,14 @@ def _generate_with_openai(
                 f"[API:openai] refusal: {safe_refusal}",
                 file=sys.stderr,
             )
-            raise RuntimeError(f"O modelo recusou a geração: {safe_refusal}")
+            raise _permanent_api_error(f"O modelo recusou a geração: {safe_refusal}")
 
         if message.parsed is None:
             print(
                 "[API:openai] parsed is None — estrutura ausente na resposta",
                 file=sys.stderr,
             )
-            raise RuntimeError(
+            raise invalid_llm_response(
                 "Não foi possível obter a estrutura de exercícios da resposta do modelo."
             )
 
