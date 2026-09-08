@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import io
+import json
 import os
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
@@ -212,6 +213,40 @@ def test_gemini_non_apierror_mapped(monkeypatch):
     assert "conexão" in str(exc_info.value).lower() or "rede" in str(exc_info.value).lower()
     assert "[API:gemini]" in buf.getvalue()
     assert "ConnectionError" in buf.getvalue()
+    assert fake_client.models.generate_content.call_count == 1
+
+
+def test_gemini_falls_back_on_usage_error(monkeypatch):
+    """429/503 on preferred model → try next fallback model."""
+    monkeypatch.setenv("GEMINI_API_KEY", "dummy-key-for-test")
+    req = GenerationRequest(topico="x", dificuldade=DificuldadeEnum.FACIL, quantidade=1)
+    ok = MagicMock()
+    ok.text = json.dumps(
+        {
+            "exercicios": [
+                {
+                    "enunciado": "Quanto é 1+1?",
+                    "resposta": "2",
+                    "explicacao": "Soma básica.",
+                }
+            ]
+        }
+    )
+
+    class _UsageErr(Exception):
+        status_code = 503
+        message = "overloaded"
+
+    fake_client = MagicMock()
+    fake_client.models.generate_content.side_effect = [_UsageErr(), ok]
+    buf = io.StringIO()
+    with contextlib.redirect_stderr(buf):
+        with patch.object(generator_gemini, "get_client", return_value=fake_client):
+            batch = generator_gemini.generate_exercises(req)
+    assert len(batch.exercicios) == 1
+    assert fake_client.models.generate_content.call_count == 2
+    assert "uso/capacidade" in buf.getvalue()
+    assert "gemini-3.5-flash" in buf.getvalue()
 
 
 @pytest.mark.parametrize(
