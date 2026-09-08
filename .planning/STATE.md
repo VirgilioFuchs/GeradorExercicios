@@ -24,7 +24,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-04)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato
-**Current focus:** Phase 4 — CLI argparse
+**Current focus:** Phase 5 — Reliability & Error Edges
 
 ## Current Position
 
