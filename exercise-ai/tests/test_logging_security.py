@@ -79,9 +79,17 @@ def test_gemini_unparseable_redacts_key_in_response(monkeypatch):
     assert "[API:gemini]" in buf.getvalue()
 
 
-def test_run_demo_failure_logs_omit_key_values(monkeypatch):
+def test_run_failure_logs_omit_key_values(monkeypatch, tmp_path):
     monkeypatch.setenv("LLM_API_KEY", DUMMY_LLM_KEY)
     monkeypatch.setenv("GEMINI_API_KEY", DUMMY_GEMINI_KEY)
+    from models import DificuldadeEnum, GenerationRequest
+
+    request = GenerationRequest(
+        materia="Matemática",
+        topico="Equação do primeiro grau",
+        dificuldade=DificuldadeEnum.FACIL,
+        quantidade=3,
+    )
     out, err = io.StringIO(), io.StringIO()
     with patch.object(
         main,
@@ -90,7 +98,7 @@ def test_run_demo_failure_logs_omit_key_values(monkeypatch):
     ):
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
             with pytest.raises(SystemExit):
-                main.run_demo()
+                main.run(request, out_path=tmp_path / "out.json")
     combined = err.getvalue()
     assert DUMMY_LLM_KEY not in combined
     assert DUMMY_GEMINI_KEY not in combined
