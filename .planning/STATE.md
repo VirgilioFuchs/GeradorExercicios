@@ -24,16 +24,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-04)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato
-**Current focus:** Phase 5 — Reliability & Error Edges
+**Current focus:** Phase 6 — Math Quality
 
 ## Current Position
 
 Phase: 6 — Math Quality
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-09-08 — Phase 5 complete, transitioned to Phase 6
+Last activity: 2026-09-08 — Phase 5 complete (plan+execute --auto)
 
-Progress: [███░░░░░░░] 33%
+Progress: [██████░░░░] 67%
 
 ## Performance Metrics
 

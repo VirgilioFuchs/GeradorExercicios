@@ -91,7 +91,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 4. CLI argparse | 1/1 | Complete | 2026-09-08 |
-| 5. Reliability & Error Edges | 1/1 | In Progress|  |
+| 5. Reliability & Error Edges | 1/1 | Complete | 2026-09-08 |
 | 6. Math Quality | 0/? | Not started | - |
 
 ---
