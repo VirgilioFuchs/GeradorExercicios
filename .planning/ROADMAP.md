@@ -41,9 +41,9 @@ v1.1 endurece o pipeline MVP já shipped: CLI usável sem editar código, regene
 **Requirements:** CLI-04
 **Mode:** mvp
 **Success Criteria** (what must be TRUE):
-  1. Usuário executa o gerador com `--materia`, `--topico`, `--dificuldade` e `--quantidade` (ou equivalentes) e recebe JSON válido no stdout
-  2. Argumentos inválidos ou ausentes produzem mensagem de uso clara no stderr (exit não-zero) sem chamar o LLM
-  3. README documenta a invocação por argumentos (exemplos mínimos)
+  1. Usuário executa o gerador com `--materia`, `--topico`, `--dificuldade`, `--quantidade` e `--out` obrigatório; recebe texto legível no stdout e JSON válido no arquivo `--out` (D-14)
+  2. Argumentos inválidos ou `--out` ausente produzem mensagem de uso clara em português no stderr (exit não-zero) sem chamar o LLM
+  3. README documenta a invocação por argumentos (incluindo `--provider` e `--out`)
 **Plans:** 1 plan
 Plans:
 - [ ] 04-01-PLAN.md — CLI argparse tracer (text stdout + required --out) then full flags/provider/docs
