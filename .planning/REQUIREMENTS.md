@@ -14,9 +14,9 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Reliability
 
-- [ ] **RELY-01**: Após falha de validação, o sistema regenera automaticamente no máximo 1–2 vezes (sem loop infinito)
-- [ ] **RELY-02**: Logs registram duração da chamada LLM (sem segredos)
-- [ ] **ERR-05**: Empty OpenAI `choices` e falhas Gemini não-`APIError` usam o mesmo caminho de erro mapeado (fecha WR-03/WR-04)
+- [x] **RELY-01**: Após falha de validação, o sistema regenera automaticamente no máximo 1–2 vezes (sem loop infinito)
+- [x] **RELY-02**: Logs registram duração da chamada LLM (sem segredos)
+- [x] **ERR-05**: Empty OpenAI `choices` e falhas Gemini não-`APIError` usam o mesmo caminho de erro mapeado (fecha WR-03/WR-04)
 
 ### Math quality
 
@@ -55,9 +55,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | CLI-04 | Phase 4 | Complete |
-| RELY-01 | Phase 5 | Pending |
-| RELY-02 | Phase 5 | Pending |
-| ERR-05 | Phase 5 | Pending |
+| RELY-01 | Phase 5 | Complete |
+| RELY-02 | Phase 5 | Complete |
+| ERR-05 | Phase 5 | Complete |
 | MATH-01 | Phase 6 | Pending |
 | MATH-02 | Phase 6 | Pending |
 

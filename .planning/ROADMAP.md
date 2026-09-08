@@ -64,7 +64,7 @@ Plans:
   3. Logs (stderr) registram duração da chamada LLM sem segredos (API keys / payloads sensíveis)
   4. Empty OpenAI `choices` e falhas Gemini não-`APIError` produzem o mesmo tipo de erro mapeado/usuário que os demais erros de API (fecha WR-03/WR-04)
 
-**Plans**: 1/1 plans
+**Plans**: 1/1 plans executed
 
 Plans:
 
@@ -91,7 +91,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 4. CLI argparse | 1/1 | Complete | 2026-09-08 |
-| 5. Reliability & Error Edges | 1/1 | Complete | 2026-09-08 |
+| 5. Reliability & Error Edges | 1/1 | In Progress|  |
 | 6. Math Quality | 0/? | Not started | - |
 
 ---
