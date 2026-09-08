@@ -23,8 +23,7 @@ if not env_path.exists():
 load_dotenv(dotenv_path=env_path)
 
 from models import DificuldadeEnum, ExerciseBatch, GenerationRequest
-from generator import generate_exercises
-from validator import validate_exercise_batch
+from reliability import generate_validated_batch, resolve_max_retries
 
 logger = logging.getLogger("exercise_ai")
 
@@ -102,6 +101,21 @@ def _positive_quantidade(value: str) -> int:
     return qty
 
 
+def _max_retries_type(value: str) -> int:
+    """Parse --max-retries; allow only 0|1|2|3 before any LLM call (D-04)."""
+    try:
+        n = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(
+            f"max-retries inválido '{value}': use um inteiro 0, 1, 2 ou 3."
+        ) from exc
+    if n not in {0, 1, 2, 3}:
+        raise argparse.ArgumentTypeError(
+            f"max-retries inválido '{n}': use um inteiro 0, 1, 2 ou 3."
+        )
+    return n
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Portuguese argparse surface for CLI-04 (D-01..D-20)."""
     parser = argparse.ArgumentParser(
@@ -147,11 +161,24 @@ def build_parser() -> argparse.ArgumentParser:
         required=True,
         help="Caminho obrigatório do arquivo JSON de saída",
     )
+    parser.add_argument(
+        "--max-retries",
+        type=_max_retries_type,
+        default=None,
+        help=(
+            "Regenerações após a primeira tentativa (0–3). "
+            "Se omitido, usa RELY_MAX_RETRIES ou padrão 1"
+        ),
+    )
     return parser
 
 
-def run(request: GenerationRequest, out_path: Path | str) -> None:
-    """Executa o pipeline: gerar → validar → texto no stdout + JSON em out_path."""
+def run(
+    request: GenerationRequest,
+    out_path: Path | str,
+    max_retries: int | None = None,
+) -> None:
+    """Executa o pipeline: reliability (gerar→validar) → texto + JSON em out_path."""
     _configure_logging()
 
     logger.info("Início da geração de exercícios")
@@ -164,11 +191,8 @@ def run(request: GenerationRequest, out_path: Path | str) -> None:
     )
 
     try:
-        print("Gerando…", file=sys.stderr)
-        batch = generate_exercises(request)
-
-        print("Validando…", file=sys.stderr)
-        validated_batch = validate_exercise_batch(batch, request)
+        n = resolve_max_retries(max_retries)
+        validated_batch = generate_validated_batch(request, max_retries=n)
 
         print(format_batch_text(validated_batch))
         out = Path(out_path)
@@ -215,7 +239,7 @@ def main(argv: list[str] | None = None) -> None:
         dificuldade=DificuldadeEnum(args.dificuldade),
         quantidade=args.quantidade,
     )
-    run(request, out_path=args.out)
+    run(request, out_path=args.out, max_retries=args.max_retries)
 
 
 if __name__ == "__main__":
