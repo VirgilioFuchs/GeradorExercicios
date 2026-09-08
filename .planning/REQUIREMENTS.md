@@ -10,7 +10,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### CLI
 
-- [ ] **CLI-04**: Usuário passa matéria, tópico, dificuldade e quantidade via argumentos de linha de comando (`argparse`)
+- [x] **CLI-04**: Usuário passa matéria, tópico, dificuldade e quantidade via argumentos de linha de comando (`argparse`)
 
 ### Reliability
 
@@ -54,7 +54,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CLI-04 | Phase 4 | Pending |
+| CLI-04 | Phase 4 | Complete |
 | RELY-01 | Phase 5 | Pending |
 | RELY-02 | Phase 5 | Pending |
 | ERR-05 | Phase 5 | Pending |
@@ -62,6 +62,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MATH-02 | Phase 6 | Pending |
 
 **Coverage:**
+
 - v1.1 requirements: 6 total
 - Mapped to phases: 6/6 ✓
 - Unmapped: 0
