@@ -24,7 +24,7 @@ current_phase: 6
 See: .planning/PROJECT.md (updated 2026-09-04)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato
-**Current focus:** Phase 6 — Math Quality
+**Current focus:** Planning next milestone
 
 ## Current Position
 
