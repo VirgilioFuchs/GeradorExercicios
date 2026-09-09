@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-09)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato
-**Current focus:** Milestone v1.2 Ops & Resilience — roadmap ready; next discuss-phase
+**Current focus:** Milestone v1.2 — Phase 7 CONTEXT ready for plan-phase
 
 ## Current Position
 
-Phase: 7 (Continuous Integration) — not started
+Phase: 7 (Continuous Integration) — context gathered
 Plan: —
-Status: Roadmap complete — ready for `$gsd-discuss-phase` (Phase 7)
-Last activity: 2026-09-09 — v1.2 roadmap created (Phases 7–8)
+Status: Ready for `$gsd-plan-phase 7`
+Last activity: 2026-09-09 — Phase 7 CONTEXT.md (basic lab CI decisions)
 
 ## Performance Metrics
 
