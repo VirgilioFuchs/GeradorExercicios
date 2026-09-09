@@ -124,7 +124,7 @@ Each task was committed atomically:
 4. **Task 3 RED: exhaustion + postmortem tests** - `1414c2e` (test)
 5. **Task 3 GREEN: reliability prefix + postmortem** - `22145b2` (feat)
 
-**Plan metadata:** (docs commit follows)
+**Plan metadata:** `bdc9a8c` (docs: complete plan)
 
 ## Self-Check
 
