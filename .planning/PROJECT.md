@@ -18,9 +18,15 @@ O usuário consegue gerar exercícios de matemática confiáveis e estruturados 
 
 **Known debt:** Nyquist/SECURITY missing for phases 1–2; Phase 6 VALIDATION.md optional; exhaustion plural grammar (`após 1 regenerações:`); no GitHub Actions CI.
 
-## Next Milestone Goals
+## Current Milestone: v1.2 Ops & Resilience
 
-Awaiting `$gsd-new-milestone` — candidates from Future Themes: persistence (MySQL), analytics/personalization/agent, CI, provider failover.
+**Goal:** Deixar o lab confiável fora da máquina local — CI automatizado no GitHub e failover de provider quando a API principal falha.
+
+**Target features:**
+- CI-01 — GitHub Actions rodando `pytest` (sem LLM live) em push/PR
+- FAILOVER-01 — fallback automático OpenAI ↔ Gemini em erros retriáveis/indisponibilidade (sem segundo loop de math/RELY)
+
+**Explicitly out this milestone:** BNCC (SEED-001), MySQL/analytics, polish-only debt batch
 
 ## Requirements
 
@@ -42,7 +48,8 @@ Awaiting `$gsd-new-milestone` — candidates from Future Themes: persistence (My
 
 ### Active
 
-_(none — define via `$gsd-new-milestone`)_
+- [ ] CI: GitHub Actions roda pytest sem LLM live em push/PR
+- [ ] Failover: fallback automático entre OpenAI e Gemini em falhas retriáveis/indisponibilidade
 
 ### Out of Scope
 
@@ -52,8 +59,8 @@ _(none — define via `$gsd-new-milestone`)_
 - Análise de desempenho do aluno — v2+ (ANLY-01)
 - Personalização / agente — v2+ (PERS-01, AGNT-01)
 - Phoenix / log files persistentes — deferred
-- GitHub Actions CI — deferred (dívida ops)
-- CAS completo / provider failover automático — deferred past v1.1
+- CAS completo — deferred past v1.1
+- BNCC / habilidades curriculares — SEED-001 (dormant; not v1.2)
 
 ## Context
 
@@ -91,6 +98,7 @@ CLI argparse → Prompt → LLM (OpenAI|Gemini) → JSON tipado
 | Math reuses `generate_validated_batch` only | No second retry loop (D-07) | ✓ Good |
 | Uninterpretable math → pass + postmortem record | Avoid false fails (D-02) | ✓ Good |
 | Stdlib math heuristics; no CAS | YAGNI (D-09) | ✓ Good |
+| v1.2 = CI + provider failover (not BNCC/DB) | User: ops & resilience | — Active |
 
 <details>
 <summary>Prior milestone notes (v1 → v1.1 transition)</summary>
@@ -117,4 +125,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-09 after archiving v1.1*
+*Last updated: 2026-09-09 after starting v1.2*
