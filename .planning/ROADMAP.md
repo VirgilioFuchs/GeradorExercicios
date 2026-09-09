@@ -82,11 +82,11 @@ Plans:
   2. Falha matemática produz mensagem clara identificando o problema (distinta de falha estrutural genérica)
   3. Quando aplicável, falha matemática dispara o caminho de regeneração limitada (RELY-01); esgotadas as tentativas, o fluxo falha de forma previsível
 
-**Plans:** 1 plan
+**Plans:** 1/1 plans executed
 
 Plans:
 
-- [ ] 06-01-PLAN.md — Math quality tracer (arithmetic → validator → RELY) then ax+b=c / postmortem / exhaustion UX
+- [x] 06-01-PLAN.md — Math quality tracer (arithmetic → validator → RELY) then ax+b=c / postmortem / exhaustion UX
 
 ---
 
@@ -96,7 +96,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 4. CLI argparse | 1/1 | Complete | 2026-09-08 |
 | 5. Reliability & Error Edges | 1/1 | Complete | 2026-09-08 |
-| 6. Math Quality | 0/1 | Planned | - |
+| 6. Math Quality | 1/1 | In Progress|  |
 
 ---
 

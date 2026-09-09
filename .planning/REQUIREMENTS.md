@@ -20,8 +20,8 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Math quality
 
-- [ ] **MATH-01**: Validador rejeita respostas matematicamente inconsistentes em casos básicos (escopo exato na discuss/plan da fase)
-- [ ] **MATH-02**: Falha matemática gera mensagem clara e pode disparar regeneração (RELY), se aplicável
+- [x] **MATH-01**: Validador rejeita respostas matematicamente inconsistentes em casos básicos (escopo exato na discuss/plan da fase)
+- [x] **MATH-02**: Falha matemática gera mensagem clara e pode disparar regeneração (RELY), se aplicável
 
 ## Future Requirements
 
@@ -58,8 +58,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RELY-01 | Phase 5 | Complete |
 | RELY-02 | Phase 5 | Complete |
 | ERR-05 | Phase 5 | Complete |
-| MATH-01 | Phase 6 | Pending |
-| MATH-02 | Phase 6 | Pending |
+| MATH-01 | Phase 6 | Complete |
+| MATH-02 | Phase 6 | Complete |
 
 **Coverage:**
 
