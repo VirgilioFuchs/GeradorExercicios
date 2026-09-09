@@ -1,0 +1,85 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-09-09T13:29:35.995Z",
+  "phase": "7",
+  "phase_name": "Continuous Integration",
+  "phase_dir": ".planning/phases/07-continuous-integration",
+  "plan": null,
+  "task": null,
+  "total_tasks": null,
+  "status": "paused",
+  "completed_tasks": [
+    {
+      "id": "ms-start",
+      "name": "Start milestone v1.2 Ops & Resilience",
+      "status": "done",
+      "commit": "67415fe"
+    },
+    {
+      "id": "ms-reqs",
+      "name": "Define v1.2 requirements (CI-01/02, FAILOVER-01..03)",
+      "status": "done",
+      "commit": "8f1d1a0"
+    },
+    {
+      "id": "ms-roadmap",
+      "name": "Create v1.2 roadmap (Phases 7–8)",
+      "status": "done",
+      "commit": "f8918b0"
+    },
+    {
+      "id": "p7-context",
+      "name": "Phase 7 CONTEXT — basic lab CI decisions (D-01…D-19)",
+      "status": "done",
+      "commit": "26860ee"
+    }
+  ],
+  "remaining_tasks": [
+    {
+      "id": "p7-plan",
+      "name": "gsd-plan-phase 7 — write 07-01-PLAN.md from CONTEXT",
+      "status": "not_started"
+    },
+    {
+      "id": "p7-execute",
+      "name": "Execute Phase 7 (GitHub Actions workflow + README note)",
+      "status": "not_started"
+    },
+    {
+      "id": "p8",
+      "name": "Phase 8 Provider Failover (after Phase 7)",
+      "status": "not_started"
+    }
+  ],
+  "blockers": [],
+  "async_jobs": [],
+  "human_actions_pending": [],
+  "decisions": [
+    {
+      "decision": "v1.2 = Ops & Resilience: CI + provider failover; BNCC deferred (SEED-001)",
+      "rationale": "User chose CI+failover over BNCC for this milestone",
+      "phase": "milestone"
+    },
+    {
+      "decision": "Phase 7 CI = one job, Python 3.11, ubuntu-latest, mirror README install/pytest, no secrets, no enterprise extras",
+      "rationale": "Operator: small lab, start basic, no trends",
+      "phase": "7"
+    },
+    {
+      "decision": "CI-02 = visible green/red check; do not automate branch protection via API",
+      "rationale": "YAGNI for personal/small repo; operator can enable required checks manually",
+      "phase": "7"
+    },
+    {
+      "decision": "Triggers: push + pull_request on master only",
+      "rationale": "Repo default branch is master",
+      "phase": "7"
+    }
+  ],
+  "uncommitted_files": [
+    ".planning/.gsd-allow-shrink",
+    ".planning/state.json"
+  ],
+  "next_action": "Run $gsd-plan-phase 7 — CONTEXT is locked; do not re-open gray areas unless operator asks. Keep CI minimal per 07-CONTEXT.md D-01…D-03.",
+  "context_notes": "Milestone v1.2 started this session after v1.1 complete/ship/cleanup. Discuss for Phase 7 done via gray-area research + operator preference (basic). PR #3 (v1.1) is MERGED. Branch gsd/ship-phase-03-tests-logging-docs is ahead with v1.2 planning commits — may need new branch or continue on current for Phase 7 implementation. workflow.research=false; mode=yolo. Phase 8 not started."
+}

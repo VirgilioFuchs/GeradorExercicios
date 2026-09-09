@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-09)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato
-**Current focus:** Milestone v1.2 — Phase 7 CONTEXT ready for plan-phase
+**Current focus:** Paused — Phase 7 CONTEXT ready; resume with `$gsd-resume-work` then `$gsd-plan-phase 7`
 
 ## Current Position
 
 Phase: 7 (Continuous Integration) — context gathered
 Plan: —
-Status: Ready for `$gsd-plan-phase 7`
-Last activity: 2026-09-09 — Phase 7 CONTEXT.md (basic lab CI decisions)
+Status: Paused — handoff at `.planning/phases/07-continuous-integration/.continue-here.md`
+Last activity: 2026-09-09 — `$gsd-pause-work` (ready for plan-phase 7)
 
 ## Performance Metrics
 
