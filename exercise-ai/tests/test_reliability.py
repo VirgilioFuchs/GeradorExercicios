@@ -94,6 +94,41 @@ def test_validation_fail_once_then_success(demo_batch, request_demo, tmp_path):
     assert len(parsed["exercicios"]) == 3
 
 
+def test_math_fail_once_then_success(request_demo, tmp_path):
+    """Structurally OK but math-wrong once, then correct → regen via RELY (MATH-02)."""
+    out_path = tmp_path / "batch.json"
+    wrong = ExerciseBatch(
+        exercicios=[
+            Exercise(enunciado="2 + 2 = ?", resposta="5", explicacao="errado"),
+            Exercise(enunciado="3 + 1 = ?", resposta="4", explicacao="ok"),
+            Exercise(enunciado="1 + 1 = ?", resposta="2", explicacao="ok"),
+        ]
+    )
+    good = ExerciseBatch(
+        exercicios=[
+            Exercise(enunciado="2 + 2 = ?", resposta="4", explicacao="ok"),
+            Exercise(enunciado="3 + 1 = ?", resposta="4", explicacao="ok"),
+            Exercise(enunciado="1 + 1 = ?", resposta="2", explicacao="ok"),
+        ]
+    )
+    calls = {"n": 0}
+
+    def fake_gen(_req):
+        calls["n"] += 1
+        return wrong if calls["n"] == 1 else good
+
+    out, err = io.StringIO(), io.StringIO()
+    with patch.object(reliability, "generate_exercises", side_effect=fake_gen) as gen:
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            main.run(request_demo, out_path=out_path, max_retries=1)
+    assert gen.call_count == 2
+    stderr = err.getvalue()
+    assert "1ª Regeneração" in stderr
+    assert "[MATH]" in stderr
+    assert out_path.exists()
+    assert "### Exercício 1" in out.getvalue()
+
+
 def test_max_retries_zero_fail_fast(request_demo, tmp_path):
     out_path = tmp_path / "batch.json"
     bad = ExerciseBatch(
