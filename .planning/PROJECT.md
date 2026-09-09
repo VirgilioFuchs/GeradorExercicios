@@ -10,20 +10,17 @@ O usuário consegue gerar exercícios de matemática confiáveis e estruturados 
 
 ## Current State
 
-**Shipped:** v1 MVP (2026-09-04) — 3 phases, 28 requirements, pytest suite (31 tests), dual-provider generation, semantic validation, sanitized logging, root README.
+**Shipped:**
+- **v1 MVP** (2026-09-04) — pipeline modular, dual-provider, validação estrutural, pytest, logging sanitizado
+- **v1.1 Qualidade do exercício** (2026-09-09) — CLI argparse + dual-output, regeneração limitada (RELY), edges ERR-05, checagem matemática básica (arithmetic + `ax+b=c`)
 
-**Stack:** Python 3.11+, openai, pydantic v2, python-dotenv, google-genai, pytest. Code under `exercise-ai/`.
+**Stack:** Python 3.11+, openai, pydantic v2, python-dotenv, google-genai, pytest. Code under `exercise-ai/`. Suite: 73 tests (no live LLM).
 
-**Known debt:** WR-03/WR-04 edge exception mapping; Nyquist/SECURITY artifacts missing for phases 1–2; no GitHub Actions CI.
+**Known debt:** Nyquist/SECURITY missing for phases 1–2; Phase 6 VALIDATION.md optional; exhaustion plural grammar (`após 1 regenerações:`); no GitHub Actions CI.
 
-## Current Milestone: v1.1 Qualidade do exercício
+## Next Milestone Goals
 
-**Goal:** Melhorar o que já existe — CLI usável, regeneração limitada após falha, e checagem matemática básica das respostas — sem DB, agente ou CI.
-
-**Target features:**
-- RELY-01/02 + WR-03/04 — retry 1–2 após falha de validação; log de duração LLM; edges de erro API
-- CLI-04 — argparse para matéria, tópico, dificuldade, quantidade
-- MATH-01 — validação matemática básica além da estrutural
+Awaiting `$gsd-new-milestone` — candidates from Future Themes: persistence (MySQL), analytics/personalization/agent, CI, provider failover.
 
 ## Requirements
 
@@ -38,13 +35,14 @@ O usuário consegue gerar exercícios de matemática confiáveis e estruturados 
 - ✓ Testes unitários do validador sem LLM real — v1
 - ✓ Logs de desenvolvimento sem segredos — v1
 - ✓ README de setup/execução — v1
+- ✓ CLI argparse (matéria, tópico, dificuldade, quantidade, `--out`) — v1.1 / CLI-04
+- ✓ Regeneração limitada pós-validação + log de duração — v1.1 / RELY-01, RELY-02
+- ✓ Edges API unificados (empty choices / Gemini non-APIError) — v1.1 / ERR-05
+- ✓ Validação matemática básica + mensagem clara + RELY — v1.1 / MATH-01, MATH-02
 
 ### Active
 
-- [ ] Retry automático com limite (RELY-01) e log de duração (RELY-02)
-- [ ] Fechar WR-03/WR-04 no mapeamento de erros API
-- [ ] CLI argparse (CLI-04)
-- [ ] Validação matemática básica de respostas (MATH-01)
+_(none — define via `$gsd-new-milestone`)_
 
 ### Out of Scope
 
@@ -54,26 +52,27 @@ O usuário consegue gerar exercícios de matemática confiáveis e estruturados 
 - Análise de desempenho do aluno — v2+ (ANLY-01)
 - Personalização / agente — v2+ (PERS-01, AGNT-01)
 - Phoenix / log files persistentes — deferred
-- GitHub Actions CI — deferred (dívida ops; não é foco de v1.1)
+- GitHub Actions CI — deferred (dívida ops)
+- CAS completo / provider failover automático — deferred past v1.1
 
 ## Context
 
-Pipeline linear entregue no MVP:
+Pipeline v1.1:
 
 ```
-Entrada → Prompt → LLM (OpenAI|Gemini) → JSON tipado → Validação → stdout JSON / stderr logs
+CLI argparse → Prompt → LLM (OpenAI|Gemini) → JSON tipado
+  → Validação estrutural + math_check → RELY regen (0–N)
+  → stdout texto + --out JSON / stderr logs ([VALIDAÇÃO]/[MATH]/[API:*])
 ```
-
-v1.1 endurece o mesmo pipeline (CLI → generate → validate[+math] → retry limitado). Persistência e agente ficam para milestones posteriores.
 
 ## Constraints
 
 - **Tech stack**: Python, sem frameworks de agentes
 - **Simplicidade**: YAGNI — cada arquivo com responsabilidade única
 - **Segurança**: API keys em `.env`, nunca no código ou logs
-- **Confiabilidade**: LLM não é fonte de verdade; validação estrutural (+ math básica em v1.1)
+- **Confiabilidade**: LLM não é fonte de verdade; validação estrutural + math básica
 - **Retries**: Máximo 1–2 tentativas de regeneração; sem loop infinito
-- **Testabilidade**: Validador (e math checks) testáveis sem dependência de API externa
+- **Testabilidade**: Validador e math checks testáveis sem API externa
 
 ## Key Decisions
 
@@ -83,11 +82,22 @@ v1.1 endurece o mesmo pipeline (CLI → generate → validate[+math] → retry l
 | Módulos exercise-ai/ com campos PT | Separação clara; domínio educacional | ✓ Good |
 | OpenAI Structured Outputs + Pydantic v2 | Schema adherence | ✓ Good |
 | Dual provider (OpenAI + Gemini) via LLM_PROVIDER | Flexibilidade de créditos | ✓ Good |
-| Two-layer stderr ([VALIDAÇÃO]/[API:*]) + plain user errors | Ops detail vs CLI contract | ✓ Good |
+| Two-layer stderr ([VALIDAÇÃO]/[API:*]/[MATH]) + plain user errors | Ops detail vs CLI contract | ✓ Good |
 | LOG-02: type+status only, never raw str(exc) | Anti-leakage | ✓ Good |
 | pytest factories, no live LLM | Durable regression | ✓ Good |
-| No GitHub Actions in Phase 3 | D-10; document pytest only | ⚠️ Deferred past v1.1 |
-| v1.1 = qualidade incremental (RELY+CLI+MATH), not v2 product jump | User: melhorar o existente | — Pending |
+| No GitHub Actions in Phase 3 | D-10; document pytest only | ⚠️ Deferred |
+| v1.1 = qualidade incremental (RELY+CLI+MATH) | Melhorar o existente | ✓ Shipped 2026-09-09 |
+| Dual output: text stdout + required `--out` JSON | D-14 Phase 4 | ✓ Good |
+| Math reuses `generate_validated_batch` only | No second retry loop (D-07) | ✓ Good |
+| Uninterpretable math → pass + postmortem record | Avoid false fails (D-02) | ✓ Good |
+| Stdlib math heuristics; no CAS | YAGNI (D-09) | ✓ Good |
+
+<details>
+<summary>Prior milestone notes (v1 → v1.1 transition)</summary>
+
+v1 delivered the MVP pipeline. v1.1 hardened CLI, reliability, and basic math without jumping to DB/agent/CI.
+
+</details>
 
 ## Evolution
 
@@ -107,4 +117,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-04 after starting v1.1*
+*Last updated: 2026-09-09 after archiving v1.1*

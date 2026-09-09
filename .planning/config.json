@@ -10,7 +10,8 @@
     "verifier": true,
     "nyquist_validation": true,
     "auto_advance": true,
-    "_auto_chain_active": false
+    "_auto_chain_active": false,
+    "ai_integration_phase": true
   },
   "plan_review": {
     "source_grounding": true

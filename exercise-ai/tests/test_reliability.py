@@ -94,6 +94,41 @@ def test_validation_fail_once_then_success(demo_batch, request_demo, tmp_path):
     assert len(parsed["exercicios"]) == 3
 
 
+def test_math_fail_once_then_success(request_demo, tmp_path):
+    """Structurally OK but math-wrong once, then correct → regen via RELY (MATH-02)."""
+    out_path = tmp_path / "batch.json"
+    wrong = ExerciseBatch(
+        exercicios=[
+            Exercise(enunciado="2 + 2 = ?", resposta="5", explicacao="errado"),
+            Exercise(enunciado="3 + 1 = ?", resposta="4", explicacao="ok"),
+            Exercise(enunciado="1 + 1 = ?", resposta="2", explicacao="ok"),
+        ]
+    )
+    good = ExerciseBatch(
+        exercicios=[
+            Exercise(enunciado="2 + 2 = ?", resposta="4", explicacao="ok"),
+            Exercise(enunciado="3 + 1 = ?", resposta="4", explicacao="ok"),
+            Exercise(enunciado="1 + 1 = ?", resposta="2", explicacao="ok"),
+        ]
+    )
+    calls = {"n": 0}
+
+    def fake_gen(_req):
+        calls["n"] += 1
+        return wrong if calls["n"] == 1 else good
+
+    out, err = io.StringIO(), io.StringIO()
+    with patch.object(reliability, "generate_exercises", side_effect=fake_gen) as gen:
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            main.run(request_demo, out_path=out_path, max_retries=1)
+    assert gen.call_count == 2
+    stderr = err.getvalue()
+    assert "1ª Regeneração" in stderr
+    assert "[MATH]" in stderr
+    assert out_path.exists()
+    assert "### Exercício 1" in out.getvalue()
+
+
 def test_max_retries_zero_fail_fast(request_demo, tmp_path):
     out_path = tmp_path / "batch.json"
     bad = ExerciseBatch(
@@ -189,3 +224,97 @@ def test_permanent_auth_no_regen(request_demo, tmp_path):
     assert "1ª Regeneração" not in err.getvalue()
     assert "autentic" in err.getvalue().lower()
     assert not out_path.exists()
+
+
+def test_math_exhaustion_prefix_and_postmortem(request_demo, tmp_path, monkeypatch):
+    """Persistent math-wrong → após N regenerações + postmortem only on final fail (D-13, D-08)."""
+    out_path = tmp_path / "batch.json"
+    postmortem = tmp_path / "math_postmortem.jsonl"
+    monkeypatch.setattr(reliability, "POSTMORTEM_PATH", postmortem, raising=False)
+    wrong = ExerciseBatch(
+        exercicios=[
+            Exercise(enunciado="2 + 2 = ?", resposta="5", explicacao="errado"),
+            Exercise(enunciado="1 + 1 = ?", resposta="2", explicacao="ok"),
+            Exercise(enunciado="3 + 0 = ?", resposta="3", explicacao="ok"),
+        ]
+    )
+    out, err = io.StringIO(), io.StringIO()
+    with patch.object(reliability, "generate_exercises", return_value=wrong) as gen:
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            with pytest.raises(SystemExit) as se:
+                main.run(request_demo, out_path=out_path, max_retries=1)
+    assert se.value.code == 1
+    assert gen.call_count == 2
+    stderr = err.getvalue()
+    assert "após 1 regenerações:" in stderr
+    assert "matemática" in stderr.lower() or "inconsist" in stderr.lower()
+    assert "chamadas=2" in stderr
+    assert not out_path.exists()
+    assert postmortem.exists()
+    content = postmortem.read_text(encoding="utf-8")
+    assert "inconsistent" in content or "0" in content
+    assert "LLM_API_KEY" not in content
+    assert "sk-" not in content
+
+
+def test_math_success_writes_no_postmortem(request_demo, tmp_path, monkeypatch):
+    """Success after math regen → no postmortem file (D-08)."""
+    out_path = tmp_path / "batch.json"
+    postmortem = tmp_path / "math_postmortem.jsonl"
+    monkeypatch.setattr(reliability, "POSTMORTEM_PATH", postmortem, raising=False)
+    wrong = ExerciseBatch(
+        exercicios=[
+            Exercise(enunciado="2 + 2 = ?", resposta="5", explicacao="errado"),
+            Exercise(enunciado="1 + 1 = ?", resposta="2", explicacao="ok"),
+            Exercise(enunciado="3 + 0 = ?", resposta="3", explicacao="ok"),
+        ]
+    )
+    good = ExerciseBatch(
+        exercicios=[
+            Exercise(enunciado="2 + 2 = ?", resposta="4", explicacao="ok"),
+            Exercise(enunciado="1 + 1 = ?", resposta="2", explicacao="ok"),
+            Exercise(enunciado="3 + 0 = ?", resposta="3", explicacao="ok"),
+        ]
+    )
+    effects = [wrong, good]
+    out, err = io.StringIO(), io.StringIO()
+    with patch.object(reliability, "generate_exercises", side_effect=effects):
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            main.run(request_demo, out_path=out_path, max_retries=1)
+    assert out_path.exists()
+    assert not postmortem.exists()
+
+
+def test_max_retries_zero_no_apos_prefix(request_demo, tmp_path, monkeypatch):
+    """max_retries=0 → fail without 'após N regenerações' prefix (D-13)."""
+    out_path = tmp_path / "batch.json"
+    postmortem = tmp_path / "math_postmortem.jsonl"
+    monkeypatch.setattr(reliability, "POSTMORTEM_PATH", postmortem, raising=False)
+    wrong = ExerciseBatch(
+        exercicios=[
+            Exercise(enunciado="2 + 2 = ?", resposta="5", explicacao="e"),
+            Exercise(enunciado="1 + 1 = ?", resposta="2", explicacao="e"),
+            Exercise(enunciado="3 + 0 = ?", resposta="3", explicacao="e"),
+        ]
+    )
+    out, err = io.StringIO(), io.StringIO()
+    with patch.object(reliability, "generate_exercises", return_value=wrong):
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            with pytest.raises(SystemExit):
+                main.run(request_demo, out_path=out_path, max_retries=0)
+    stderr = err.getvalue()
+    assert "após 1 regenerações:" not in stderr
+    assert postmortem.exists()  # final failure still writes postmortem
+
+
+def test_single_retry_loop_only():
+    """Module still has exactly one generate_validated_batch retry loop (D-07)."""
+    import inspect
+    import math_check
+
+    src = inspect.getsource(reliability)
+    # One for-attempt loop in generate_validated_batch; no math-specific retry API
+    assert "for attempt in range" in src
+    assert src.count("for attempt in range") == 1
+    assert not hasattr(math_check, "generate_validated_batch")
+    assert not hasattr(math_check, "retry")

@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import sys
 
+from math_check import check_math_batch
 from models import ExerciseBatch, GenerationRequest
 
 # Change this constant to switch report behavior: "all" | "first_exercise"
@@ -64,4 +65,5 @@ def validate_exercise_batch(batch: ExerciseBatch, request: GenerationRequest) ->
         _log_validation_failure(user_message, batch)
         raise ValueError(user_message)
 
+    check_math_batch(batch)
     return batch

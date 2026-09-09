@@ -2,6 +2,10 @@
 .env
 .env.*
 !.env.example
+exercise-ai/math_postmortem.jsonl
+exercicios.json
+exercicios*.json
+saida_erros.txt
 *.pem
 *.key
 *.p12

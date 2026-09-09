@@ -140,3 +140,41 @@ def test_report_mode_all_vs_first_exercise(make_request, make_exercise):
         assert "exercicios[1].enunciado" not in err_first
     finally:
         validator.VALIDATION_REPORT_MODE = original
+
+
+def test_structurally_ok_math_wrong_raises_via_validator(make_request, make_exercise):
+    """Integration: structural OK + math-wrong → raise; [MATH] stderr; minimal PT."""
+    req = make_request(quantidade=1)
+    batch = ExerciseBatch(
+        exercicios=[
+            make_exercise(enunciado="2 + 2 = ?", resposta="5", explicacao="errado"),
+        ]
+    )
+    buf = io.StringIO()
+    with contextlib.redirect_stderr(buf):
+        with pytest.raises(ValueError) as exc_info:
+            validate_exercise_batch(batch, req)
+    msg = str(exc_info.value)
+    assert "[MATH]" not in msg
+    assert "[VALIDAÇÃO]" not in msg
+    assert "matemática" in msg.lower() or "inconsist" in msg.lower()
+    assert "[MATH]" in buf.getvalue()
+
+
+def test_structurally_ok_math_multi_via_validator(make_request, make_exercise):
+    """Integration: two math fails listed in one truncated raise (D-03, D-12)."""
+    req = make_request(quantidade=2)
+    batch = ExerciseBatch(
+        exercicios=[
+            make_exercise(enunciado="2 + 2", resposta="5", explicacao="e"),
+            make_exercise(enunciado="3 + 3", resposta="9", explicacao="e"),
+        ]
+    )
+    buf = io.StringIO()
+    with contextlib.redirect_stderr(buf):
+        with pytest.raises(ValueError) as exc_info:
+            validate_exercise_batch(batch, req)
+    msg = str(exc_info.value)
+    assert "0" in msg and "1" in msg
+    assert "[MATH]" not in msg
+    assert buf.getvalue().count("[MATH]") >= 2

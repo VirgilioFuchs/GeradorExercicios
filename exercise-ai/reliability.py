@@ -1,22 +1,32 @@
 """Bounded regeneration after retriable validation / invalid LLM response failures.
 
-Phase 6 hook: future math failures (MATH-02) must reuse ``generate_validated_batch``
+Phase 6 hook: math failures (MATH-02) reuse ``generate_validated_batch``
 (raise a retriable ``ValueError`` from validation, or ``RuntimeError`` with
 ``retriable=True``) — do not invent a second retry path.
 """
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 import time
+from pathlib import Path
 
 from models import ExerciseBatch, GenerationRequest
 from generator import generate_exercises
 from validator import validate_exercise_batch
+from math_check import (
+    clear_math_buffers,
+    drain_inconsistency_records,
+    drain_uninterpretable_records,
+)
 
 _ALLOWED = frozenset({0, 1, 2, 3})
 _DEFAULT = 1
+
+# Injectable for tests; default under package dir (never secrets).
+POSTMORTEM_PATH: Path = Path(__file__).resolve().parent / "math_postmortem.jsonl"
 
 
 def resolve_max_retries(cli_value: int | None) -> int:
@@ -49,6 +59,14 @@ def is_permanent_api_error(exc: BaseException) -> bool:
 def is_retriable_invalid_response(exc: BaseException) -> bool:
     """True for invalid LLM response edges marked retriable=True (D-05, D-19)."""
     return getattr(exc, "retriable", None) is True
+
+
+def _write_postmortem(path: Path) -> None:
+    """Write diagnostic jsonl on final failure only (D-08; LOG-02 — no secrets)."""
+    records = drain_inconsistency_records() + drain_uninterpretable_records()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lines = [json.dumps(rec, ensure_ascii=False) for rec in records]
+    path.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
 
 
 def generate_validated_batch(
@@ -87,11 +105,20 @@ def generate_validated_batch(
 
             print("Validando…", file=sys.stderr)
             try:
-                return validate_exercise_batch(batch, request)
+                validated = validate_exercise_batch(batch, request)
+                clear_math_buffers()
+                return validated
             except ValueError as exc:
                 last_err = exc
                 if attempt < max_retries:
                     continue
+                # Final failure: postmortem + optional exhaustion prefix (D-08, D-13)
+                _write_postmortem(POSTMORTEM_PATH)
+                reason = str(exc)
+                if max_retries > 0:
+                    raise ValueError(
+                        f"após {max_retries} regenerações: {reason}"
+                    ) from exc
                 raise
 
         assert last_err is not None
