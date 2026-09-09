@@ -28,7 +28,7 @@ v1.1 endurece o pipeline MVP já shipped: CLI usável sem editar código, regene
 
 - [x] **Phase 4: CLI argparse** - Usuário gera exercícios passando matéria, tópico, dificuldade e quantidade por argumentos (completed 2026-09-08)
 - [x] **Phase 5: Reliability & Error Edges** - Retry limitado pós-validação, log de duração LLM, edges de erro API unificados (completed 2026-09-08)
-- [ ] **Phase 6: Math Quality** - Validador rejeita inconsistências matemáticas básicas e dispara regeneração quando aplicável
+- [x] **Phase 6: Math Quality** - Validador rejeita inconsistências matemáticas básicas e dispara regeneração quando aplicável (completed 2026-09-09)
 
 ---
 
