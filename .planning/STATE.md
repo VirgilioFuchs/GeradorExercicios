@@ -20,7 +20,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-04)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato
-**Current focus:** Planning next milestone
+**Current focus:** Milestone v1.2 Ops & Resilience — defining requirements
 
 ## Current Position
 
@@ -99,9 +99,10 @@ None for Phase 6 planning (D-01…D-17 locked in CONTEXT; no one-way checkpoint 
 
 | Category | Item | Status | Deferred At | Milestone |
 |----------|------|--------|-------------|-----------|
-| Ops | GitHub Actions CI (CI-01) | Deferred | 2026-09-04 | past v1.1 |
+| Ops | GitHub Actions CI (CI-01) | Active in v1.2 | 2026-09-04 | v1.2 |
+| Reliability | Provider failover automático (FAILOVER-01) | Active in v1.2 | 2026-09-04 | v1.2 |
 | Product | MySQL / analytics / personalização / agente | Deferred | 2026-09-04 | v2+ |
-| Reliability | Provider failover automático | Deferred | 2026-09-04 | past v1.1 |
+| Curriculum | BNCC / habilidades (SEED-001) | Dormant seed | 2026-09-09 | not v1.2 |
 
 ## Session Continuity
 
