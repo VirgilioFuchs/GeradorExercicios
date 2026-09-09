@@ -72,7 +72,7 @@ Plans:
 
 ### Phase 6: Math Quality
 
-**Goal:** Validador rejeita respostas matematicamente inconsistentes em casos básicos; falha matemática gera mensagem clara e pode disparar regeneração (RELY)
+**Goal:** As a CLI user, I want clearly inconsistent arithmetic and ax+b=c answers rejected with a distinct math error that reuses bounded regeneration, so that bad LLM answers are filtered without a second retry path.
 **Depends on:** Phase 5 (hooks de regeneração RELY disponíveis)
 **Requirements:** MATH-01, MATH-02
 **Mode:** mvp
@@ -82,7 +82,11 @@ Plans:
   2. Falha matemática produz mensagem clara identificando o problema (distinta de falha estrutural genérica)
   3. Quando aplicável, falha matemática dispara o caminho de regeneração limitada (RELY-01); esgotadas as tentativas, o fluxo falha de forma previsível
 
-**Plans**: TBD
+**Plans:** 1 plan
+
+Plans:
+
+- [ ] 06-01-PLAN.md — Math quality tracer (arithmetic → validator → RELY) then ax+b=c / postmortem / exhaustion UX
 
 ---
 
@@ -92,7 +96,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 4. CLI argparse | 1/1 | Complete | 2026-09-08 |
 | 5. Reliability & Error Edges | 1/1 | Complete | 2026-09-08 |
-| 6. Math Quality | 0/? | Not started | - |
+| 6. Math Quality | 0/1 | Planned | - |
 
 ---
 
