@@ -2,11 +2,11 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Ops & Resilience
-status: planning
-last_updated: "2026-09-09T13:06:32.028Z"
+status: ready_for_discuss
+last_updated: "2026-09-09T13:15:00.000Z"
 last_activity: 2026-09-09
 progress:
-  total_phases: 0
+  total_phases: 2
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -17,17 +17,17 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-04)
+See: .planning/PROJECT.md (updated 2026-09-09)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato
-**Current focus:** Milestone v1.2 Ops & Resilience — defining requirements
+**Current focus:** Milestone v1.2 Ops & Resilience — roadmap ready; next discuss-phase
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 7 (Continuous Integration) — not started
 Plan: —
-Status: Defining requirements
-Last activity: 2026-09-09 — Milestone v1.2 started
+Status: Roadmap complete — ready for `$gsd-discuss-phase` (Phase 7)
+Last activity: 2026-09-09 — v1.2 roadmap created (Phases 7–8)
 
 ## Performance Metrics
 
@@ -81,6 +81,7 @@ Recent decisions affecting current work:
 - [Phase 4]: Skip research; plan without auto-execute
 - [Phase 6]: Stdlib-only math_check; no CAS; math ValueError reuses generate_validated_batch
 - [Phase 6]: Postmortem only on final failure via injectable POSTMORTEM_PATH
+- [v1.2]: Milestone = CI + provider failover; phases 7–8 continue numbering from v1.1; no second math/RELY loop on failover
 
 ### Pending Todos
 
@@ -88,7 +89,7 @@ None yet.
 
 ### Blockers/Concerns
 
-None for Phase 6 planning (D-01…D-17 locked in CONTEXT; no one-way checkpoint required — doors already decided).
+None for Phase 7 discuss/plan. Constraints locked: CI without live LLM/API secrets; failover MUST NOT add second math/RELY loop.
 
 ### Quick Tasks Completed
 
@@ -99,17 +100,17 @@ None for Phase 6 planning (D-01…D-17 locked in CONTEXT; no one-way checkpoint 
 
 | Category | Item | Status | Deferred At | Milestone |
 |----------|------|--------|-------------|-----------|
-| Ops | GitHub Actions CI (CI-01) | Active in v1.2 | 2026-09-04 | v1.2 |
-| Reliability | Provider failover automático (FAILOVER-01) | Active in v1.2 | 2026-09-04 | v1.2 |
+| Ops | GitHub Actions CI (CI-01, CI-02) | Active — Phase 7 | 2026-09-04 | v1.2 |
+| Reliability | Provider failover (FAILOVER-01..03) | Active — Phase 8 | 2026-09-04 | v1.2 |
 | Product | MySQL / analytics / personalização / agente | Deferred | 2026-09-04 | v2+ |
 | Curriculum | BNCC / habilidades (SEED-001) | Dormant seed | 2026-09-09 | not v1.2 |
 
 ## Session Continuity
 
-Last session: 2026-09-09T12:21:47.605Z
-Stopped at: Phase 6 complete — all phases complete
+Last session: 2026-09-09T13:15:00.000Z
+Stopped at: v1.2 roadmap created — ready for discuss-phase (Phase 7)
 Resume file: None
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Run `$gsd-discuss-phase 7` (or `$gsd-progress`) to gather context before planning CI

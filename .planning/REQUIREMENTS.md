@@ -50,18 +50,18 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CI-01 | — | Pending |
-| CI-02 | — | Pending |
-| FAILOVER-01 | — | Pending |
-| FAILOVER-02 | — | Pending |
-| FAILOVER-03 | — | Pending |
+| CI-01 | Phase 7 | Pending |
+| CI-02 | Phase 7 | Pending |
+| FAILOVER-01 | Phase 8 | Pending |
+| FAILOVER-02 | Phase 8 | Pending |
+| FAILOVER-03 | Phase 8 | Pending |
 
 **Coverage:**
 
 - v1.2 requirements: 5 total
-- Mapped to phases: 0
-- Unmapped: 5 ⚠️ (filled by roadmapper)
+- Mapped to phases: 5
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-09-09*
-*Last updated: 2026-09-09 after milestone v1.2 start*
+*Last updated: 2026-09-09 after v1.2 roadmap*
