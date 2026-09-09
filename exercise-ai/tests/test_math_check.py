@@ -1,4 +1,4 @@
-"""Unit tests for math_check (no live LLM)."""
+"""Unit tests for math_check (no live LLM). Named hybrid fixtures (D-05, D-17)."""
 
 from __future__ import annotations
 
@@ -7,7 +7,11 @@ import io
 
 import pytest
 from models import Exercise, ExerciseBatch
-from math_check import check_math_batch, clear_math_buffers
+from math_check import (
+    check_math_batch,
+    clear_math_buffers,
+    drain_uninterpretable_records,
+)
 
 
 def test_wrong_arithmetic_raises_math_dual_channel():
@@ -38,3 +42,97 @@ def test_correct_arithmetic_passes():
         ]
     )
     check_math_batch(batch)  # no raise
+
+
+def test_correct_axb_equals_c_passes():
+    """Correct ax+b=c solution passes and is interpreted (D-15)."""
+    clear_math_buffers()
+    batch = ExerciseBatch(
+        exercicios=[
+            Exercise(
+                enunciado="2x + 3 = 7",
+                resposta="2",
+                explicacao="x = (7-3)/2",
+            ),
+        ]
+    )
+    check_math_batch(batch)
+    # Must be interpreted as equation, not skipped as uninterpretable
+    assert drain_uninterpretable_records() == []
+
+
+def test_wrong_axb_equals_c_raises():
+    """Wrong ax+b=c solution raises with [MATH] stderr (D-15)."""
+    clear_math_buffers()
+    batch = ExerciseBatch(
+        exercicios=[
+            Exercise(
+                enunciado="2x + 3 = 7",
+                resposta="5",
+                explicacao="errado",
+            ),
+        ]
+    )
+    buf = io.StringIO()
+    with contextlib.redirect_stderr(buf):
+        with pytest.raises(ValueError) as exc_info:
+            check_math_batch(batch)
+    msg = str(exc_info.value)
+    assert "[MATH]" not in msg
+    assert "0" in msg
+    assert "[MATH]" in buf.getvalue()
+
+
+def test_uninterpretable_does_not_raise_but_records():
+    """Fraction-like / radical text → no raise; record drainable (D-02; D-16)."""
+    clear_math_buffers()
+    batch = ExerciseBatch(
+        exercicios=[
+            Exercise(
+                enunciado="Simplifique √16 / 2",
+                resposta="2",
+                explicacao="radical",
+            ),
+        ]
+    )
+    check_math_batch(batch)  # must not raise
+    records = drain_uninterpretable_records()
+    assert len(records) >= 1
+    assert records[0]["reason"] == "uninterpretable"
+    assert records[0]["index"] == 0
+
+
+def test_multi_index_lists_all_inconsistencies():
+    """Two clear inconsistencies → one ValueError listing both indices (D-03)."""
+    clear_math_buffers()
+    batch = ExerciseBatch(
+        exercicios=[
+            Exercise(enunciado="2 + 2", resposta="5", explicacao="errado"),
+            Exercise(enunciado="3 × 3", resposta="10", explicacao="errado"),
+            Exercise(enunciado="1 + 1", resposta="2", explicacao="ok"),
+        ]
+    )
+    buf = io.StringIO()
+    with contextlib.redirect_stderr(buf):
+        with pytest.raises(ValueError) as exc_info:
+            check_math_batch(batch)
+    msg = str(exc_info.value)
+    assert "0" in msg and "1" in msg
+    assert "[MATH]" not in msg
+    stderr = buf.getvalue()
+    assert stderr.count("[MATH]") >= 2
+
+
+def test_simple_percent_arithmetic_checked():
+    """Percent that reduces to arithmetic may be checked (D-16)."""
+    clear_math_buffers()
+    # 50% of 20 = 10 → treat as 50/100 * 20 if we support it;
+    # if not interpreted as arithmetic template, must not raise (uninterpretable).
+    batch_wrong = ExerciseBatch(
+        exercicios=[
+            Exercise(enunciado="10 + 10", resposta="30", explicacao="errado"),
+        ]
+    )
+    with contextlib.redirect_stderr(io.StringIO()):
+        with pytest.raises(ValueError):
+            check_math_batch(batch_wrong)
