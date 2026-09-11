@@ -96,6 +96,7 @@ None for Phase 7 discuss/plan. Constraints locked: CI without live LLM/API secre
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
+| 260911-fvq | Add Grok provider for exercise generation (`GROK_API_KEY`) | 2026-09-11 | 15f9aff | [260911-fvq-add-grok-provider-for-exercise-generatio](./quick/260911-fvq-add-grok-provider-for-exercise-generatio/) |
 
 ## Deferred Items
 
@@ -111,7 +112,7 @@ None for Phase 7 discuss/plan. Constraints locked: CI without live LLM/API secre
 ## Session Continuity
 
 Last session: 2026-09-11
-Stopped at: Phase 7 UAT complete (4/4) — CI green on PR #4
+Stopped at: Quick task 260911-fvq complete — Grok provider added (pytest 80 passed)
 Resume file: —
 
 ## Operator Next Steps
