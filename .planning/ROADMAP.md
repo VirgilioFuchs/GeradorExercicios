@@ -47,7 +47,7 @@
 **Plans**: 1 plan
 
 Plans:
-- [ ] 07-01-PLAN.md — Single-job GitHub Actions CI (pytest offline) + README note
+- [x] 07-01-PLAN.md — Single-job GitHub Actions CI (pytest offline) + README note
 
 ### Phase 8: Provider Failover
 **Goal**: Se o provider primário falhar com erro retriável ou indisponibilidade, o sistema tenta automaticamente o outro (OpenAI ↔ Gemini), reusando o caminho existente de geração/validação/RELY (sem segundo loop) e deixando claro nos logs qual provider foi tentado/usado — sem secrets.
@@ -74,7 +74,7 @@ Plans:
 | 4. CLI argparse | v1.1 | 1/1 | Complete | 2026-09-08 |
 | 5. Reliability & Error Edges | v1.1 | 1/1 | Complete | 2026-09-08 |
 | 6. Math Quality | v1.1 | 1/1 | Complete | 2026-09-09 |
-| 7. Continuous Integration | v1.2 | 0/1 | Planned | - |
+| 7. Continuous Integration | v1.2 | 1/1 | Executed — GitHub check PENDING | 2026-09-11 |
 | 8. Provider Failover | v1.2 | 0/TBD | Not started | - |
 
 ## Future Themes

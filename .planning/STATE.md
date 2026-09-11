@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Ops & Resilience
-status: ready_for_discuss
-last_updated: "2026-09-09T13:15:00.000Z"
-last_activity: 2026-09-09
+status: phase_7_executed_github_pending
+last_updated: "2026-09-11T13:20:00.000Z"
+last_activity: 2026-09-11
 progress:
   total_phases: 2
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 1
+  completed_plans: 1
+  percent: 50
 ---
 
 # Project State
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-09)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato
-**Current focus:** Paused — Phase 7 CONTEXT ready; resume with `$gsd-resume-work` then `$gsd-plan-phase 7`
+**Current focus:** Phase 7 executed locally — push/PR to flip CI-02 GitHub runtime; then Phase 8 Failover
 
 ## Current Position
 
-Phase: 7 (Continuous Integration) — context gathered
-Plan: —
-Status: Paused — handoff at `.planning/phases/07-continuous-integration/.continue-here.md`
-Last activity: 2026-09-09 — `$gsd-pause-work` (ready for plan-phase 7)
+Phase: 7 (Continuous Integration) — executed (local)
+Plan: 07-01 of 1 — SUMMARY + VERIFICATION written
+Status: CI-01 complete; CI-02 local VERIFIED / GitHub PENDING
+Last activity: 2026-09-11 — `$gsd-execute-phase 7` (ci.yml + README)
 
 ## Performance Metrics
 
@@ -85,7 +85,8 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-None yet.
+- **SEED-003 (CRÍTICO)** — Embed do gerador em sistema de exercícios já em produção → depois imagens geradas → depois exercícios com storytelling (não v1.2 CI/failover; promover no próximo milestone de productização)
+- **SEED-002** — Consumo quantitativo de tokens: log append por request + flush `.json` em pasta dedicada (não Phase 7; lembrar após CI/failover ou no próximo milestone de observability)
 
 ### Blockers/Concerns
 
@@ -104,13 +105,15 @@ None for Phase 7 discuss/plan. Constraints locked: CI without live LLM/API secre
 | Reliability | Provider failover (FAILOVER-01..03) | Active — Phase 8 | 2026-09-04 | v1.2 |
 | Product | MySQL / analytics / personalização / agente | Deferred | 2026-09-04 | v2+ |
 | Curriculum | BNCC / habilidades (SEED-001) | Dormant seed | 2026-09-09 | not v1.2 |
+| Observability | Token usage quantitativo + JSON append (SEED-002) | Dormant seed | 2026-09-11 | after v1.2 / next obs slice |
+| Productization | Host embed + imagens geradas + storytelling (SEED-003) | Dormant seed — **critical** | 2026-09-11 | post v1.2 / next product milestone |
 
 ## Session Continuity
 
-Last session: 2026-09-09T13:29:35.995Z
-Stopped at: Phase 7 CONTEXT ready — paused before plan-phase
-Resume file: `.planning/phases/07-continuous-integration/.continue-here.md` (+ `.planning/HANDOFF.json`)
+Last session: 2026-09-11
+Stopped at: Phase 7 planned and checker-passed — next `$gsd-execute-phase 7`
+Resume file: —
 
 ## Operator Next Steps
 
-- `$gsd-resume-work` then `$gsd-plan-phase 7` (CONTEXT locked — basic lab CI)
+- `$gsd-execute-phase 7` (CI workflow + README note)
