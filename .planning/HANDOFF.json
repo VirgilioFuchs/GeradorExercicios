@@ -1,85 +1,88 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-09T13:29:35.995Z",
-  "phase": "7",
-  "phase_name": "Continuous Integration",
-  "phase_dir": ".planning/phases/07-continuous-integration",
+  "timestamp": "2026-09-11T15:03:38.628Z",
+  "phase": "9",
+  "phase_name": "Token Usage Observability",
+  "phase_dir": ".planning/phases/09-token-usage-observability",
   "plan": null,
   "task": null,
   "total_tasks": null,
   "status": "paused",
+  "workflow_interrupted": "gsd-plan-phase 9 --auto",
   "completed_tasks": [
     {
-      "id": "ms-start",
-      "name": "Start milestone v1.2 Ops & Resilience",
+      "id": "discuss",
+      "name": "Phase 9 discuss + CONTEXT.md (D-01..D-20)",
       "status": "done",
-      "commit": "67415fe"
+      "commit": "5c89e0f"
     },
     {
-      "id": "ms-reqs",
-      "name": "Define v1.2 requirements (CI-01/02, FAILOVER-01..03)",
+      "id": "promote",
+      "name": "Promote SEED-002 → Phase 9 ROADMAP/REQUIREMENTS TOKEN-01..03",
       "status": "done",
-      "commit": "8f1d1a0"
+      "commit": "5ef60ee"
     },
     {
-      "id": "ms-roadmap",
-      "name": "Create v1.2 roadmap (Phases 7–8)",
+      "id": "ai-spec-draft",
+      "name": "Draft 09-AI-SPEC.md + COVERAGE.md (plan-phase preflight, uncommitted at pause)",
       "status": "done",
-      "commit": "f8918b0"
-    },
-    {
-      "id": "p7-context",
-      "name": "Phase 7 CONTEXT — basic lab CI decisions (D-01…D-19)",
-      "status": "done",
-      "commit": "26860ee"
+      "commit": null
     }
   ],
   "remaining_tasks": [
     {
-      "id": "p7-plan",
-      "name": "gsd-plan-phase 7 — write 07-01-PLAN.md from CONTEXT",
+      "id": "plan",
+      "name": "Finish $gsd-plan-phase 9 — write 09-01-PLAN.md + plan-checker",
       "status": "not_started"
     },
     {
-      "id": "p7-execute",
-      "name": "Execute Phase 7 (GitHub Actions workflow + README note)",
+      "id": "execute",
+      "name": "$gsd-execute-phase 9 after plan verified",
       "status": "not_started"
     },
     {
-      "id": "p8",
-      "name": "Phase 8 Provider Failover (after Phase 7)",
+      "id": "phase8",
+      "name": "Phase 8 Provider Failover (still ahead in default order; Phase 9 can plan independently)",
       "status": "not_started"
     }
   ],
-  "blockers": [],
+  "blockers": [
+    {
+      "description": "plan-phase 9 --auto interrupted by user before planner wrote 09-01-PLAN.md (Task/Write aborted ~140s)",
+      "type": "technical",
+      "workaround": "Resume with $gsd-plan-phase 9 (or --skip-research); CONTEXT + AI-SPEC already present"
+    }
+  ],
   "async_jobs": [],
-  "human_actions_pending": [],
+  "human_actions_pending": [
+    {
+      "action": "Optional: merge PR #4 (Phase 7 CI) when ready",
+      "context": "CI green earlier; unrelated to Phase 9 pause",
+      "blocking": false
+    }
+  ],
   "decisions": [
     {
-      "decision": "v1.2 = Ops & Resilience: CI + provider failover; BNCC deferred (SEED-001)",
-      "rationale": "User chose CI+failover over BNCC for this milestone",
-      "phase": "milestone"
+      "decision": "Phase 9 after Phase 8 (option 1) — tokens as v1.2 Phase 9",
+      "rationale": "Operator chose keep Failover as 8, tokens next",
+      "phase": "9"
     },
     {
-      "decision": "Phase 7 CI = one job, Python 3.11, ubuntu-latest, mirror README install/pytest, no secrets, no enterprise extras",
-      "rationale": "Operator: small lab, start basic, no trends",
-      "phase": "7"
+      "decision": "D-01..D-20 locked in 09-CONTEXT.md",
+      "rationale": "NDJSON/day/provider files, end-of-run flush, [USAGE]+USD, indisponível, attempts/errors/successes",
+      "phase": "9"
     },
     {
-      "decision": "CI-02 = visible green/red check; do not automate branch protection via API",
-      "rationale": "YAGNI for personal/small repo; operator can enable required checks manually",
-      "phase": "7"
-    },
-    {
-      "decision": "Triggers: push + pull_request on master only",
-      "rationale": "Repo default branch is master",
-      "phase": "7"
+      "decision": "No new AI framework — observability only (09-AI-SPEC)",
+      "rationale": "Extract usage from existing OpenAI/Gemini/Grok SDKs",
+      "phase": "9"
     }
   ],
   "uncommitted_files": [
-    ".planning/.gsd-allow-shrink",
-    ".planning/state.json"
+    ".planning/phases/09-token-usage-observability/09-AI-SPEC.md",
+    ".planning/phases/09-token-usage-observability/COVERAGE.md",
+    ".planning/config.json"
   ],
-  "next_action": "Run $gsd-plan-phase 7 — CONTEXT is locked; do not re-open gray areas unless operator asks. Keep CI minimal per 07-CONTEXT.md D-01…D-03.",
-  "context_notes": "Milestone v1.2 started this session after v1.1 complete/ship/cleanup. Discuss for Phase 7 done via gray-area research + operator preference (basic). PR #3 (v1.1) is MERGED. Branch gsd/ship-phase-03-tests-logging-docs is ahead with v1.2 planning commits — may need new branch or continue on current for Phase 7 implementation. workflow.research=false; mode=yolo. Phase 8 not started."
+  "next_action": "Run $gsd-plan-phase 9 (research already disabled in config; CONTEXT ready) to produce 09-01-PLAN.md, then plan-checker, then $gsd-execute-phase 9",
+  "context_notes": "Session also shipped Grok provider (quick 260911-fvq, 15f9aff) and restored tests. Mid plan-phase when user paused. workflow._auto_chain_active may still be true from plan-phase init — clear or honor on resume. Suite baseline 80 tests after Grok."
 }
