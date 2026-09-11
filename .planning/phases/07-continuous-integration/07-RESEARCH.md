@@ -1,49 +1,50 @@
 # Phase 7: Continuous Integration - Research
 
 **Researched:** 2026-09-11
-**Domain:** GitHub Actions minimal Python CI (pytest, no LLM secrets)
+**Domain:** Minimal GitHub Actions CI for offline pytest (no LLM secrets)
 **Confidence:** HIGH
 
 ## Summary
 
-Phase 7 is a greenfield GitHub Actions workflow: one job on `ubuntu-latest`, Python 3.11, install from `exercise-ai/requirements.txt`, run `pytest exercise-ai -q` from the repo root on `push`/`pull_request` to `master`. No new PyPI packages. No matrix, lint, coverage, Docker, or branch-protection API.
+Phase 7 is a greenfield GitHub Actions workflow: one job on `ubuntu-latest`, Python 3.11, `pip install -r exercise-ai/requirements.txt`, then `pytest exercise-ai -q` from the repo root on `push`/`pull_request` to `master`. No matrix, lint, coverage, Docker, or branch-protection API. The existing suite already collects **73 tests** without live LLM; CI must not declare `LLM_API_KEY` / `GEMINI_API_KEY`.
 
-The existing suite already collects **73 tests** without live LLM calls; `conftest.py` only grounds `sys.path` and factories — secrets are never required for a green suite. CI-02 is satisfied by Actions’ built-in check runs on the PR Checks tab; making a check *required* for merge is optional GitHub UI config (out of scope for this phase’s automation).
+Official Actions docs and action READMEs prescribe `actions/checkout` + `actions/setup-python` + pip + pytest. Latest majors verified from GitHub Releases: **checkout v7**, **setup-python v7** (published 2026-07-20). Some Context7-indexed GitHub tutorials still show older majors (`checkout@v6`, `setup-python@v5`) — prefer the action repo majors for this plan.
 
-**Primary recommendation:** Add `.github/workflows/ci.yml` with `name: CI`, job `test`, `permissions: contents: read`, `actions/checkout@v7` + `actions/setup-python@v7` (`python-version: '3.11'`, optional `cache: pip` + `cache-dependency-path: exercise-ai/requirements.txt`), install/test commands mirroring README, **no** `LLM_*` / `GEMINI_*` secrets or `env` injection — then one short README CI note.
+**Primary recommendation:** Add `.github/workflows/ci.yml` with `name: CI`, job `test`, `permissions: contents: read`, pin `actions/checkout@v7` + `actions/setup-python@v7` (`python-version: '3.11'`), install from `exercise-ai/requirements.txt`, run `pytest exercise-ai -q` at checkout root, omit all LLM secrets; add one README line under “Como testar”.
 
 <user_constraints>
 ## User Constraints (from CONTEXT.md)
 
 ### Locked Decisions
-### Filosofia (lab pequeno)
+
+#### Filosofia (lab pequeno)
 - **D-01:** CI = **um job**, um arquivo de workflow, o mínimo para regressão confiante — sem “plataforma de CI” — **Reversibility:** reversible
 - **D-02:** Preferir o que o README **já documenta** (install + `pytest`) em vez de inventar tooling novo nesta fase
 - **D-03:** Explicitamente **não** nesta fase: matrix de OS, matrix de várias Pythons, ruff/mypy gates, coverage %, Docker, tox, pre-commit no Actions, cache obrigatório, release/publish, concurrency fancy — **Reversibility:** reversible (podem entrar depois se doer)
 
-### Triggers
+#### Triggers
 - **D-04:** Disparar em **`push`** e **`pull_request`** na branch default **`master`** (remote HEAD atual do repo) — cobre PR aberto (#3) e pushes na linha principal
 - **D-05:** Não expandir triggers para `workflow_dispatch` / tags / todas as branches nesta fase (YAGNI)
 
-### Runtime / install / comando
+#### Runtime / install / comando
 - **D-06:** Runner **`ubuntu-latest`** apenas
 - **D-07:** **Uma** versão Python: **`3.11`** (piso do PROJECT “3.11+”; estável no Actions; evita surpresa do 3.14 local no CI) — **Reversibility:** reversible — bump/matrix depois se precisar
 - **D-08:** Install: `pip install -r exercise-ai/requirements.txt` (mesmo contrato do README)
 - **D-09:** Teste canônico: **`pytest exercise-ai -q`** a partir da **raiz do checkout** (mesmo Phase 3 D-04 / README) — **Reversibility:** costly — regressão e docs apontam para este comando
 - **D-10:** Não exigir `pyproject.toml` / packaging install nesta fase
 
-### Secrets / LLM live (CI-01)
+#### Secrets / LLM live (CI-01)
 - **D-11:** Workflow **não** declara nem injeta `LLM_API_KEY`, `GEMINI_API_KEY`, nem outros secrets de LLM — **Reversibility:** costly — contrato de segurança CI-01
 - **D-12:** Confiar na suite existente (mocks/dados estáticos; 73 tests collected localmente sem live LLM). Não adicionar job de “smoke live API”
 - **D-13:** Opcional (discretion): `env:` vazio ou unset explícito das chaves se o planner quiser cinto-e-suspenders — não obrigatório se o job nunca as passa
 
-### Check vermelho / “bloqueia merge” (CI-02)
+#### Check vermelho / “bloqueia merge” (CI-02)
 - **D-14:** Sucesso = job passa; falha de pytest = job falha → check **vermelho** no PR (comportamento padrão do Actions)
 - **D-15:** Nome do workflow/job **claro e estável** (ex. `CI` / `test`) para o operator reconhecer no PR
 - **D-16:** **Não** automatizar branch protection / required checks via API nesta fase — repo pequeno; “bloqueia merge confiante” = status **visível** + operator pode marcar required check manualmente no GitHub se quiser — **Reversibility:** reversible
 - **D-17:** README: uma linha apontando que push/PR rodam Actions; não precisa tutorial de branch protection
 
-### Docs / superfície
+#### Docs / superfície
 - **D-18:** Atualizar README “Como testar” (ou seção curta CI) com o fato do workflow; manter comando local idêntico ao do job
 - **D-19:** Não criar docs de “CI strategy” separados — YAGNI
 
@@ -68,34 +69,34 @@ The existing suite already collects **73 tests** without live LLM calls; `confte
 
 | ID | Description | Research Support |
 |----|-------------|------------------|
-| CI-01 | Em push/PR no GitHub, Actions instala deps e roda `pytest` no pacote `exercise-ai` sem chamar LLM live (sem secrets de API no job) | Workflow YAML mirrors README install/test; no secrets block; suite already mock-based (73 collected); `pytest` in `requirements.txt` |
-| CI-02 | Falha de testes deixa o check vermelho e bloqueia merge confiante (status visível no PR) | Actions auto-creates check runs on PR Checks tab; red = job failure; required-check enforcement is optional UI (D-16), not API in this phase |
+| CI-01 | Em push/PR no GitHub, Actions instala deps e roda `pytest` no pacote `exercise-ai` sem chamar LLM live (sem secrets de API no job) | Single-job workflow: checkout → setup-python 3.11 → `pip install -r exercise-ai/requirements.txt` → `pytest exercise-ai -q`; no `env`/`secrets` for LLM keys; suite is mock-based (73 collected) |
+| CI-02 | Falha de testes deixa o check vermelho e bloqueia merge confiante (status visível no PR) | Default Actions status check on PR when job fails; stable `name: CI` / job `test`; no branch-protection API (D-16) — visibility is the deliverable |
 </phase_requirements>
 
 ## Project Constraints (from .cursor/rules/)
 
-From `.cursor/rules/10-python.mdc` and `.cursor/rules/20-ai-engineering.mdc` (via `skills/python-ai-engineering/SKILL.md`):
+From `10-python.mdc` + `20-ai-engineering.mdc` + `skills/python-ai-engineering/SKILL.md`:
 
 | Directive | Implication for Phase 7 |
 |-----------|-------------------------|
-| YAGNI / KISS / smallest correct change | One workflow file, one job; no CI platform sprawl |
-| Never hardcode API secrets; keys via `.env` only | Workflow must not declare/inject `LLM_API_KEY` / `GEMINI_API_KEY` |
-| LLM output is not evidence — deterministic verification | Trust pytest exit code; no live-API smoke job |
-| Prefer Context7 for framework/SDK docs | Used for Actions / setup-python / checkout |
-| Semgrep when changes involve secrets / auth | Scan workflow for accidental secret refs if editing secrets surface |
-| Serena before non-trivial Python refactors | N/A — this phase is YAML + README only |
-| Fail fast / verify with evidence | Local `pytest exercise-ai -q` before/after; first Actions run as proof |
+| YAGNI / KISS / smallest correct change | One workflow file, one job; mirror README; no new tooling |
+| Never hardcode API secrets; keys via `.env` only | Workflow must not inject `LLM_API_KEY` / `GEMINI_API_KEY` |
+| Prefer Context7 for SDK/framework APIs | Used for GitHub Actions / setup-python / checkout docs |
+| Serena for non-trivial symbol/refactor work | Used to inspect `conftest.py` and secret/env patterns |
+| Semgrep when changes involve secrets/env/network | Attempted for secret-handling surfaces; inform CI-01 threat model |
+| Deterministic verification over LLM judgment | CI gate is pytest exit code |
+| Fail Fast / explicit errors | Let pytest failure fail the job (no `continue-on-error`) |
 
 ## Architectural Responsibility Map
 
 | Capability | Primary Tier | Secondary Tier | Rationale |
 |------------|-------------|----------------|-----------|
-| Workflow definition (triggers, job, steps) | Repo config (Git) | — | Versioned YAML under `.github/workflows/`; no app runtime |
-| Dependency install + pytest execution | CI runner (GitHub-hosted) | — | `ubuntu-latest` executes install/test; app code unchanged |
-| No-live-LLM guarantee | Test suite (app) | CI config | Mocks/factories already own this; CI must not inject secrets |
-| Status visibility (green/red on PR) | GitHub Checks UI | — | Actions emits check runs automatically |
-| Optional merge gate (required check) | Repo settings (human) | — | D-16: operator may enable in UI; not automated here |
-| Operator docs (README note) | Docs / Static | — | D-17/D-18: one short note; same local command |
+| Trigger CI on push/PR to `master` | CDN / Static (GitHub platform) | — | Workflow YAML in repo; executed by GitHub Actions runners |
+| Install Python deps + run pytest | API / Backend (CI runner as batch host) | — | Ephemeral `ubuntu-latest` VM; not app runtime |
+| Offline test correctness (mocks) | API / Backend (`exercise-ai/tests`) | — | Existing suite; CI only invokes it |
+| Secret non-injection (CI-01) | CDN / Static (workflow config) | API / Backend (app code) | Job YAML must omit secrets; app already redacts keys in logs |
+| PR check visibility (CI-02) | CDN / Static (GitHub Checks UI) | — | Platform default; no app code |
+| README CI note | CDN / Static (docs) | — | Operator discoverability |
 
 ## Standard Stack
 
@@ -103,95 +104,88 @@ From `.cursor/rules/10-python.mdc` and `.cursor/rules/20-ai-engineering.mdc` (vi
 
 | Library / Action | Version | Purpose | Why Standard |
 |------------------|---------|---------|--------------|
-| GitHub Actions workflow | YAML under `.github/workflows/` | CI orchestration | Native GitHub CI; zero new deps [CITED: docs.github.com/en/actions] |
-| `actions/checkout` | **v7** (current major) | Checkout repo into `$GITHUB_WORKSPACE` | Official checkout action; README shows `@v7` [CITED: github.com/actions/checkout] |
-| `actions/setup-python` | **v7** (current major; release `v7.0.0` 2026-07-20) | Install Python 3.11 + optional pip cache | Official setup action [CITED: github.com/actions/setup-python/releases/latest] |
-| Python | **3.11** (job pin) | Runtime for suite | Locked D-07; PROJECT floor “3.11+” [VERIFIED: .planning/PROJECT.md:17] quote: `Python 3.11+` |
-| pip + `exercise-ai/requirements.txt` | as in repo | Install deps including pytest | Locked D-08; README Setup [VERIFIED: README.md:7-9] |
-| pytest | `>=8.0.0` (from requirements) | Test runner | Already in requirements [VERIFIED: exercise-ai/requirements.txt:5] quote: `pytest>=8.0.0` |
+| GitHub Actions workflow | YAML under `.github/workflows/` | CI orchestration | Native to GitHub; no third-party CI host [CITED: docs.github.com/en/actions] |
+| `actions/checkout` | **v7** (latest release `v7.0.1`, 2026-07-20) | Clone repo into `$GITHUB_WORKSPACE` | Official checkout action; README uses `@v7` [VERIFIED: github.com/actions/checkout/releases/latest] |
+| `actions/setup-python` | **v7** (latest release `v7.0.0`, 2026-07-20) | Install Python 3.11 on runner | Official setup action; README uses `@v7` [VERIFIED: github.com/actions/setup-python/releases/latest] |
+| Python | **3.11** (pinned in workflow) | Runtime for tests | Locked D-07; PROJECT.md “3.11+” [VERIFIED: .planning/PROJECT.md Current State] |
+| pip + `exercise-ai/requirements.txt` | as committed | Install openai, google-genai, pydantic, python-dotenv, pytest | Locked D-08; README Setup [VERIFIED: README.md:7-9] [VERIFIED: exercise-ai/requirements.txt:1-5] |
+| pytest | `>=8.0.0` (via requirements.txt) | Test runner | Already in deps; README command [VERIFIED: exercise-ai/requirements.txt:5] [VERIFIED: README.md:59-65] |
 
 ### Supporting
 
-| Item | Version | Purpose | When to Use |
-|------|---------|---------|-------------|
-| `cache: pip` + `cache-dependency-path` | setup-python input | Speed repeated installs | Discretion — recommended for nested `exercise-ai/requirements.txt` [CITED: github.com/actions/setup-python README] |
-| `permissions: contents: read` | workflow key | Least-privilege `GITHUB_TOKEN` | Discretion — recommended; checkout docs show this pattern [CITED: github.com/actions/checkout README] |
+| Library / Pattern | Version | Purpose | When to Use |
+|-------------------|---------|---------|-------------|
+| `permissions: contents: read` | workflow syntax | Least-privilege `GITHUB_TOKEN` | Recommended (discretion) [CITED: docs.github.com/en/actions — permissions] |
+| `cache: pip` on setup-python | optional input | Speed installs | Discretion only; **not** required (D-03) [CITED: /actions/setup-python README] |
+| `python -m pip install --upgrade pip` | optional step | Fresher pip on runner | Nice-to-have; GitHub Python tutorial often includes it [CITED: docs.github.com/en/actions/tutorials/build-and-test-code/python] |
 
 ### Alternatives Considered
 
 | Instead of | Could Use | Tradeoff |
 |------------|-----------|----------|
-| Single Python 3.11 job | Matrix 3.11–3.13 / multi-OS | Broader coverage; **deferred** (D-03) |
-| `pip install -r …` | poetry / uv / `pip install -e .` | Packaging not in repo; **deferred** (D-10) |
-| Visible Checks only | Branch protection API / Rulesets | True merge block; **deferred** (D-16) |
-| GitHub Actions | other CI (Azure, Circle) | Extra accounts; not requested |
+| Single Python 3.11 job | Matrix 3.11–3.13 | Deferred (D-03); local is 3.14 — CI pin avoids 3.14 surprises |
+| `actions/setup-python@v7` | `@v5` from older tutorials | Tutorials lag; releases show v7 current |
+| Root `pytest exercise-ai -q` | `cd exercise-ai && pytest` | Breaks D-09 / README / Phase 3 contract |
+| No secrets in job | Repo Actions secrets for LLM | Violates CI-01 / D-11 |
+| Visible check only | Branch protection API | Out of scope D-16 |
 
-**Installation (CI job steps — not local PyPI adds):**
+**Installation (CI job steps — not a local npm/pip add):**
 
 ```bash
+# On the Actions runner after checkout + setup-python 3.11:
 python -m pip install --upgrade pip
 pip install -r exercise-ai/requirements.txt
 pytest exercise-ai -q
 ```
 
-**Version verification notes:**
-- Local machine probed this session: Python **3.14.0**, pytest **9.0.3** — reinforces D-07 pin to **3.11** on CI so runner ≠ local surprise. [VERIFIED: shell `python --version` / `pip show pytest`]
-- GitHub **tutorial** still shows `checkout@v6` / `setup-python@v5` in places [CITED: docs.github.com/en/actions/tutorials/build-and-test-code/python]; action repos are ahead at **v7**. Prefer **v7** majors from action READMEs/releases for the plan skeleton.
-- No new PyPI packages → no `pip index` legitimacy gate required for installs.
+**Version verification:**
+- `actions/checkout` latest: **v7.0.1** [VERIFIED: github.com/actions/checkout/releases/latest]
+- `actions/setup-python` latest: **v7.0.0** [VERIFIED: github.com/actions/setup-python/releases/latest]
+- No new PyPI packages introduced this phase (reuse `exercise-ai/requirements.txt`).
 
 ## Package Legitimacy Audit
 
-> **None — Actions only.** This phase adds workflow YAML + a README note. It does **not** introduce new PyPI/npm/crates packages.
+> Phase installs **no new PyPI packages**. Runtime deps already declared. New artifacts are first-party workflow YAML + official GitHub-owned actions.
 
 | Package | Registry | Age | Downloads | Source Repo | Verdict | Disposition |
 |---------|----------|-----|-----------|-------------|---------|-------------|
-| — | — | — | — | — | N/A | No new packages |
+| actions/checkout | GitHub Actions Marketplace / org `actions` | years (v7.0.1 Jul 2026) | N/A (official) | github.com/actions/checkout | OK | Approved — pin `@v7` |
+| actions/setup-python | GitHub Actions Marketplace / org `actions` | years (v7.0.0 Jul 2026) | N/A (official) | github.com/actions/setup-python | OK | Approved — pin `@v7` |
+| (existing) pytest, pydantic, openai, google-genai, python-dotenv | PyPI via requirements.txt | pre-existing | N/A this phase | various | OK | No new install — already in repo |
 
 **Packages removed due to [SLOP] verdict:** none  
-**Packages flagged as suspicious [SUS]:** none  
-
-Third-party **Actions** used (not PyPI): `actions/checkout`, `actions/setup-python` — official `actions/*` orgs; pin major tags `@v7`.
+**Packages flagged as suspicious [SUS]:** none
 
 ## Architecture Patterns
 
 ### System Architecture Diagram
 
 ```text
-push / pull_request → master
+[git push / pull_request → master]
+            │
+            ▼
+┌───────────────────────────────┐
+│ GitHub Actions (ubuntu-latest)│
+│ workflow: CI / job: test      │
+└───────────────┬───────────────┘
+                │
+        ┌───────┴────────┐
+        ▼                ▼
+ actions/checkout@v7   (no LLM secrets)
         │
         ▼
-┌───────────────────────────┐
-│  GitHub Actions           │
-│  workflow: CI             │
-│  permissions: contents:read│
-└───────────┬───────────────┘
-            │
-            ▼
-┌───────────────────────────┐
-│  Job: test                │
-│  runs-on: ubuntu-latest   │
-└───────────┬───────────────┘
-            │
-     ┌──────┼──────────────────────┐
-     ▼      ▼                      ▼
- checkout  setup-python 3.11    (no secrets)
-     │      │
-     └──────┤
-            ▼
-   pip install -r exercise-ai/requirements.txt
-            │
-            ▼
-   pytest exercise-ai -q   ◄── mocks/factories (no live LLM)
-            │
-     ┌──────┴──────┐
-     ▼             ▼
-  exit 0        non-zero
-  (success)     (failure)
-     │             │
-     └──────┬──────┘
-            ▼
-   Check run on PR Checks tab
-   (green / red) — CI-02 visible
+ actions/setup-python@v7  python-version: '3.11'
+        │
+        ▼
+ pip install -r exercise-ai/requirements.txt
+        │
+        ▼
+ pytest exercise-ai -q   ← cwd = $GITHUB_WORKSPACE (repo root)
+        │
+   ┌────┴────┐
+   ▼         ▼
+ exit 0    exit ≠0
+ check ✓   check ✗ (PR red)
 ```
 
 ### Recommended Project Structure
@@ -199,95 +193,127 @@ push / pull_request → master
 ```text
 .github/
 └── workflows/
-    └── ci.yml              # sole workflow (discretion: ci.yml recommended)
-README.md                   # short CI note under Como testar
+    └── ci.yml          # sole CI artifact (discretion: ci.yml)
+README.md               # one-line CI note under “Como testar”
 exercise-ai/
-├── requirements.txt        # unchanged — pytest already listed
-└── tests/                  # unchanged — mock suite
+├── requirements.txt    # unchanged install contract
+└── tests/              # existing suite — unchanged this phase
 ```
 
-No `.github/` exists today — greenfield. [VERIFIED: shell listing → `NO_.github`]  
-Default remote branch: **master**. [VERIFIED: `git remote show origin` → `HEAD branch: master`]
+### Pattern 1: Minimal Python pytest CI (locked decisions)
 
-### Pattern 1: Minimal single-job Python CI
-**What:** checkout → setup-python → pip install → pytest; one `runs-on`.  
-**When to use:** Lab/MVP regression (this phase).  
-**Example:** See Code Examples below (adapted from official Python CI tutorial + locked paths).
+**What:** One job; checkout; setup Python 3.11; pip install requirements path; pytest from root.  
+**When to use:** Always for this phase (locked D-01–D-09).  
+**Example:**
 
-### Pattern 2: Nested requirements + pip cache
-**What:** `cache: pip` with explicit `cache-dependency-path: exercise-ai/requirements.txt` because the file is not at repo root.  
-**When to use:** Optional speed-up (discretion). Without `cache-dependency-path`, cache key may miss nested file. [CITED: github.com/actions/setup-python docs]
+```yaml
+# Source: composed from Context7 /actions/setup-python + /actions/checkout @v7
+# + locked CONTEXT D-04–D-09; branches: master (not main)
+name: CI
 
-### Pattern 3: PR status without protection API
-**What:** Rely on automatic check runs; document visibility; leave required-check toggle to human.  
-**When to use:** CI-02 + D-16. [CITED: docs.github.com … about-status-checks]
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r exercise-ai/requirements.txt
+      - name: Run tests
+        run: pytest exercise-ai -q
+```
+
+### Pattern 2: Path grounding via conftest (why root pytest works)
+
+**What:** `conftest.py` inserts `exercise-ai/` onto `sys.path` so imports resolve when pytest is invoked from repo root.  
+**When to use:** Do not change for CI; do not `cd exercise-ai` unless changing D-09 (out of scope).
+
+Verbatim from repo [VERIFIED: exercise-ai/tests/conftest.py:10-13]:
+
+```python
+_PACKAGE_DIR = Path(__file__).resolve().parents[1]
+if str(_PACKAGE_DIR) not in sys.path:
+    sys.path.insert(0, str(_PACKAGE_DIR))
+```
 
 ### Anti-Patterns to Avoid
-- **Matrix / coverage / lint gates now:** Violates D-03 / YAGNI.
-- **`working-directory: exercise-ai` + `pytest -q`:** Breaks canonical root command D-09 / README.
-- **`secrets.LLM_API_KEY` in workflow:** Violates CI-01 / D-11.
-- **Triggering only `main`:** Remote default is `master` — wrong branch filter = silent no-runs. [VERIFIED: remote HEAD master]
-- **`pull_request_target` for fork CI:** Unnecessary privilege; not needed for this lab.
-- **Tutorial copy-paste with matrix + artifact upload:** Overkill vs D-01.
+
+- **`main` instead of `master`:** Remote HEAD is `master` [VERIFIED: `git remote show origin` → HEAD branch: master]. Wrong branch filter → CI never runs on PRs.
+- **`working-directory: exercise-ai` + `pytest` without path:** Diverges from README/`pytest exercise-ai -q`.
+- **Injecting `secrets.LLM_API_KEY`:** Violates CI-01 / D-11.
+- **Matrix / coverage / ruff in this PR:** Deferred D-03.
+- **`continue-on-error: true` on pytest:** Would leave CI-02 green on failure.
+- **Relying on local Python 3.14 for CI:** Local probe showed 3.14.0; pin 3.11 in Actions (D-07).
 
 ## Don't Hand-Roll
 
 | Problem | Don't Build | Use Instead | Why |
 |---------|-------------|-------------|-----|
-| Checkout repo on runner | Custom git clone scripts | `actions/checkout@v7` | Auth, sparse, PR merge refs handled |
-| Install Python on runner | apt/pyenv scripts | `actions/setup-python@v7` | Version pin + cache hooks |
-| Publish PR status | Manual Commit Status API | Actions check runs (automatic) | Built-in Checks tab |
-| Enforce required checks in code | REST Rulesets/branch-protection API | Operator UI (optional) | D-16 / deferred |
-| Detect “no live LLM” in CI | Custom network firewall job | Existing mock suite | Suite already guarantees offline |
+| Clone repo in CI | Custom git script | `actions/checkout@v7` | Handles PR refs, tokens, cleanup [CITED: /actions/checkout] |
+| Install Python on runner | apt/pyenv DIY | `actions/setup-python@v7` | Versioned, cache-capable, maintained [CITED: /actions/setup-python] |
+| CI host / dashboard | Jenkins/self-hosted | GitHub Actions | Repo already on GitHub; YAGNI |
+| Force merge block via API | Scripts calling branch protection API | Visible check + optional manual required status | Locked D-16 |
+| Live LLM smoke in CI | Second job with API keys | Existing mock suite | Locked D-12 |
 
-**Key insight:** The hard work (offline, reliable tests) already shipped in Phases 3–6; Phase 7 only wires the same command into Actions.
+**Key insight:** The hard problem (offline, trustworthy tests) is already solved in `exercise-ai/tests/`. CI only needs to invoke the documented command on a clean runner.
 
 ## Common Pitfalls
 
-### Pitfall 1: Wrong working directory
-**What goes wrong:** Job cds into `exercise-ai/` and runs `pytest -q` or `pytest tests` — drifts from README / D-09.  
-**Why it happens:** Package layout looks like a subproject.  
-**How to avoid:** Keep default GITHUB_WORKSPACE root; run `pytest exercise-ai -q` and `pip install -r exercise-ai/requirements.txt`.  
-**Warning signs:** “file or directory not found”, different local vs CI commands.
+### Pitfall 1: Wrong default branch in `on:` filters
+**What goes wrong:** Workflow never runs on PRs targeting `master`.  
+**Why it happens:** Tutorials default to `main`.  
+**How to avoid:** Use `branches: [master]` for both `push` and `pull_request` (D-04).  
+**Warning signs:** PR shows no checks; Actions tab empty for PR events.
 
-### Pitfall 2: Branch name `main` vs `master`
-**What goes wrong:** Workflow never runs on PRs/pushes.  
-**Why it happens:** Templates default to `main`.  
-**How to avoid:** `branches: [master]` for both `push` and `pull_request` (D-04).  
-**Warning signs:** No workflow runs; Checks tab empty / pending forever if required later.
+### Pitfall 2: Wrong working directory / pytest path
+**What goes wrong:** `ModuleNotFoundError` or zero tests collected.  
+**Why it happens:** `cd exercise-ai` without updating import grounding, or `pytest` with wrong path.  
+**How to avoid:** Run `pytest exercise-ai -q` from `$GITHUB_WORKSPACE` root (D-09).  
+**Warning signs:** Collection count ≠ 73; import errors for `models`.
 
-### Pitfall 3: Missing pytest / wrong requirements path
-**What goes wrong:** `pytest: command not found` or empty env.  
-**Why it happens:** Installs root `requirements.txt` that doesn’t exist; or forgets install step.  
-**How to avoid:** Exact path `exercise-ai/requirements.txt` which includes `pytest>=8.0.0`. [VERIFIED: exercise-ai/requirements.txt:5]
+### Pitfall 3: LLM secrets in workflow
+**What goes wrong:** Keys exposed in logs/fork PRs; CI-01 fails intent.  
+**Why it happens:** Copy-paste “real” deploy workflows with `env: API_KEY: ${{ secrets.* }}`.  
+**How to avoid:** Omit `secrets` / LLM `env` entirely (D-11). Optional belt: do not set those vars.  
+**Warning signs:** Workflow YAML contains `LLM_API_KEY` or `GEMINI_API_KEY`.
 
-### Pitfall 4: Accidental LLM secrets
-**What goes wrong:** CI-01 fails intent; risk of live calls or key leakage in logs.  
-**Why it happens:** Copy-paste from deploy workflows; repo secrets auto-mapped.  
-**How to avoid:** No `env:` / `secrets:` for LLM keys; do not add repository secrets for this job. Suite uses `monkeypatch.setenv` with dummy values only inside tests. [VERIFIED: exercise-ai/tests/test_logging_security.py:18-24] quote: `DUMMY_LLM_KEY = "sk-TEST-LEAK-LLM-KEY-9f3a2b1c"` / `monkeypatch.setenv("LLM_API_KEY", DUMMY_LLM_KEY)`.  
-**Warning signs:** Workflow YAML contains `LLM_API_KEY` or `secrets.`.
+### Pitfall 4: Stale action majors from tutorials
+**What goes wrong:** Plan pins `@v5`/`@v6` while `@v7` is current.  
+**Why it happens:** Context7 GitHub site docs still show older examples alongside newer action READMEs.  
+**How to avoid:** Prefer `actions/*/releases/latest` + action README (`@v7`).  
+**Warning signs:** Mismatch between research table and GitHub “latest” tag.
 
-### Pitfall 5: Assuming branch protection = CI-02
-**What goes wrong:** Planner adds API automation or marks phase incomplete without UI toggle.  
-**Why it happens:** “bloqueia merge” wording.  
-**How to avoid:** Per D-14–D-16, success = **visible** red/green check; required-check is optional human step. [CITED: docs.github.com … about-status-checks — required protected branch is separate]
+### Pitfall 5: Assuming `.env` is required for pytest
+**What goes wrong:** Unnecessary secret setup; or CI fails waiting for env files.  
+**Why it happens:** `main.py` calls `load_dotenv` at import [VERIFIED: exercise-ai/main.py:19-23], but tests use mocks/`monkeypatch` and factories in conftest — suite runs without real keys (README “Como testar”).  
+**How to avoid:** Do not commit `.env`; do not create secrets in Actions for tests.  
+**Warning signs:** Job steps that copy `.env.example` with fake production keys.
 
-### Pitfall 6: Skipped workflow leaves Pending
-**What goes wrong:** If later required, skip instructions / branch filters leave checks Pending and block merges.  
-**Why it happens:** Path/branch filters or `[skip ci]`.  
-**How to avoid:** Don’t add skip-heavy filters this phase; keep triggers simple. [CITED: docs.github.com workflow-syntax branches note]
-
-### Pitfall 7: Stale action majors from old tutorials
-**What goes wrong:** Plan pins `@v4`/`@v5` unnecessarily or mixes incompatible docs.  
-**How to avoid:** Prefer current major **v7** from action repos; note tutorial lag. [CITED: setup-python releases v7.0.0]
+### Pitfall 6: Interpreting “bloqueia merge” as requiring Rulesets API
+**What goes wrong:** Scope creep into repo admin automation.  
+**Why it happens:** CI-02 wording.  
+**How to avoid:** Deliver red/green check; document optional manual required check (D-16/D-17).
 
 ## Code Examples
 
-### Recommended workflow (planner skeleton)
+### Recommended workflow skeleton (discretion filled)
 
 ```yaml
-# Source: adapted from docs.github.com Python CI tutorial + locked CONTEXT D-01…D-15
-# Actions majors: checkout/setup-python @v7 per action READMEs/releases (2026)
+# Source: Context7 /actions/checkout@v7 + /actions/setup-python@v7
+# Locked: master, ubuntu-latest, 3.11, requirements path, pytest from root
 name: CI
 
 on:
@@ -309,8 +335,8 @@ jobs:
         uses: actions/setup-python@v7
         with:
           python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: exercise-ai/requirements.txt
+          # cache: 'pip'  # optional; not required (D-03)
+          # cache-dependency-path: exercise-ai/requirements.txt
 
       - name: Install dependencies
         run: |
@@ -321,123 +347,114 @@ jobs:
         run: pytest exercise-ai -q
 ```
 
-**Discretion notes baked in:** filename `ci.yml`; `name: CI`; job id `test`; pip cache on; `permissions: contents: read`; paths from repo root (no `defaults.run.working-directory`).
+### README note (D-18)
 
-**Do not include** (CI-01):
+Under “Como testar”, after the local pytest command, add one sentence such as:
 
-```yaml
-# ANTI-PATTERN — never in this phase
-env:
-  LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-```
+> Em push/PR para `master`, o workflow GitHub Actions `CI` executa o mesmo comando.
 
-### README note (D-17 / D-18)
+Keep the local command identical: `pytest exercise-ai -q` [VERIFIED: README.md:59-65].
 
-Under `## Como testar`, after the existing command block [VERIFIED: README.md:59-65], add ~1–2 lines, e.g.:
+### requirements.txt contract (verbatim)
 
-> Em push/PR para `master`, o GitHub Actions roda o mesmo comando (`pytest exercise-ai -q`) sem secrets de LLM.
-
-Keep the local bash block unchanged:
-
-```bash
-pytest exercise-ai -q
-```
-
-### Suite offline grounding
-
-`conftest.py` only adjusts `sys.path` and provides factories — no dotenv load: [VERIFIED: exercise-ai/tests/conftest.py:10-20]
+[VERIFIED: exercise-ai/requirements.txt:1-5]
 
 ```text
-_PACKAGE_DIR = Path(__file__).resolve().parents[1]
-if str(_PACKAGE_DIR) not in sys.path:
-    sys.path.insert(0, str(_PACKAGE_DIR))
+openai>=1.50.0
+google-genai>=1.0.0
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+pytest>=8.0.0
 ```
-
-Collect evidence this session: `73 tests collected`. [VERIFIED: shell `pytest exercise-ai --collect-only -q`]
 
 ## State of the Art
 
 | Old Approach | Current Approach | When Changed | Impact |
 |--------------|------------------|--------------|--------|
-| Manual local pytest only (Phase 3 D-10 deferred CI) | Minimal Actions workflow | Phase 7 | Regression on every push/PR |
-| `checkout@v3`/`setup-python@v4` blog posts | `@v7` majors | 2026 action releases | Prefer current majors |
-| Commit Status API integrations | Actions **checks** | Actions era | Checks tab detail + logs |
-| Enterprise matrices day-one | Single job YAGNI | Lab preference | Faster to ship; expand later |
+| Manual local pytest only | GitHub Actions on push/PR | Phase 7 (this) | Regression visible on PRs |
+| `actions/checkout@v3`–`v4` era examples | `@v7` | 2026 major line | Use current major |
+| `setup-python@v4`/`v5` in many tutorials | `@v7` | 2026-07 | Prefer releases over stale tutorials |
+| Enterprise CI (matrix, coverage, required rulesets) | Single job, visible check | Operator preference / CONTEXT | Stay minimal |
 
 **Deprecated/outdated:**
-- Copying multi-OS matrix + coverage artifact workflows for this lab (D-03).
-- Assuming default branch is `main` without checking remote HEAD.
+- Pinning `setup-python@v5` solely because the “Building and testing Python” tutorial snippet still shows it — superseded by action v7 releases [ASSUMED: tutorial lag vs release cadence].
 
 ## Assumptions Log
 
 | # | Claim | Section | Risk if Wrong |
 |---|-------|---------|---------------|
-| A1 | First Actions run on this repo will succeed with the skeleton above without extra apt packages | Code Examples / Validation | Executor may need one fix-up commit (e.g. PATH); low likelihood on `ubuntu-latest` + pip |
-| A2 | Check name shown on PR will be recognizable as `CI` / `test` (GitHub formats `Workflow / job`) | CI-02 / Discretion | Operator may need one glance at Checks tab naming — still meets D-15 if `name:`/`job` clear |
-| A3 | Optional belt-and-suspenders `env: LLM_API_KEY: ''` is unnecessary if secrets are never referenced | Pitfalls / D-13 | None if D-11 held; empty env is harmless if planner adds it |
+| A1 | Tutorial docs lag behind action majors; `@v7` remains correct through planning window (~30d) | Standard Stack | Executor may need minor pin bump |
+| A2 | Optional `permissions: contents: read` is sufficient for checkout+pytest (no packages write) | Discretion / Security | Rare need for extra scopes — unlikely for this job |
+| A3 | Fork PRs from public forks will not receive repo secrets (platform default) — reinforces omitting secrets | Security | If secrets were added later, fork risk rises — don't add them |
+| A4 | Operator may manually set required check named after workflow/job after first green run | CI-02 / D-16 | Merge “confidence” stays social/process until then |
 
-**If wrong:** Planner keeps Wave 0 / verify-work path for A1; A2–A3 are cosmetic.
+**If empty cells were expected:** A1–A4 are the only assumed claims; all locked decisions and repo facts were verified or cited.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Exact action major tags in the committed YAML**
-   - What we know: Action READMEs/releases show **v7**; GitHub Python tutorial still shows older majors in places.
-   - What's unclear: Whether org policy prefers SHA-pinning (not required by CONTEXT).
-   - Recommendation: Pin `@v7` majors (not full SHAs) for readability in this lab.
+1. **Exact workflow filename / display name** — **RESOLVED**
+   - What we know: Discretion allows `ci.yml` vs `test.yml`; suggest `ci.yml` + `name: CI` + job `test`.
+   - **RESOLVED (07-01-PLAN discretion):** `.github/workflows/ci.yml`; workflow `name: CI`; job id `test` (D-15).
 
-2. **Enable pip cache on day one?**
-   - What we know: Not required (D-03); nested path needs `cache-dependency-path`.
-   - Recommendation: **Yes** include cache — cheap, reversible; omit if planner wants absolute minimal first commit.
+2. **pip cache on/off** — **RESOLVED**
+   - What we know: Optional; D-03 says not required.
+   - **RESOLVED (07-01-PLAN discretion):** Omit `cache: pip` / `cache-dependency-path` in MVP; polish later if slow (D-03).
+
+3. **Belt-and-suspenders unset of LLM env vars (D-13)** — **RESOLVED**
+   - What we know: Unnecessary if never injected.
+   - **RESOLVED (07-01-PLAN discretion):** Skip explicit env unset; never inject secrets → unset unnecessary (D-11 / D-13 skip).
 
 ## Environment Availability
 
 | Dependency | Required By | Available | Version | Fallback |
 |------------|------------|-----------|---------|----------|
-| GitHub-hosted `ubuntu-latest` | CI job | ✓ (remote) | GitHub-managed | — |
-| Python 3.11 on runner | setup-python | ✓ (via action) | 3.11 | — |
-| Local Python | Dev verification | ✓ | 3.14.0 (local) | Use CI pin 3.11; don’t require local 3.11 for planning |
-| pytest (local) | Pre-push check | ✓ | 9.0.3 | From requirements |
-| `.github/` tree | Workflow file | ✗ (absent) | — | Create on implement |
-| Graphify graph | Cross-doc intel | ✗ | — | Skipped — no `.planning/graphs/graph.json` |
+| GitHub Actions (hosted) | CI-01/02 | ✓ (repo on GitHub) | N/A | — |
+| Default branch `master` | Triggers D-04 | ✓ | HEAD = master | — |
+| Python on runner via setup-python | Job runtime | ✓ (Actions) | pin 3.11 | — |
+| Local Python (dev probe) | Local verify only | ✓ | 3.14.0 | Not used in CI |
+| pytest + deps (requirements.txt) | Test step | ✓ | pytest≥8 in requirements | — |
+| `.github/workflows/` today | Greenfield | ✗ (absent) | — | Create in execution |
+| `pyproject.toml` | Packaging | ✗ | — | Not required (D-10) |
+| Knowledge graph `.planning/graphs/graph.json` | Research enrichment | ✗ | — | Skipped |
 
-**Missing dependencies with no fallback:** none for planning (Actions runs in GitHub cloud).
+**Missing dependencies with no fallback:** none for planning — GitHub-hosted runners provide the execution environment once workflow is merged.
 
-**Missing dependencies with fallback:** local graphify — research proceeded via docs + repo reads.
+**Missing dependencies with fallback:** local 3.14 ≠ CI 3.11 (intentional).
 
 ## Validation Architecture
 
-> `workflow.nyquist_validation` is **true** in `.planning/config.json` — section required.
+> `workflow.nyquist_validation` is `true` in `.planning/config.json` [VERIFIED: .planning/config.json:11].
 
 ### Test Framework
 
 | Property | Value |
 |----------|-------|
-| Framework | pytest (`pytest>=8.0.0` in requirements; local 9.0.3) |
-| Config file | none — discovery via `exercise-ai/tests/` + `conftest.py` |
+| Framework | pytest ≥8.0.0 (`exercise-ai/requirements.txt`) |
+| Config file | none (conftest path grounding only) |
 | Quick run command | `pytest exercise-ai -q` |
-| Full suite command | `pytest exercise-ai -q` |
+| Full suite command | `pytest exercise-ai -q` (same; 73 tests) |
 
 ### Phase Requirements → Test Map
 
 | Req ID | Behavior | Test Type | Automated Command | File Exists? |
 |--------|----------|-----------|-------------------|--------------|
-| CI-01 | Suite runs without LLM secrets / live calls | existing unit (suite) | `pytest exercise-ai -q` | ✅ `exercise-ai/tests/*` |
-| CI-01 | Workflow has no LLM secret injection | review / grep | `rg "LLM_API_KEY\|GEMINI_API_KEY\|secrets\." .github/workflows` after add | ❌ Wave 0: workflow not yet created |
-| CI-02 | Failed pytest → failed job → red check | manual / GitHub UI | Push failing commit on branch OR rely on Actions semantics | ❌ manual after first workflow push |
-| CI-02 | Check visible on PR | manual UAT | Open PR Checks tab | ❌ post-implement |
+| CI-01 | Suite runs without live LLM / without API secrets in job | existing unit/integration suite + workflow review | `pytest exercise-ai -q` (local proxy); CI job must not reference LLM secrets | ✅ suite exists; ❌ workflow Wave 0 |
+| CI-02 | Nonzero pytest exit → failed check | platform behavior + smoke after first push | Push failing commit or rely on Actions semantics | ❌ needs first workflow run on GitHub |
 
 ### Sampling Rate
-- **Per task commit:** `pytest exercise-ai -q`
-- **Per wave merge:** `pytest exercise-ai -q`
-- **Phase gate:** Full suite green locally + at least one successful Actions run on `master`/PR; confirm Checks tab shows workflow name; confirm workflow YAML has no LLM secrets
+
+- **Per task commit:** `pytest exercise-ai -q` (local)
+- **Per wave merge:** same + YAML review (no secrets; correct branches)
+- **Phase gate:** Workflow file present; suite green locally; after push to GitHub, Actions run visible green/red
 
 ### Wave 0 Gaps
-- [ ] `.github/workflows/ci.yml` — does not exist yet (implementation deliverable, not a pytest file)
-- [ ] No separate `test_ci_workflow.py` needed — YAML validated by Actions run + static review
-- [ ] Framework install: already covered by `exercise-ai/requirements.txt`
 
-*(App-level gaps: none — existing 73-test suite covers CI-01 offline behavior.)*
+- [ ] `.github/workflows/ci.yml` — does not exist yet (greenfield)
+- [ ] README CI one-liner — not present yet
+- [ ] Framework install: N/A — pytest already in requirements.txt
+- [ ] No new pytest files required for CI-01 offline guarantee — existing 73 tests cover app behavior; CI is orchestration
+
+**Local probe this session:** `python -m pytest exercise-ai --collect-only -q` → `73 tests collected in 2.13s` [VERIFIED: shell collect-only].
 
 ## Security Domain
 
@@ -445,54 +462,79 @@ Collect evidence this session: `73 tests collected`. [VERIFIED: shell `pytest ex
 
 | ASVS Category | Applies | Standard Control |
 |---------------|---------|-----------------|
-| V2 Authentication | no | N/A — no app auth in CI job |
-| V3 Session Management | no | N/A |
-| V4 Access Control | partial | `permissions: contents: read` on `GITHUB_TOKEN` |
-| V5 Input Validation | no | Workflow not parsing untrusted app input beyond PR code under normal `pull_request` |
-| V6 Cryptography | no | N/A |
-| Secrets management | **yes** | Never inject/store LLM API keys in workflow; keep keys in local `.env` only |
+| V2 Authentication | no (CI job has no user auth) | — |
+| V3 Session Management | no | — |
+| V4 Access Control | partial | `permissions: contents: read`; no branch-protection API |
+| V5 Input Validation | no new app inputs | — |
+| V6 Cryptography | no | — |
+| Secrets management (V2-adjacent) | **yes** | Never inject LLM API keys into workflow; do not commit `.env` |
 
-### Known Threat Patterns for GitHub Actions + LLM labs
+### Known Threat Patterns for GitHub Actions + LLM CLI
 
 | Pattern | STRIDE | Standard Mitigation |
 |---------|--------|---------------------|
-| Secret exfiltration via workflow `env`/`secrets` | Information Disclosure | Omit LLM secrets entirely (D-11) |
-| Live API spend / flaky CI from real LLM | Tampering / DoS (cost) | Mock-only suite; no smoke-live job (D-12) |
+| LLM API key in workflow `env`/`secrets` | Information Disclosure | Omit keys entirely (D-11); suite uses mocks |
+| Secrets logged by app during CI | Information Disclosure | Existing redaction in generators; tests in `test_logging_security.py` |
 | Over-privileged `GITHUB_TOKEN` | Elevation of Privilege | `permissions: contents: read` |
-| Supply-chain malicious Action | Tampering | Use official `actions/*` @ major pins |
-| `pull_request_target` pwn request | Elevation of Privilege | Do not use; stick to `pull_request` |
+| `pull_request_target` with untrusted code | Tampering / RCE | Do not use `pull_request_target`; use `pull_request` (D-04) |
+| Wrong-branch silent skip | Denial of availability (no CI) | Filter `master` correctly |
+
+Serena search confirmed keys are read via `os.getenv` / documented in `.env.example`, and tests inject **dummy** keys via `monkeypatch` — not production secrets in CI. Semgrep custom probe on snippets confirmed `os.getenv("LLM_API_KEY")` / `load_dotenv` usage patterns (INFO-level; no hardcoded live secrets in scanned snippets).
 
 ## Sources
 
-### Primary (HIGH / MEDIUM via classify-confidence)
-- Context7 `/websites/github_en_actions` — Python CI tutorial (`checkout`, `setup-python`, pip, pytest); workflow `permissions`; PR branch filters / Pending checks
-- Context7 `/actions/setup-python` — pip `cache` + `cache-dependency-path`
-- Context7 `/actions/checkout` — `@v7`, `permissions: contents: read`
-- [CITED: https://github.com/actions/setup-python/releases/latest] — `v7.0.0` (2026-07-20)
-- [CITED: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/about-status-checks] — Actions generates checks; Checks tab; required checks vs protected branches
-- Repo: `07-CONTEXT.md`, `ROADMAP.md`, `REQUIREMENTS.md`, `PROJECT.md`, `README.md`, `exercise-ai/requirements.txt`, `exercise-ai/tests/conftest.py`, `.cursor/rules/*`, `.planning/config.json`
+### Primary (HIGH confidence)
 
-### Secondary
-- Shell probes: no `.github/`, remote `master`, 73 tests collected, local Python 3.14 / pytest 9.0.3
-- gsd-tools `classify-confidence --provider context7 --verified` → **MEDIUM** (used for docs-backed claims)
+- Context7 `/websites/github_en_actions` — workflow templates, triggers, permissions, Python build/test tutorial
+- Context7 `/actions/setup-python` — v7 usage, optional pip cache
+- Context7 `/actions/checkout` — basic `@v7` checkout
+- GitHub Releases: `actions/checkout` v7.0.1, `actions/setup-python` v7.0.0 (2026-07-20)
+- Repo: `07-CONTEXT.md`, `README.md`, `exercise-ai/requirements.txt`, `exercise-ai/tests/conftest.py`, `exercise-ai/main.py`, `.planning/config.json`
+- Shell: default branch `master`; pytest collect-only 73 tests; local Python 3.14.0
 
-### Tertiary
-- None material; A1–A3 logged as assumptions
+### Secondary (MEDIUM confidence)
+
+- Serena `search_for_pattern` across `exercise-ai` for env/secret usage
+- Semgrep `semgrep_scan_with_custom_rule` on secret-related snippets (default `semgrep_scan` RPC failed twice)
+
+### Tertiary (LOW confidence)
+
+- Assumption that GitHub tutorial snippets will continue to lag action majors (A1)
 
 ## Metadata
 
 **Confidence breakdown:**
-- Standard stack: **HIGH** — official Actions docs + action releases + locked CONTEXT commands
-- Architecture: **HIGH** — trivial single-job pipeline; greenfield `.github/`
-- Pitfalls: **HIGH** — branch name, cwd, secrets, and CI-02 visibility confirmed against docs + repo facts
-- Package legitimacy: **N/A** — no new packages
+- Standard stack: HIGH — locked CONTEXT + verified action releases + Context7
+- Architecture: HIGH — single job mapping is trivial and constrained
+- Pitfalls: HIGH — branch name, cwd, secrets are the classic failure modes and were checked against this repo
 
 **Research date:** 2026-09-11  
-**Valid until:** ~2026-10-11 (Actions majors move periodically; re-check `@v7` if planning delayed >30 days)
+**Valid until:** ~2026-10-11 (30 days; action majors may bump)
 
-**Discretion recommendations (for planner):**
-1. File: `.github/workflows/ci.yml` · `name: CI` · job: `test`
-2. Include pip cache + `cache-dependency-path: exercise-ai/requirements.txt`
-3. Include `permissions: contents: read`
-4. Do **not** set `defaults.run.working-directory`; keep root-relative paths
-5. Skip empty `env:` unset unless executor wants belt-and-suspenders (D-13 optional)
+## Research Tool Evidence
+
+Tools/MCPs personally invoked in this execution only:
+
+### Serena — AVAILABLE
+- **Calls:** `activate_project` (GeradorExercicios path); `get_symbols_overview` on `exercise-ai/tests/conftest.py`; `search_for_pattern` for `LLM_API_KEY|GEMINI_API_KEY|load_dotenv|os.environ|getenv` under `exercise-ai`
+- **Obtained:** Project activated with Python LS; conftest symbols `_PACKAGE_DIR`, `make_request`, `make_exercise`, `make_batch`; env/secret usage map across `main.py`, generators, tests, `.env.example`
+- **Influenced:** Path-grounding pattern; Pitfall 5 (no `.env` required for tests); Security Domain secret non-injection; CI-01 research support
+
+### Context7 — AVAILABLE
+- **Calls:** `resolve-library-id` (GitHub Actions; actions/setup-python); `query-docs` on `/websites/github_en_actions` (Python CI workflow, permissions, pytest tutorial); `query-docs` on `/actions/setup-python` (v7 + pip cache); `query-docs` on `/actions/checkout` (basic `@v7`)
+- **Obtained:** Workflow YAML patterns; `permissions` least privilege; confirmation that some GH tutorials still show older majors while action docs show `@v7`
+- **Influenced:** Standard Stack, Code Examples, Architecture Patterns, Don't Hand-Roll, Pitfall 4
+
+### Semgrep — AVAILABLE (partial)
+- **Calls:** `semgrep_scan` on `conftest.py` / `main.py` / `generator.py` — **failed twice** (`RPC server may not be running: Connection lost`); `get_supported_languages` — **succeeded** (python supported); `semgrep_scan_with_custom_rule` on secret/env snippets — **succeeded** (INFO matches on `os.getenv` / `load_dotenv`; no hardcoded live key values in provided snippets)
+- **Obtained:** Default file scan unavailable via RPC; custom-rule path works; confirms getenv/dotenv patterns without evidence of hardcoded production secrets in snippets
+- **Influenced:** Security Domain; Research Tool Evidence honesty about `semgrep_scan` failure
+
+### Built-in tools used
+- **GetDynamicTools:** Discovered `serena`, `context7`, `semgrep` namespaces ready
+- **Read:** CONTEXT, agent contract, README, PROJECT, requirements.txt, conftest, main.py (dotenv), rules, skill, config.json
+- **Grep:** REQUIREMENTS CI-01/02; ROADMAP Phase 7; env key usage
+- **Glob:** confirmed no `.github/**` yet; listed phase dir
+- **WebFetch:** `actions/checkout` and `actions/setup-python` `/releases/latest` → v7.0.1 / v7.0.0
+- **Shell:** `git remote show origin` (HEAD `master`); `pytest --collect-only` (73 tests); Python 3.14.0; graph.json absent
+- **Write:** this `07-RESEARCH.md` (full overwrite)
