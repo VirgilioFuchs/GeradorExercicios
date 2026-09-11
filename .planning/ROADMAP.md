@@ -44,10 +44,10 @@
   2. O job instala dependências do pacote e executa `pytest` no `exercise-ai` sem variáveis/secrets de API de LLM no workflow
   3. Quando a suíte passa, o check no PR fica verde; quando falha, fica vermelho e o merge confiante fica bloqueado pelo status visível
   4. A suíte no CI não faz chamadas live a OpenAI/Gemini (mesma garantia local: sem LLM real)
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 07-01: TBD (created during plan-phase)
+- [ ] 07-01-PLAN.md — Single-job GitHub Actions CI (pytest offline) + README note
 
 ### Phase 8: Provider Failover
 **Goal**: Se o provider primário falhar com erro retriável ou indisponibilidade, o sistema tenta automaticamente o outro (OpenAI ↔ Gemini), reusando o caminho existente de geração/validação/RELY (sem segundo loop) e deixando claro nos logs qual provider foi tentado/usado — sem secrets.
@@ -74,7 +74,7 @@ Plans:
 | 4. CLI argparse | v1.1 | 1/1 | Complete | 2026-09-08 |
 | 5. Reliability & Error Edges | v1.1 | 1/1 | Complete | 2026-09-08 |
 | 6. Math Quality | v1.1 | 1/1 | Complete | 2026-09-09 |
-| 7. Continuous Integration | v1.2 | 0/TBD | Not started | - |
+| 7. Continuous Integration | v1.2 | 0/1 | Planned | - |
 | 8. Provider Failover | v1.2 | 0/TBD | Not started | - |
 
 ## Future Themes
