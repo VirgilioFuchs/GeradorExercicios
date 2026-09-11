@@ -111,9 +111,10 @@ None for Phase 7 discuss/plan. Constraints locked: CI without live LLM/API secre
 ## Session Continuity
 
 Last session: 2026-09-11
-Stopped at: Phase 7 planned and checker-passed — next `$gsd-execute-phase 7`
+Stopped at: Phase 7 local execute complete — CI-02 GitHub runtime PENDING first push/PR
 Resume file: —
 
 ## Operator Next Steps
 
-- `$gsd-execute-phase 7` (CI workflow + README note)
+- Push/PR to `master` to see Actions check `CI` / `test` (flip CI-02 GITHUB RUNTIME)
+- Then `$gsd-discuss-phase 8` or `$gsd-plan-phase 8` for Provider Failover
