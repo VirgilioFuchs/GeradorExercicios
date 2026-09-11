@@ -6,21 +6,21 @@ status: phase_7_complete
 last_updated: "2026-09-11T14:15:00.000Z"
 last_activity: 2026-09-11
 progress:
-  total_phases: 2
+  total_phases: 3
   completed_phases: 1
   total_plans: 1
   completed_plans: 1
-  percent: 50
+  percent: 33
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-09)
+See: .planning/PROJECT.md (updated 2026-09-11)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato
-**Current focus:** Phase 7 Complete (UAT 4/4) — next Phase 8 Provider Failover
+**Current focus:** Phase 7 complete — next Phase 8 Failover; Phase 9 Token Usage (SEED-002) promoted for planning
 
 ## Current Position
 
@@ -85,12 +85,16 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-- **SEED-003 (CRÍTICO)** — Embed do gerador em sistema de exercícios já em produção → depois imagens geradas → depois exercícios com storytelling (não v1.2 CI/failover; promover no próximo milestone de productização)
-- **SEED-002** — Consumo quantitativo de tokens: log append por request + flush `.json` em pasta dedicada (não Phase 7; lembrar após CI/failover ou no próximo milestone de observability)
+- **SEED-003 (CRÍTICO)** — Embed do gerador em sistema de exercícios já em produção → depois imagens geradas → depois exercícios com storytelling (não v1.2 CI/failover/tokens; promover no próximo milestone de productização)
+- **SEED-002** — Promovido → **Phase 9 Token Usage Observability** (TOKEN-01..03)
 
 ### Blockers/Concerns
 
-None for Phase 7 discuss/plan. Constraints locked: CI without live LLM/API secrets; failover MUST NOT add second math/RELY loop.
+None. Phase 9 discuss can run before Phase 8 execute if desired; default order remains 8 then 9.
+
+### Roadmap Evolution
+
+- Phase 9 added: Token Usage Observability (promoted from SEED-002; after Phase 8 Failover)
 
 ### Quick Tasks Completed
 
@@ -106,16 +110,17 @@ None for Phase 7 discuss/plan. Constraints locked: CI without live LLM/API secre
 | Reliability | Provider failover (FAILOVER-01..03) | Active — Phase 8 | 2026-09-04 | v1.2 |
 | Product | MySQL / analytics / personalização / agente | Deferred | 2026-09-04 | v2+ |
 | Curriculum | BNCC / habilidades (SEED-001) | Dormant seed | 2026-09-09 | not v1.2 |
-| Observability | Token usage quantitativo + JSON append (SEED-002) | Dormant seed | 2026-09-11 | after v1.2 / next obs slice |
+| Observability | Token usage quantitativo + JSON append (SEED-002) | **Promoted — Phase 9** | 2026-09-11 | v1.2 |
 | Productization | Host embed + imagens geradas + storytelling (SEED-003) | Dormant seed — **critical** | 2026-09-11 | post v1.2 / next product milestone |
 
 ## Session Continuity
 
 Last session: 2026-09-11
-Stopped at: Quick task 260911-fvq complete — Grok provider added (pytest 80 passed)
+Stopped at: Phase 9 Token Usage Observability promoted (SEED-002) — discuss gray areas
 Resume file: —
 
 ## Operator Next Steps
 
-- `$gsd-discuss-phase 8` or `$gsd-plan-phase 8` — Provider Failover
+- Continue discuss Phase 9 (gray areas below), then `$gsd-plan-phase 9`
+- `$gsd-discuss-phase 8` / `$gsd-plan-phase 8` — Provider Failover when ready
 - Optional: merge PR #4 when ready

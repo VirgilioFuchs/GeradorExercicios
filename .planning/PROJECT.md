@@ -20,13 +20,14 @@ O usuário consegue gerar exercícios de matemática confiáveis e estruturados 
 
 ## Current Milestone: v1.2 Ops & Resilience
 
-**Goal:** Deixar o lab confiável fora da máquina local — CI automatizado no GitHub e failover de provider quando a API principal falha.
+**Goal:** Deixar o lab confiável fora da máquina local — CI automatizado no GitHub, failover de provider quando a API principal falha, e métricas quantitativas de tokens.
 
 **Target features:**
 - CI-01 — GitHub Actions rodando `pytest` (sem LLM live) em push/PR
 - FAILOVER-01 — fallback automático OpenAI ↔ Gemini em erros retriáveis/indisponibilidade (sem segundo loop de math/RELY)
+- TOKEN-01..03 — consumo quantitativo de tokens (append + JSON dedicado; SEED-002 → Phase 9)
 
-**Explicitly out this milestone:** BNCC (SEED-001), MySQL/analytics, polish-only debt batch
+**Explicitly out this milestone:** BNCC (SEED-001), MySQL/analytics, polish-only debt batch, SEED-003 productização
 
 ## Requirements
 
@@ -48,8 +49,9 @@ O usuário consegue gerar exercícios de matemática confiáveis e estruturados 
 
 ### Active
 
-- [ ] CI: GitHub Actions roda pytest sem LLM live em push/PR
+- [x] CI: GitHub Actions roda pytest sem LLM live em push/PR
 - [ ] Failover: fallback automático entre OpenAI e Gemini em falhas retriáveis/indisponibilidade
+- [ ] Tokens: uso quantitativo por request + JSON em pasta dedicada (Phase 9 / SEED-002)
 
 ### Out of Scope
 

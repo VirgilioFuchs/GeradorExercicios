@@ -19,6 +19,12 @@ Requirements for this milestone. Each maps to roadmap phases.
 - [ ] **FAILOVER-02**: Failover não cria um segundo loop de regeneração math/RELY — reusa o caminho existente de geração/validação
 - [ ] **FAILOVER-03**: Logs deixam claro qual provider foi tentado/usado no failover (sem secrets)
 
+### Observability (tokens — SEED-002)
+
+- [ ] **TOKEN-01**: Cada chamada LLM registra consumo quantitativo (prompt / completion / total quando disponível) sem substituir registros anteriores da mesma run
+- [ ] **TOKEN-02**: O histórico de usage é persistido em arquivos `.json` numa pasta/módulo dedicados (sem secrets)
+- [ ] **TOKEN-03**: Stderr expõe usage por request (provider/model + tokens) de forma acumulativa; testes cobrem o caminho com mocks (sem LLM live)
+
 ## Future Requirements
 
 Deferred past v1.2. Tracked but not in current roadmap.
@@ -55,13 +61,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FAILOVER-01 | Phase 8 | Pending |
 | FAILOVER-02 | Phase 8 | Pending |
 | FAILOVER-03 | Phase 8 | Pending |
+| TOKEN-01 | Phase 9 | Pending |
+| TOKEN-02 | Phase 9 | Pending |
+| TOKEN-03 | Phase 9 | Pending |
 
 **Coverage:**
 
-- v1.2 requirements: 5 total
-- Mapped to phases: 5
+- v1.2 requirements: 8 total
+- Mapped to phases: 8
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-09-09*
-*Last updated: 2026-09-09 after v1.2 roadmap*
+*Last updated: 2026-09-11 — Phase 9 TOKEN-* from SEED-002*

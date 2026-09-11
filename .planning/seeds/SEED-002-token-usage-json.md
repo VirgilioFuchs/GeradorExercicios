@@ -1,7 +1,9 @@
 ---
 id: SEED-002
-status: dormant
+status: promoted
 planted: 2026-09-11
+promoted: 2026-09-11
+promoted_to: Phase 9 Token Usage Observability (v1.2)
 planted_during: v1.2 Phase 7 (research / resume)
 trigger_when: token usage, consumo de tokens, cost logging, usage metrics, observability, quantificar tokens, billing, prompt tokens, completion tokens
 scope: phase
