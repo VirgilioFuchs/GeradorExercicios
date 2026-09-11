@@ -84,6 +84,11 @@ def _ensure_provider_key(provider: str) -> None:
             raise ValueError(
                 "Chave ausente para o provedor gemini. Defina GEMINI_API_KEY no arquivo .env."
             )
+    elif provider == "grok":
+        if not os.getenv("GROK_API_KEY", "").strip():
+            raise ValueError(
+                "Chave ausente para o provedor grok. Defina GROK_API_KEY no arquivo .env."
+            )
 
 
 def _positive_quantidade(value: str) -> int:
@@ -152,9 +157,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--provider",
-        choices=["openai", "gemini"],
+        choices=["openai", "gemini", "grok"],
         default=None,
-        help="Provedor LLM para esta execução: openai|gemini (opcional)",
+        help="Provedor LLM para esta execução: openai|gemini|grok (opcional)",
     )
     parser.add_argument(
         "--out",

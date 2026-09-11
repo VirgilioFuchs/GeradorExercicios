@@ -16,7 +16,8 @@ Copie `exercise-ai/.env.example` para `exercise-ai/.env` (ou `.env` na raiz do r
 |----------|-----------|
 | `LLM_API_KEY` | Chave da API OpenAI (formato `sk-...`) |
 | `GEMINI_API_KEY` | Chave da API Google Gemini (formato `AIza...`) |
-| `LLM_PROVIDER` | Opcional: `openai` ou `gemini`. Se omitido, o provedor é detectado pelas chaves disponíveis |
+| `GROK_API_KEY` | Chave da API xAI Grok |
+| `LLM_PROVIDER` | Opcional: `openai`, `gemini` ou `grok`. Se omitido, o provedor é detectado pelas chaves disponíveis |
 | `RELY_MAX_RETRIES` | Regenerações após a primeira tentativa (`0`–`3`). Padrão `1` se omitido. Sobrescrito por `--max-retries` |
 
 ## Como executar
@@ -47,7 +48,7 @@ python exercise-ai/main.py \
 | `--topico` | não | Tópico (padrão: Equação do primeiro grau) |
 | `--dificuldade` | não | `facil` \| `medio` \| `dificil` (padrão: facil) |
 | `--quantidade` | não | Inteiro de 1 a 40 (padrão: 3) |
-| `--provider` | não | `openai` \| `gemini` para esta execução |
+| `--provider` | não | `openai` \| `gemini` \| `grok` para esta execução |
 | `--max-retries` | não | Regenerações após a 1ª tentativa (`0`–`3`). Se omitido: `RELY_MAX_RETRIES` ou padrão `1` |
 
 Ajuda em português: `python exercise-ai/main.py --help`

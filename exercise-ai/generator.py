@@ -1,4 +1,4 @@
-"""LLM Generator — dispatches to OpenAI or Gemini based on environment."""
+"""LLM Generator — dispatches to OpenAI, Gemini, or Grok based on environment."""
 
 from __future__ import annotations
 
@@ -19,27 +19,26 @@ import prompts
 
 _MISSING_KEY_MSG = (
     "Nenhuma chave de API configurada. "
-    "Defina GEMINI_API_KEY ou LLM_API_KEY no arquivo .env."
+    "Defina GEMINI_API_KEY, LLM_API_KEY ou GROK_API_KEY no arquivo .env."
 )
+
+_GROK_BASE_URL = "https://api.x.ai/v1"
+DEFAULT_GROK_MODEL = "grok-4.6"
 
 
 def _resolve_provider() -> str:
     """Escolhe o provedor LLM com base em LLM_PROVIDER ou chaves disponíveis."""
     explicit = os.getenv("LLM_PROVIDER", "").strip().lower()
-    if explicit in {"openai", "gemini"}:
+    if explicit in {"openai", "gemini", "grok"}:
         return explicit
 
-    has_gemini = bool(os.getenv("GEMINI_API_KEY", "").strip())
-    has_openai = bool(os.getenv("LLM_API_KEY", "").strip())
-
-    if has_gemini and not has_openai:
+    # Prefer Gemini, then OpenAI, then Grok when multiple keys exist.
+    if os.getenv("GEMINI_API_KEY", "").strip():
         return "gemini"
-    if has_openai and not has_gemini:
+    if os.getenv("LLM_API_KEY", "").strip():
         return "openai"
-    if has_gemini:
-        return "gemini"
-    if has_openai:
-        return "openai"
+    if os.getenv("GROK_API_KEY", "").strip():
+        return "grok"
 
     raise ValueError(_MISSING_KEY_MSG)
 
@@ -52,9 +51,21 @@ def get_client() -> OpenAI:
     return OpenAI(api_key=api_key.strip(), timeout=30.0)
 
 
+def get_grok_client() -> OpenAI:
+    """Inicializa cliente OpenAI-compatible apontando para a API xAI (Grok)."""
+    api_key = os.getenv("GROK_API_KEY")
+    if not api_key or not api_key.strip():
+        raise ValueError(_MISSING_KEY_MSG)
+    return OpenAI(
+        api_key=api_key.strip(),
+        base_url=_GROK_BASE_URL,
+        timeout=30.0,
+    )
+
+
 def _redact_env_secrets(text: str) -> str:
     """Replace live env API key values so debug dumps never echo secrets."""
-    for name in ("LLM_API_KEY", "GEMINI_API_KEY"):
+    for name in ("LLM_API_KEY", "GEMINI_API_KEY", "GROK_API_KEY"):
         val = os.getenv(name, "")
         if val and val.strip() and val in text:
             text = text.replace(val, "[REDACTED]")
@@ -62,7 +73,7 @@ def _redact_env_secrets(text: str) -> str:
 
 
 def _openai_error_detail(exc: BaseException) -> str:
-    """Build sanitized [API:openai] detail: type + status/code only (no raw str(exc))."""
+    """Build sanitized API detail: type + status/code only (no raw str(exc))."""
     parts = [type(exc).__name__]
     status = getattr(exc, "status_code", None)
     if status is None:
@@ -86,33 +97,53 @@ def _permanent_api_error(msg: str) -> RuntimeError:
     return err
 
 
-def map_openai_error(exc: BaseException) -> RuntimeError:
-    """Map typed OpenAI errors to plain-PT RuntimeError; log [API:openai] detail."""
-    print(f"[API:openai] {_openai_error_detail(exc)}", file=sys.stderr)
+def map_openai_compatible_error(
+    exc: BaseException,
+    *,
+    api_tag: str,
+    of_label: str,
+    auth_key_name: str,
+) -> RuntimeError:
+    """Map typed OpenAI-SDK errors to plain-PT RuntimeError; log [API:{tag}] detail."""
+    print(f"[API:{api_tag}] {_openai_error_detail(exc)}", file=sys.stderr)
 
     if isinstance(exc, APITimeoutError):
-        return _permanent_api_error("Tempo esgotado ao chamar a API da OpenAI.")
+        return _permanent_api_error(f"Tempo esgotado ao chamar a API {of_label}.")
     if isinstance(exc, RateLimitError):
         return _permanent_api_error(
-            "Limite de requisições da API da OpenAI atingido. Tente novamente mais tarde."
+            f"Limite de requisições da API {of_label} atingido. Tente novamente mais tarde."
         )
     if isinstance(exc, APIConnectionError):
         return _permanent_api_error(
-            "Erro de conexão com a API da OpenAI. Verifique a rede."
+            f"Erro de conexão com a API {of_label}. Verifique a rede."
         )
     if isinstance(exc, AuthenticationError):
         return _permanent_api_error(
-            "Falha de autenticação na API da OpenAI. Verifique LLM_API_KEY."
+            f"Falha de autenticação na API {of_label}. Verifique {auth_key_name}."
         )
-    return _permanent_api_error("Erro na chamada à API da OpenAI.")
+    return _permanent_api_error(f"Erro na chamada à API {of_label}.")
 
 
-def _generate_with_openai(
+def map_openai_error(exc: BaseException) -> RuntimeError:
+    """Map typed OpenAI errors to plain-PT RuntimeError; log [API:openai] detail."""
+    return map_openai_compatible_error(
+        exc,
+        api_tag="openai",
+        of_label="da OpenAI",
+        auth_key_name="LLM_API_KEY",
+    )
+
+
+def _generate_with_openai_compatible(
     request: GenerationRequest,
-    model: str = "gpt-4o-mini",
+    *,
+    client: OpenAI,
+    model: str,
+    api_tag: str,
+    of_label: str,
+    auth_key_name: str,
 ) -> ExerciseBatch:
-    """Gera exercícios usando OpenAI Structured Outputs."""
-    client = get_client()
+    """Gera exercícios via Structured Outputs (OpenAI SDK / compatible endpoints)."""
     system_prompt, user_prompt = prompts.build_prompts(request)
 
     try:
@@ -126,7 +157,7 @@ def _generate_with_openai(
         )
 
         if not getattr(completion, "choices", None):
-            print("[API:openai] empty choices", file=sys.stderr)
+            print(f"[API:{api_tag}] empty choices", file=sys.stderr)
             raise invalid_llm_response(
                 "Não foi possível obter a estrutura de exercícios da resposta do modelo."
             )
@@ -136,14 +167,14 @@ def _generate_with_openai(
         if message.refusal:
             safe_refusal = _redact_env_secrets(str(message.refusal))
             print(
-                f"[API:openai] refusal: {safe_refusal}",
+                f"[API:{api_tag}] refusal: {safe_refusal}",
                 file=sys.stderr,
             )
             raise _permanent_api_error(f"O modelo recusou a geração: {safe_refusal}")
 
         if message.parsed is None:
             print(
-                "[API:openai] parsed is None — estrutura ausente na resposta",
+                f"[API:{api_tag}] parsed is None — estrutura ausente na resposta",
                 file=sys.stderr,
             )
             raise invalid_llm_response(
@@ -153,19 +184,57 @@ def _generate_with_openai(
         return message.parsed
 
     except OpenAIError as exc:
-        raise map_openai_error(exc) from exc
+        raise map_openai_compatible_error(
+            exc,
+            api_tag=api_tag,
+            of_label=of_label,
+            auth_key_name=auth_key_name,
+        ) from exc
+
+
+def _generate_with_openai(
+    request: GenerationRequest,
+    model: str = "gpt-4o-mini",
+) -> ExerciseBatch:
+    """Gera exercícios usando OpenAI Structured Outputs."""
+    return _generate_with_openai_compatible(
+        request,
+        client=get_client(),
+        model=model,
+        api_tag="openai",
+        of_label="da OpenAI",
+        auth_key_name="LLM_API_KEY",
+    )
+
+
+def _generate_with_grok(
+    request: GenerationRequest,
+    model: str = DEFAULT_GROK_MODEL,
+) -> ExerciseBatch:
+    """Gera exercícios usando Grok (xAI) via OpenAI-compatible Structured Outputs."""
+    return _generate_with_openai_compatible(
+        request,
+        client=get_grok_client(),
+        model=model,
+        api_tag="grok",
+        of_label="do Grok",
+        auth_key_name="GROK_API_KEY",
+    )
 
 
 def generate_exercises(
     request: GenerationRequest,
     model: str | None = None,
 ) -> ExerciseBatch:
-    """Gera exercícios matemáticos estruturados via OpenAI ou Gemini."""
+    """Gera exercícios matemáticos estruturados via OpenAI, Gemini ou Grok."""
     provider = _resolve_provider()
 
     if provider == "gemini":
         from generator_gemini import DEFAULT_GEMINI_MODEL, generate_exercises as generate_gemini
 
         return generate_gemini(request, model=model or DEFAULT_GEMINI_MODEL)
+
+    if provider == "grok":
+        return _generate_with_grok(request, model=model or DEFAULT_GROK_MODEL)
 
     return _generate_with_openai(request, model=model or "gpt-4o-mini")

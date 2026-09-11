@@ -206,6 +206,33 @@ def test_cli_missing_provider_key_specific_message(monkeypatch, tmp_path):
     assert "openai" in msg.lower()
 
 
+def test_cli_missing_grok_key_specific_message(monkeypatch, tmp_path):
+    monkeypatch.delenv("GROK_API_KEY", raising=False)
+    monkeypatch.setenv("LLM_API_KEY", "sk-present")
+    err = io.StringIO()
+    with patch.object(reliability, "generate_exercises") as gen:
+        with contextlib.redirect_stderr(err):
+            with pytest.raises(SystemExit) as se:
+                main.main(["--provider", "grok", "--out", str(tmp_path / "o.json")])
+    assert se.value.code == 1
+    assert gen.call_count == 0
+    msg = err.getvalue()
+    assert "GROK_API_KEY" in msg
+    assert "grok" in msg.lower()
+
+
+def test_cli_provider_grok_sets_env(demo_batch, tmp_path, monkeypatch):
+    monkeypatch.setenv("GROK_API_KEY", "xai-test")
+    monkeypatch.delenv("LLM_PROVIDER", raising=False)
+    out_path = tmp_path / "out.json"
+    with patch.object(reliability, "generate_exercises", return_value=demo_batch) as gen:
+        main.main(["--provider", "grok", "--out", str(out_path)])
+    assert gen.call_count == 1
+    import os
+
+    assert os.environ.get("LLM_PROVIDER") == "grok"
+
+
 def test_cli_rejects_max_retries_outside_range():
     with patch.object(reliability, "generate_exercises") as gen:
         with pytest.raises(SystemExit) as se:
