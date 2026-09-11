@@ -64,6 +64,8 @@ A suite usa mocks e dados estáticos — **não** chama LLMs reais:
 pytest exercise-ai -q
 ```
 
+Em push/PR para `master`, o workflow GitHub Actions `CI` executa o mesmo comando.
+
 ## Stdout vs stderr
 
 - **Sucesso (stdout):** texto legível por exercício (`### Exercício N`, `Enunciado:`, `Resposta:`, `Explicação:`).
