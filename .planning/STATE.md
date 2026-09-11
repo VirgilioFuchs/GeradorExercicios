@@ -120,12 +120,12 @@ None. Phase 9 discuss can run before Phase 8 execute if desired; default order r
 
 ## Session Continuity
 
-Last session: 2026-09-11T14:53:52.722Z
-Stopped at: Phase 9 context gathered
-Resume file: none
+Last session: 2026-09-11T15:03:38.628Z
+Stopped at: Paused mid `$gsd-plan-phase 9 --auto` — CONTEXT ready, no PLAN.md yet
+Resume file: .planning/phases/09-token-usage-observability/.continue-here.md
 
 ## Operator Next Steps
 
-- Continue discuss Phase 9 (gray areas below), then `$gsd-plan-phase 9`
+- `$gsd-resume-work` or `$gsd-plan-phase 9` — finish Phase 9 plan
 - `$gsd-discuss-phase 8` / `$gsd-plan-phase 8` — Provider Failover when ready
 - Optional: merge PR #4 when ready
