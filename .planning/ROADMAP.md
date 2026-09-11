@@ -30,7 +30,7 @@
 
 **Milestone Goal:** Deixar o lab confiável fora da máquina local — CI automatizado no GitHub e failover de provider quando a API principal falha.
 
-- [ ] **Phase 7: Continuous Integration** — GitHub Actions roda pytest sem LLM live em push/PR
+- [x] **Phase 7: Continuous Integration** — GitHub Actions roda pytest sem LLM live em push/PR
 - [ ] **Phase 8: Provider Failover** — Fallback automático OpenAI ↔ Gemini em erros retriáveis/indisponibilidade
 
 ## Phase Details
@@ -74,7 +74,7 @@ Plans:
 | 4. CLI argparse | v1.1 | 1/1 | Complete | 2026-09-08 |
 | 5. Reliability & Error Edges | v1.1 | 1/1 | Complete | 2026-09-08 |
 | 6. Math Quality | v1.1 | 1/1 | Complete | 2026-09-09 |
-| 7. Continuous Integration | v1.2 | 1/1 | Executed — GitHub check PENDING | 2026-09-11 |
+| 7. Continuous Integration | v1.2 | 1/1 | Complete | 2026-09-11 |
 | 8. Provider Failover | v1.2 | 0/TBD | Not started | - |
 
 ## Future Themes

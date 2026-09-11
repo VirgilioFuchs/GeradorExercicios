@@ -98,16 +98,16 @@ No Python under `exercise-ai/` was modified by this plan. Pre-existing dirty `ex
 
 Shape asserts + absence of `continue-on-error` / secrets injection.
 
-### CI-02 GITHUB RUNTIME: PENDING
+### CI-02 GITHUB RUNTIME: VERIFIED
 
-No Actions run observed in this session. Operator must push/open PR against `master` to see green/red check named `CI` / `test`.
+PR #4: Actions run `CI` / job `test` → **success** (https://github.com/VirgilioFuchs/GeradorExercicios/pull/4).
 
 ## Self-Check: Requirements Satisfaction
 
 | Requirement | Status | Evidence |
 |-------------|--------|----------|
 | CI-01 | SATISFIED (local) | `ci.yml` + pytest 73 passed + no secret keys in workflow |
-| CI-02 | PARTIAL | Local fail-red contract VERIFIED; GitHub Checks UI PENDING |
+| CI-02 | SATISFIED | Local fail-red contract + GitHub Checks green on PR #4 |
 
 ## Threat model notes
 

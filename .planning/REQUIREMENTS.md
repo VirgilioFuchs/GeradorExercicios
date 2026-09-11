@@ -11,7 +11,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 ### Ops (CI)
 
 - [x] **CI-01**: Em push/PR no GitHub, Actions instala deps e roda `pytest` no pacote `exercise-ai` sem chamar LLM live (sem secrets de API no job)
-- [ ] **CI-02**: Falha de testes deixa o check vermelho e bloqueia merge confiante (status visível no PR) — local fail-red contract VERIFIED; GitHub Checks runtime PENDING first push/PR
+- [x] **CI-02**: Falha de testes deixa o check vermelho e bloqueia merge confiante (status visível no PR)
 
 ### Reliability (failover)
 
@@ -51,7 +51,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | CI-01 | Phase 7 | Complete |
-| CI-02 | Phase 7 | Pending (GitHub runtime) |
+| CI-02 | Phase 7 | Complete |
 | FAILOVER-01 | Phase 8 | Pending |
 | FAILOVER-02 | Phase 8 | Pending |
 | FAILOVER-03 | Phase 8 | Pending |

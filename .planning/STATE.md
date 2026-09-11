@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Ops & Resilience
-status: phase_7_executed_github_pending
-last_updated: "2026-09-11T13:20:00.000Z"
+status: phase_7_complete
+last_updated: "2026-09-11T14:15:00.000Z"
 last_activity: 2026-09-11
 progress:
   total_phases: 2
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 1
   completed_plans: 1
   percent: 50
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-09)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato
-**Current focus:** Phase 7 executed locally — push/PR to flip CI-02 GitHub runtime; then Phase 8 Failover
+**Current focus:** Phase 7 Complete (UAT 4/4) — next Phase 8 Provider Failover
 
 ## Current Position
 
-Phase: 7 (Continuous Integration) — executed (local)
-Plan: 07-01 of 1 — SUMMARY + VERIFICATION written
-Status: CI-01 complete; CI-02 local VERIFIED / GitHub PENDING
-Last activity: 2026-09-11 — `$gsd-execute-phase 7` (ci.yml + README)
+Phase: 7 (Continuous Integration) — complete
+Plan: 07-01 of 1 — done
+Status: CI-01 + CI-02 complete (PR #4 CI green); UAT 4/4 passed
+Last activity: 2026-09-11 — `$gsd-verify-work 7` complete
 
 ## Performance Metrics
 
@@ -111,10 +111,10 @@ None for Phase 7 discuss/plan. Constraints locked: CI without live LLM/API secre
 ## Session Continuity
 
 Last session: 2026-09-11
-Stopped at: Phase 7 local execute complete — CI-02 GitHub runtime PENDING first push/PR
+Stopped at: Phase 7 UAT complete (4/4) — CI green on PR #4
 Resume file: —
 
 ## Operator Next Steps
 
-- Push/PR to `master` to see Actions check `CI` / `test` (flip CI-02 GITHUB RUNTIME)
-- Then `$gsd-discuss-phase 8` or `$gsd-plan-phase 8` for Provider Failover
+- `$gsd-discuss-phase 8` or `$gsd-plan-phase 8` — Provider Failover
+- Optional: merge PR #4 when ready
