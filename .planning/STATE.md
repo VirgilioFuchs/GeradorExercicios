@@ -5,15 +5,15 @@ milestone_name: Ops & Resilience
 current_phase: 9
 current_phase_name: Token Usage Observability
 status: phase_9_complete
-stopped_at: Phase 8 context gathered
-last_updated: "2026-09-15T13:24:52.916Z"
+stopped_at: Phase 8 planned — ready to execute
+last_updated: "2026-09-15T13:41:00.884Z"
 last_activity: 2026-09-15
 last_activity_desc: "`$gsd-execute-phase 9` — TOKEN-01..03 shipped"
-state_head: b477818776ef224a0219f087d439848001141a70
+state_head: 26b32558d076a3afc88366856426bd0e88ce3e55
 progress:
   total_phases: 4
   completed_phases: 0
-  total_plans: 2
+  total_plans: 3
   completed_plans: 2
   percent: 0
 ---
@@ -131,9 +131,9 @@ None. Phase 9 executed ahead of Phase 8 (operator priority).
 
 ## Session Continuity
 
-Last session: 2026-09-15T13:24:52.718Z
-Stopped at: Phase 8 context gathered
-Resume file: .planning/phases/08-provider-failover/08-CONTEXT.md
+Last session: 2026-09-15T13:41:00.695Z
+Stopped at: Phase 8 planned — ready to execute
+Resume file: .planning/phases/08-provider-failover/08-01-PLAN.md
 
 ## Operator Next Steps
 
