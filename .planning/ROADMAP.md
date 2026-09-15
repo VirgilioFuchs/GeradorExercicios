@@ -68,11 +68,11 @@ Plans:
   4. Falhas não-retriáveis no primário não disparam failover indevido (comportamento previsível para o operator)
   5. Testes cobrem o caminho de failover sem LLM live (mocks/fakes)
 
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
 
-- [ ] 08-01: TBD (created during plan-phase)
+- [ ] 08-01-PLAN.md — Thin OpenAI↔Gemini failover envelope + api_error_kind + mocked D-12 tests
 
 ### Phase 9: Token Usage Observability
 
