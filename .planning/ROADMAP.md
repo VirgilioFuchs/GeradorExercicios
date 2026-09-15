@@ -31,7 +31,7 @@
 **Milestone Goal:** Deixar o lab confiável fora da máquina local — CI, failover de provider, observabilidade de tokens, e UX de geração interativa (`gerar`).
 
 - [x] **Phase 7: Continuous Integration** — GitHub Actions roda pytest sem LLM live em push/PR
-- [ ] **Phase 8: Provider Failover** — Fallback automático OpenAI ↔ Gemini em erros retriáveis/indisponibilidade
+- [x] **Phase 8: Provider Failover** — Fallback automático OpenAI ↔ Gemini em erros retriáveis/indisponibilidade
 - [x] **Phase 9: Token Usage Observability** — Consumo quantitativo de tokens (append por request + JSON em pasta dedicada)
 - [ ] **Phase 10: Interactive CLI Wizard** — Tag `gerar` com perguntas + tips (inclui reasoning); argparse permanece para CI
 
@@ -72,7 +72,7 @@ Plans:
 
 Plans:
 
-- [ ] 08-01-PLAN.md — Thin OpenAI↔Gemini failover envelope + api_error_kind + mocked D-12 tests
+- [x] 08-01-PLAN.md — Thin OpenAI↔Gemini failover envelope + api_error_kind + mocked D-12 tests
 
 ### Phase 9: Token Usage Observability
 

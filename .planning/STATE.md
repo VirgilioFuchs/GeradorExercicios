@@ -2,20 +2,20 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Ops & Resilience
-current_phase: 9
-current_phase_name: Token Usage Observability
-status: phase_9_complete
-stopped_at: Phase 8 planned — ready to execute
-last_updated: "2026-09-15T13:41:00.884Z"
+current_phase: 8
+current_phase_name: Provider Failover
+status: phase_8_complete
+stopped_at: Phase 8 complete — next Phase 10 wizard (or remaining v1.2)
+last_updated: "2026-09-15T13:50:00.000Z"
 last_activity: 2026-09-15
-last_activity_desc: "`$gsd-execute-phase 9` — TOKEN-01..03 shipped"
-state_head: 26b32558d076a3afc88366856426bd0e88ce3e55
+last_activity_desc: "`$gsd-execute-phase 8` — FAILOVER-01..03 shipped"
+state_head: pending
 progress:
   total_phases: 4
-  completed_phases: 0
-  total_plans: 3
-  completed_plans: 2
-  percent: 0
+  completed_phases: 3
+  total_plans: 4
+  completed_plans: 3
+  percent: 75
 ---
 
 # Project State
@@ -25,14 +25,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-11)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato
-**Current focus:** Phase 9 complete — next Phase 8 Failover (still open in v1.2)
+**Current focus:** Phase 8 complete — next Phase 10 Interactive Wizard (v1.2)
 
 ## Current Position
 
-Phase: 9 (Token Usage Observability) — complete
-Plan: 09-01 of 1 — done
-Status: TOKEN-01 + TOKEN-02 + TOKEN-03 complete (90 pytest passed offline)
-Last activity: 2026-09-15 — execute-phase 9 shipped NDJSON usage observability
+Phase: 8 (Provider Failover) — complete
+Plan: 08-01 of 1 — done
+Status: FAILOVER-01 + FAILOVER-02 + FAILOVER-03 complete (125 pytest passed offline)
+Last activity: 2026-09-15 — execute-phase 8 shipped OpenAI↔Gemini failover envelope
 
 ## Performance Metrics
 

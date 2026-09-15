@@ -15,9 +15,9 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Reliability (failover)
 
-- [ ] **FAILOVER-01**: Se o provider primário falhar com erro retriável/indisponibilidade, o sistema tenta o outro provider (OpenAI ↔ Gemini) automaticamente
-- [ ] **FAILOVER-02**: Failover não cria um segundo loop de regeneração math/RELY — reusa o caminho existente de geração/validação
-- [ ] **FAILOVER-03**: Logs deixam claro qual provider foi tentado/usado no failover (sem secrets)
+- [x] **FAILOVER-01**: Se o provider primário falhar com erro retriável/indisponibilidade, o sistema tenta o outro provider (OpenAI ↔ Gemini) automaticamente
+- [x] **FAILOVER-02**: Failover não cria um segundo loop de regeneração math/RELY — reusa o caminho existente de geração/validação
+- [x] **FAILOVER-03**: Logs deixam claro qual provider foi tentado/usado no failover (sem secrets)
 
 ### Observability (tokens — SEED-002)
 
@@ -64,9 +64,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | CI-01 | Phase 7 | Complete |
 | CI-02 | Phase 7 | Complete |
-| FAILOVER-01 | Phase 8 | Pending |
-| FAILOVER-02 | Phase 8 | Pending |
-| FAILOVER-03 | Phase 8 | Pending |
+| FAILOVER-01 | Phase 8 | Complete |
+| FAILOVER-02 | Phase 8 | Complete |
+| FAILOVER-03 | Phase 8 | Complete |
 | TOKEN-01 | Phase 9 | Complete |
 | TOKEN-02 | Phase 9 | Complete |
 | TOKEN-03 | Phase 9 | Complete |
