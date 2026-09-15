@@ -1,11 +1,11 @@
-# Exercícios gerados
+# Exercicios gerados
 
-Artefatos locais da CLI (conteúdo gerado não vai para o git — só `.gitkeep`).
+Artefatos locais da CLI (conteudo gerado nao vai para o git — so `.gitkeep`).
 
-| Pasta | Conteúdo |
+| Pasta | Conteudo |
 |-------|----------|
 | `success/` | JSON de lotes com sucesso (`--out` relativo ? aqui) |
 | `fail/erros/` | Log texto de cada falha de run |
-| `fail/postmortem/` | `math_postmortem.jsonl` (falha math/validação final) |
+| `fail/postmortem/` | `math_postmortem.jsonl` (falha math/validacao final) |
 
-`--out` absoluto (ex. testes/`tmp`) não é redirecionado. Relativo usa só o nome do arquivo sob `success/`.
+`--out` absoluto (ex. testes/`tmp`) nao e redirecionado. Relativo usa so o nome do arquivo sob `success/`.
