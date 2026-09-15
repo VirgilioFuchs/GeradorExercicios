@@ -23,7 +23,8 @@ if not env_path.exists():
 load_dotenv(dotenv_path=env_path)
 
 from models import DificuldadeEnum, ExerciseBatch, GenerationRequest
-from reliability import generate_validated_batch, resolve_max_retries
+from failover import generate_with_failover
+from reliability import resolve_max_retries
 from output_paths import resolve_success_out_path, write_fail_error_log
 from token_usage import begin_run, flush_token_usage
 
@@ -212,7 +213,7 @@ def run(
 
     try:
         n = resolve_max_retries(max_retries)
-        validated_batch = generate_validated_batch(request, max_retries=n)
+        validated_batch = generate_with_failover(request, max_retries=n)
 
         print(format_batch_text(validated_batch))
         out = resolve_success_out_path(out_path)

@@ -124,10 +124,11 @@ def invalid_llm_response(msg: str) -> RuntimeError:
     return err
 
 
-def _permanent_api_error(msg: str) -> RuntimeError:
+def _permanent_api_error(msg: str, *, api_error_kind: str) -> RuntimeError:
     """Auth/timeout/rate-limit/connection/generic mapped — not retriable (D-06)."""
     err = RuntimeError(msg)
     err.retriable = False
+    err.api_error_kind = api_error_kind
     return err
 
 
@@ -161,14 +162,14 @@ def map_gemini_error(exc: BaseException) -> RuntimeError:
     body = f"{getattr(exc, 'message', '')} {exc}".lower()
 
     if code in {401, 403}:
-        return _permanent_api_error(_MSG_AUTH)
+        return _permanent_api_error(_MSG_AUTH, api_error_kind="auth")
     if code == 429:
-        return _permanent_api_error(_MSG_RATE)
+        return _permanent_api_error(_MSG_RATE, api_error_kind="rate_limit")
     if code in {408, 504}:
-        return _permanent_api_error(_MSG_TIMEOUT)
+        return _permanent_api_error(_MSG_TIMEOUT, api_error_kind="timeout")
     if any(hint in body for hint in _NETWORK_HINTS):
-        return _permanent_api_error(_MSG_CONN)
-    return _permanent_api_error(_MSG_GENERIC)
+        return _permanent_api_error(_MSG_CONN, api_error_kind="connection")
+    return _permanent_api_error(_MSG_GENERIC, api_error_kind="generic")
 
 
 def _parse_gemini_response(response: object) -> ExerciseBatch:

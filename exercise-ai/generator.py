@@ -97,10 +97,11 @@ def invalid_llm_response(msg: str) -> RuntimeError:
     return err
 
 
-def _permanent_api_error(msg: str) -> RuntimeError:
-    """Auth/timeout/rate-limit/connection — not retriable (D-06)."""
+def _permanent_api_error(msg: str, *, api_error_kind: str) -> RuntimeError:
+    """Auth/timeout/rate-limit/connection/refusal — not retriable (D-06)."""
     err = RuntimeError(msg)
     err.retriable = False
+    err.api_error_kind = api_error_kind
     return err
 
 
@@ -115,20 +116,29 @@ def map_openai_compatible_error(
     print(f"[API:{api_tag}] {_openai_error_detail(exc)}", file=sys.stderr)
 
     if isinstance(exc, APITimeoutError):
-        return _permanent_api_error(f"Tempo esgotado ao chamar a API {of_label}.")
+        return _permanent_api_error(
+            f"Tempo esgotado ao chamar a API {of_label}.",
+            api_error_kind="timeout",
+        )
     if isinstance(exc, RateLimitError):
         return _permanent_api_error(
-            f"Limite de requisições da API {of_label} atingido. Tente novamente mais tarde."
+            f"Limite de requisições da API {of_label} atingido. Tente novamente mais tarde.",
+            api_error_kind="rate_limit",
         )
     if isinstance(exc, APIConnectionError):
         return _permanent_api_error(
-            f"Erro de conexão com a API {of_label}. Verifique a rede."
+            f"Erro de conexão com a API {of_label}. Verifique a rede.",
+            api_error_kind="connection",
         )
     if isinstance(exc, AuthenticationError):
         return _permanent_api_error(
-            f"Falha de autenticação na API {of_label}. Verifique {auth_key_name}."
+            f"Falha de autenticação na API {of_label}. Verifique {auth_key_name}.",
+            api_error_kind="auth",
         )
-    return _permanent_api_error(f"Erro na chamada à API {of_label}.")
+    return _permanent_api_error(
+        f"Erro na chamada à API {of_label}.",
+        api_error_kind="generic",
+    )
 
 
 def map_openai_error(exc: BaseException) -> RuntimeError:
@@ -235,7 +245,10 @@ def _generate_with_openai_compatible(
                 duration_ms=duration_ms,
                 error_kind="refusal",
             )
-            raise _permanent_api_error(f"O modelo recusou a geração: {safe_refusal}")
+            raise _permanent_api_error(
+                f"O modelo recusou a geração: {safe_refusal}",
+                api_error_kind="refusal",
+            )
 
         if message.parsed is None:
             print(

@@ -104,7 +104,7 @@ def test_main_source_keeps_plain_stderr_contract():
     assert "Erro na execução da geração" not in msrc
     assert "def run(" in msrc
     assert "run_demo" not in msrc
-    assert "generate_validated_batch" in msrc
+    assert "generate_with_failover" in msrc
     assert "--max-retries" in msrc
 
 
