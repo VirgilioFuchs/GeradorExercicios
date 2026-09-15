@@ -2,20 +2,20 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Ops & Resilience
-current_phase: 7
-current_phase_name: Continuous Integration
-status: phase_7_complete
-stopped_at: Phase 9 context gathered
-last_updated: "2026-09-11T14:53:53.009Z"
-last_activity: 2026-09-11
-last_activity_desc: "`$gsd-verify-work 7` complete"
-state_head: 5ef60ee35df3113474740bbc2292e4423e27079f
+current_phase: 9
+current_phase_name: Token Usage Observability
+status: phase_9_complete
+stopped_at: Phase 9 plan 09-01 executed
+last_updated: "2026-09-15T12:00:00.000Z"
+last_activity: 2026-09-15
+last_activity_desc: "`$gsd-execute-phase 9` — TOKEN-01..03 shipped"
+state_head: pending
 progress:
   total_phases: 3
-  completed_phases: 0
-  total_plans: 1
-  completed_plans: 1
-  percent: 0
+  completed_phases: 2
+  total_plans: 2
+  completed_plans: 2
+  percent: 67
 ---
 
 # Project State
@@ -25,14 +25,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-11)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato
-**Current focus:** Phase 7 complete — next Phase 8 Failover; Phase 9 Token Usage (SEED-002) promoted for planning
+**Current focus:** Phase 9 complete — next Phase 8 Failover (still open in v1.2)
 
 ## Current Position
 
-Phase: 7 (Continuous Integration) — complete
-Plan: 07-01 of 1 — done
-Status: CI-01 + CI-02 complete (PR #4 CI green); UAT 4/4 passed
-Last activity: 2026-09-11 — `$gsd-verify-work 7` complete
+Phase: 9 (Token Usage Observability) — complete
+Plan: 09-01 of 1 — done
+Status: TOKEN-01 + TOKEN-02 + TOKEN-03 complete (90 pytest passed offline)
+Last activity: 2026-09-15 — execute-phase 9 shipped NDJSON usage observability
 
 ## Performance Metrics
 
@@ -52,6 +52,8 @@ Last activity: 2026-09-11 — `$gsd-verify-work 7` complete
 | 4 | 1 | - | - |
 | 5 | 1 | - | - |
 | 6 | 1 | - | - |
+| 7 | 1/1 | ~15 min | 15 min |
+| 9 | 1/1 | ~45 min | 45 min |
 
 **Recent Trend:**
 
@@ -67,6 +69,7 @@ Last activity: 2026-09-11 — `$gsd-verify-work 7` complete
 | Phase 02 P01 | 25 min | 2 tasks | 4 files |
 | Phase 03 P01 | 15 min | 3 tasks | 9 files |
 | Phase 06-math-quality P01 | 25min | 3 tasks | 6 files |
+| Phase 09-token-usage P01 | ~45min | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -87,19 +90,21 @@ Recent decisions affecting current work:
 - [Phase 6]: Stdlib-only math_check; no CAS; math ValueError reuses generate_validated_batch
 - [Phase 6]: Postmortem only on final failure via injectable POSTMORTEM_PATH
 - [v1.2]: Milestone = CI + provider failover; phases 7–8 continue numbering from v1.1; no second math/RELY loop on failover
+- [Phase 9]: NDJSON day+provider under token-usage/; missing = indisponível; flush only in main.run finally; Grok ticks preferred for USD
 
 ### Pending Todos
 
 - **SEED-003 (CRÍTICO)** — Embed do gerador em sistema de exercícios já em produção → depois imagens geradas → depois exercícios com storytelling (não v1.2 CI/failover/tokens; promover no próximo milestone de productização)
-- **SEED-002** — Promovido → **Phase 9 Token Usage Observability** (TOKEN-01..03)
+- **Phase 8** — Provider Failover still open in v1.2
 
 ### Blockers/Concerns
 
-None. Phase 9 discuss can run before Phase 8 execute if desired; default order remains 8 then 9.
+None. Phase 9 executed ahead of Phase 8 (operator priority).
 
 ### Roadmap Evolution
 
 - Phase 9 added: Token Usage Observability (promoted from SEED-002; after Phase 8 Failover)
+- Phase 9 executed 2026-09-15 (TOKEN-01..03)
 
 ### Quick Tasks Completed
 
@@ -111,21 +116,21 @@ None. Phase 9 discuss can run before Phase 8 execute if desired; default order r
 
 | Category | Item | Status | Deferred At | Milestone |
 |----------|------|--------|-------------|-----------|
-| Ops | GitHub Actions CI (CI-01, CI-02) | Active — Phase 7 | 2026-09-04 | v1.2 |
+| Ops | GitHub Actions CI (CI-01, CI-02) | Complete — Phase 7 | 2026-09-04 | v1.2 |
 | Reliability | Provider failover (FAILOVER-01..03) | Active — Phase 8 | 2026-09-04 | v1.2 |
 | Product | MySQL / analytics / personalização / agente | Deferred | 2026-09-04 | v2+ |
 | Curriculum | BNCC / habilidades (SEED-001) | Dormant seed | 2026-09-09 | not v1.2 |
-| Observability | Token usage quantitativo + JSON append (SEED-002) | **Promoted — Phase 9** | 2026-09-11 | v1.2 |
+| Observability | Token usage quantitativo + JSON append (SEED-002) | **Complete — Phase 9** | 2026-09-11 | v1.2 |
 | Productization | Host embed + imagens geradas + storytelling (SEED-003) | Dormant seed — **critical** | 2026-09-11 | post v1.2 / next product milestone |
 
 ## Session Continuity
 
-Last session: 2026-09-15T08:40:00-03:00
-Stopped at: Phase 9 plan complete — plan-checker PASSED; auto-advancing to execute
-Resume file: .planning/phases/09-token-usage-observability/.continue-here.md
+Last session: 2026-09-15
+Stopped at: Phase 9 execute complete — 09-01-SUMMARY written
+Resume file: none
 
 ## Operator Next Steps
 
-- `$gsd-execute-phase 9` — implement TOKEN-01..03 per `09-01-PLAN.md`
 - `$gsd-discuss-phase 8` — Provider Failover when ready
+- Optional: `$gsd-verify-work 9` for UAT spot-check with real keys
 - Optional: merge PR #4 when ready

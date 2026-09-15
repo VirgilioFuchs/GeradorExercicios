@@ -32,7 +32,7 @@
 
 - [x] **Phase 7: Continuous Integration** — GitHub Actions roda pytest sem LLM live em push/PR
 - [ ] **Phase 8: Provider Failover** — Fallback automático OpenAI ↔ Gemini em erros retriáveis/indisponibilidade
-- [ ] **Phase 9: Token Usage Observability** — Consumo quantitativo de tokens (append por request + JSON em pasta dedicada)
+- [x] **Phase 9: Token Usage Observability** — Consumo quantitativo de tokens (append por request + JSON em pasta dedicada)
 
 ## Phase Details
 
@@ -90,7 +90,7 @@ Plans:
 
 Plans:
 
-- [ ] 09-01-PLAN.md — Token usage collector + provider extractors + NDJSON flush + `[USAGE]` stderr (mocked tests)
+- [x] 09-01-PLAN.md — Token usage collector + provider extractors + NDJSON flush + `[USAGE]` stderr (mocked tests)
 
 ## Progress
 
@@ -104,7 +104,7 @@ Plans:
 | 6. Math Quality | v1.1 | 1/1 | Complete | 2026-09-09 |
 | 7. Continuous Integration | v1.2 | 1/1 | Complete | 2026-09-11 |
 | 8. Provider Failover | v1.2 | 0/TBD | Not started | - |
-| 9. Token Usage Observability | v1.2 | 0/TBD | Not started | - |
+| 9. Token Usage Observability | v1.2 | 1/1 | Complete | 2026-09-15 |
 
 ## Future Themes
 

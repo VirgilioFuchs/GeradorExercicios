@@ -21,9 +21,9 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Observability (tokens — SEED-002)
 
-- [ ] **TOKEN-01**: Cada chamada LLM registra consumo quantitativo (prompt / completion / total quando disponível) sem substituir registros anteriores da mesma run
-- [ ] **TOKEN-02**: O histórico de usage é persistido em arquivos `.json` numa pasta/módulo dedicados (sem secrets)
-- [ ] **TOKEN-03**: Stderr expõe usage por request (provider/model + tokens) de forma acumulativa; testes cobrem o caminho com mocks (sem LLM live)
+- [x] **TOKEN-01**: Cada chamada LLM registra consumo quantitativo (prompt / completion / total quando disponível) sem substituir registros anteriores da mesma run
+- [x] **TOKEN-02**: O histórico de usage é persistido em arquivos `.json` numa pasta/módulo dedicados (sem secrets)
+- [x] **TOKEN-03**: Stderr expõe usage por request (provider/model + tokens) de forma acumulativa; testes cobrem o caminho com mocks (sem LLM live)
 
 ## Future Requirements
 
@@ -61,9 +61,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FAILOVER-01 | Phase 8 | Pending |
 | FAILOVER-02 | Phase 8 | Pending |
 | FAILOVER-03 | Phase 8 | Pending |
-| TOKEN-01 | Phase 9 | Pending |
-| TOKEN-02 | Phase 9 | Pending |
-| TOKEN-03 | Phase 9 | Pending |
+| TOKEN-01 | Phase 9 | Complete |
+| TOKEN-02 | Phase 9 | Complete |
+| TOKEN-03 | Phase 9 | Complete |
 
 **Coverage:**
 
