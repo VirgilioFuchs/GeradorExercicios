@@ -95,9 +95,9 @@ Recent decisions affecting current work:
 ### Pending Todos
 
 - **SEED-003 (CRÍTICO)** — Embed do gerador em sistema de exercícios já em produção → depois imagens geradas → depois exercícios com storytelling (não v1.2 CI/failover/tokens; promover no próximo milestone de productização)
-- **SEED-004** — CLI interativo (perguntas + tips sob cada campo; sem depender de `--flags`) — depois do reasoning quick / tipicamente pós Phase 8
+- **Quick 260915-d26** — Unified `--reasoning` shipped (`e1ab1ef`)
+- **SEED-004** — CLI interativo (perguntas + tips) — dormant; Phase 10 candidate
 - **Phase 8** — Provider Failover still open in v1.2
-- **Quick 260915-d26** — Plano reasoning unificado (OpenAI/Gemini/Grok) pronto; aguarda execute
 
 ### Blockers/Concerns
 
