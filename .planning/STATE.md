@@ -4,18 +4,17 @@ milestone: v1.2
 milestone_name: Ops & Resilience
 current_phase: 10
 current_phase_name: Interactive CLI Wizard
-status: phase_10_planned
-stopped_at: Phase 8 complete; Phase 10 planned — ready to execute
-last_updated: "2026-09-15T14:04:44.508Z"
+status: phase_10_complete
+stopped_at: Phase 10 complete — v1.2 phases 7–10 shipped
+last_updated: "2026-09-15T14:20:00.000Z"
 last_activity: 2026-09-15
-last_activity_desc: "`$gsd-execute-phase 8` — FAILOVER-01..03 shipped; Phase 10 plan ready"
-state_head: 5b9980dd8305af979e8f63c2bd16b4336fa034be
+last_activity_desc: "`$gsd-execute-phase 10` — WIZ-01..03 shipped (gerar wizard + medium default)"
 progress:
   total_phases: 4
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 4
-  completed_plans: 3
-  percent: 75
+  completed_plans: 4
+  percent: 100
 ---
 
 # Project State
@@ -25,21 +24,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-11)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato
-**Current focus:** Phase 10 Interactive Wizard (planned) — last open v1.2 phase
+**Current focus:** v1.2 Ops & Resilience — all phases complete (7–10)
 
 ## Current Position
 
-Phase: 10 (Interactive CLI Wizard) — planned
-Plan: 10-01 of 1 — ready to execute
-Status: Phase 8 Failover shipped; Phase 9 Tokens complete; Phase 10 CONTEXT+PLAN ready
-Last activity: 2026-09-15 — Phase 8 execute complete; Phase 10 plan revised after checker
+Phase: 10 (Interactive CLI Wizard) — complete
+Plan: 10-01 of 1 — complete (`10-01-SUMMARY.md`)
+Status: Phase 10 WIZ-01..03 shipped; argparse coexistence preserved; reasoning default medium
+Last activity: 2026-09-15 — Phase 10 execute complete
+
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 3 (v1)
+- Total plans completed: 4 (v1.2) + prior milestones
 - Average duration: ~18 min
-- Total execution time: 0.92 hours
+- Total execution time: ~1.3 hours (v1.2 estimate)
 
 **By Phase:**
 
@@ -52,11 +52,13 @@ Last activity: 2026-09-15 — Phase 8 execute complete; Phase 10 plan revised af
 | 5 | 1 | - | - |
 | 6 | 1 | - | - |
 | 7 | 1/1 | ~15 min | 15 min |
+| 8 | 1/1 | ~25 min | 25 min |
 | 9 | 1/1 | ~45 min | 45 min |
+| 10 | 1/1 | ~25 min | 25 min |
 
 **Recent Trend:**
 
-- Last 5 plans: [15 min, 25 min, 15 min, 25 min]
+- Last 5 plans: [15 min, 25 min, 45 min, 25 min, 25 min]
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -69,6 +71,7 @@ Last activity: 2026-09-15 — Phase 8 execute complete; Phase 10 plan revised af
 | Phase 03 P01 | 15 min | 3 tasks | 9 files |
 | Phase 06-math-quality P01 | 25min | 3 tasks | 6 files |
 | Phase 09-token-usage P01 | ~45min | 3 tasks | 12 files |
+| Phase 10-interactive-cli-wizard P01 | ~25min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -90,12 +93,13 @@ Recent decisions affecting current work:
 - [Phase 6]: Postmortem only on final failure via injectable POSTMORTEM_PATH
 - [v1.2]: Milestone = CI + provider failover; phases 7–8 continue numbering from v1.1; no second math/RELY loop on failover
 - [Phase 9]: NDJSON day+provider under token-usage/; missing = indisponível; flush only in main.run finally; Grok ticks preferred for USD
+- [Phase 10]: First token `gerar` opens wizard; argparse kept for CI; DEFAULT_REASONING_EFFORT medium; wizard calls main.run only
 
 ### Pending Todos
 
-- **SEED-003 (CRÍTICO)** — Embed do gerador em sistema de exercícios já em produção → depois imagens geradas → depois exercícios com storytelling (não v1.2 CI/failover/tokens; promover no próximo milestone de productização)
-- **Quick 260915-d26** — Unified `--reasoning` shipped (`e1ab1ef`)
-- **SEED-004** — CLI interativo (perguntas + tips) — **Phase 10 planned** (`10-01-PLAN.md`)
+- **SEED-003 (CRÍTICO)** — Embed do gerador em sistema de exercícios já em produção → depois imagens geradas → depois exercícios com storytelling (não v1.2; promover no próximo milestone de productização)
+- **Quick 260915-d26** — Unified `--reasoning` shipped (`e1ab1ef`); Phase 10 aligned default to medium
+- **SEED-004** — CLI interativo — **Phase 10 complete** (`10-01-SUMMARY.md`)
 - **Phase 8** — Provider Failover **complete** (2026-09-15)
 
 ### Blockers/Concerns
@@ -108,6 +112,7 @@ None.
 - Phase 9 executed 2026-09-15 (TOKEN-01..03)
 - Phase 8 executed 2026-09-15 (FAILOVER-01..03) after Phase 9 (operator priority)
 - Phase 10 planned 2026-09-15 (WIZ-01..03)
+- Phase 10 executed 2026-09-15 (WIZ-01..03)
 
 ### Quick Tasks Completed
 
@@ -123,21 +128,21 @@ None.
 | Category | Item | Status | Deferred At | Milestone |
 |----------|------|--------|-------------|-----------|
 | Ops | GitHub Actions CI (CI-01, CI-02) | Complete — Phase 7 | 2026-09-04 | v1.2 |
-| Reliability | Provider failover (FAILOVER-01..03) | Active — Phase 8 | 2026-09-04 | v1.2 |
+| Reliability | Provider failover (FAILOVER-01..03) | **Complete — Phase 8** | 2026-09-04 | v1.2 |
 | Product | MySQL / analytics / personalização / agente | Deferred | 2026-09-04 | v2+ |
 | Curriculum | BNCC / habilidades (SEED-001) | Dormant seed | 2026-09-09 | not v1.2 |
 | Observability | Token usage quantitativo + JSON append (SEED-002) | **Complete — Phase 9** | 2026-09-11 | v1.2 |
 | Productization | Host embed + imagens geradas + storytelling (SEED-003) | Dormant seed — **critical** | 2026-09-11 | post v1.2 / next product milestone |
-| UX | CLI wizard perguntas + tips (SEED-004) | **Promoted — Phase 10** | 2026-09-15 | v1.2 |
+| UX | CLI wizard perguntas + tips (SEED-004) | **Complete — Phase 10** | 2026-09-15 | v1.2 |
 
 ## Session Continuity
 
-Last session: 2026-09-15T14:04:44.281Z
-Stopped at: Phase 10 planned — execute after Phase 8
-Resume file: .planning/phases/10-interactive-cli-wizard/10-01-PLAN.md
+Last session: 2026-09-15
+Stopped at: Phase 10 complete — all v1.2 roadmap phases shipped
+Resume file: .planning/phases/10-interactive-cli-wizard/10-01-SUMMARY.md
 
 ## Operator Next Steps
 
-- `$gsd-plan-phase 10` — plan Interactive CLI Wizard (`gerar` + reasoning medium)
-- `$gsd-discuss-phase 8` — Provider Failover when ready
+- Optional: `$gsd-verify-work 10` / `$gsd-audit-milestone` for v1.2 close-out
 - Optional: merge PR #4 when ready
+- Next product work: SEED-003 (host embed) via `$gsd-new-milestone` when ready

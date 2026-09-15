@@ -27,9 +27,9 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### UX (wizard — SEED-004)
 
-- [ ] **WIZ-01**: Tag `gerar` abre fluxo interativo em TTY com perguntas + tip sob cada campo (tópico → matéria → dificuldade → quantidade → provedor → reasoning → nome JSON)
-- [ ] **WIZ-02**: Respostas do wizard disparam o mesmo pipeline de geração/validação/`--out`; Enter aplica defaults (JSON path obrigatório); reasoning default `medium`
-- [ ] **WIZ-03**: Argparse com flags permanece para CI/scripts; testes do wizard usam `input` mockado (sem LLM live / sem TTY real)
+- [x] **WIZ-01**: Tag `gerar` abre fluxo interativo em TTY com perguntas + tip sob cada campo (tópico → matéria → dificuldade → quantidade → provedor → reasoning → nome JSON)
+- [x] **WIZ-02**: Respostas do wizard disparam o mesmo pipeline de geração/validação/`--out`; Enter aplica defaults (JSON path obrigatório); reasoning default `medium`
+- [x] **WIZ-03**: Argparse com flags permanece para CI/scripts; testes do wizard usam `input` mockado (sem LLM live / sem TTY real)
 
 ## Future Requirements
 
@@ -70,9 +70,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TOKEN-01 | Phase 9 | Complete |
 | TOKEN-02 | Phase 9 | Complete |
 | TOKEN-03 | Phase 9 | Complete |
-| WIZ-01 | Phase 10 | Pending |
-| WIZ-02 | Phase 10 | Pending |
-| WIZ-03 | Phase 10 | Pending |
+| WIZ-01 | Phase 10 | Complete |
+| WIZ-02 | Phase 10 | Complete |
+| WIZ-03 | Phase 10 | Complete |
 
 **Coverage:**
 
@@ -82,4 +82,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-09-09*
-*Last updated: 2026-09-15 — Phase 10 WIZ-* from SEED-004*
+*Last updated: 2026-09-15 — Phase 10 WIZ-01..03 complete*

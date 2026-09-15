@@ -4,7 +4,7 @@
 
 - ✅ **v1 MVP** — Phases 1–3 (shipped 2026-09-04) — [archive](./milestones/v1-ROADMAP.md) · [requirements](./milestones/v1-REQUIREMENTS.md) · [phases](./milestones/v1-phases/) · [audit](./milestones/v1-MILESTONE-AUDIT.md)
 - ✅ **v1.1 Qualidade do exercício** — Phases 4–6 (shipped 2026-09-09) — [archive](./milestones/v1.1-ROADMAP.md) · [requirements](./milestones/v1.1-REQUIREMENTS.md) · [phases](./milestones/v1.1-phases/) · [audit](./milestones/v1.1-MILESTONE-AUDIT.md)
-- 🚧 **v1.2 Ops & Resilience** — Phases 7–10 (in progress)
+- 🚧 **v1.2 Ops & Resilience** — Phases 7–10 (Phase 10 complete; milestone ready for audit/archive)
 
 ## Phases
 
@@ -33,7 +33,7 @@
 - [x] **Phase 7: Continuous Integration** — GitHub Actions roda pytest sem LLM live em push/PR
 - [x] **Phase 8: Provider Failover** — Fallback automático OpenAI ↔ Gemini em erros retriáveis/indisponibilidade
 - [x] **Phase 9: Token Usage Observability** — Consumo quantitativo de tokens (append por request + JSON em pasta dedicada)
-- [ ] **Phase 10: Interactive CLI Wizard** — Tag `gerar` com perguntas + tips (inclui reasoning); argparse permanece para CI
+- [x] **Phase 10: Interactive CLI Wizard** — Tag `gerar` com perguntas + tips (inclui reasoning); argparse permanece para CI
 
 ## Phase Details
 
@@ -110,7 +110,7 @@ Plans:
 
 Plans:
 
-- [ ] 10-01-PLAN.md — Interactive `gerar` wizard + medium reasoning default + mocked input tests
+- [x] 10-01-PLAN.md — Interactive `gerar` wizard + medium reasoning default + mocked input tests
 
 ## Progress
 
@@ -125,7 +125,7 @@ Plans:
 | 7. Continuous Integration | v1.2 | 1/1 | Complete | 2026-09-11 |
 | 8. Provider Failover | v1.2 | 1/1 | Complete | 2026-09-15 |
 | 9. Token Usage Observability | v1.2 | 1/1 | Complete | 2026-09-15 |
-| 10. Interactive CLI Wizard | v1.2 | 0/1 | Planned | - |
+| 10. Interactive CLI Wizard | v1.2 | 1/1 | Complete | 2026-09-15 |
 
 ## Future Themes
 
