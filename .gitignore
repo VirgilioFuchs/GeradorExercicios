@@ -5,6 +5,11 @@
 exercise-ai/math_postmortem.jsonl
 exercise-ai/token-usage/**
 !exercise-ai/token-usage/.gitkeep
+exercise-ai/exercicios-gerados/success/**
+!exercise-ai/exercicios-gerados/success/.gitkeep
+exercise-ai/exercicios-gerados/fail/**
+!exercise-ai/exercicios-gerados/fail/postmortem/.gitkeep
+!exercise-ai/exercicios-gerados/fail/erros/.gitkeep
 exercicios.json
 exercicios*.json
 saida_erros.txt
