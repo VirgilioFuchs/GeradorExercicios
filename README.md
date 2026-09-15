@@ -60,7 +60,15 @@ Ajuda em português: `python exercise-ai/main.py --help`
 
 ### Regeneração e Phase 6
 
-Em falha de validação estrutural ou resposta LLM inválida, o gerador regenera até N vezes com o **mesmo prompt** (sem apêndice de erro). Falhas matemáticas futuras (Phase 6) reutilizarão o mesmo caminho (`generate_validated_batch`). Auth, timeout, rate-limit e conexão **não** regeneram.
+Em falha de validação estrutural ou resposta LLM inválida, o gerador regenera até N vezes com o **mesmo prompt** (sem apêndice de erro). Falhas matemáticas reutilizam o mesmo caminho (`generate_validated_batch`). Auth, timeout, rate-limit e conexão **não** regeneram no mesmo provider.
+
+### Failover OpenAI ↔ Gemini
+
+Se o provider primário falhar com erro de API de disponibilidade (`timeout`, `rate_limit`, `connection` ou `generic`), o lab tenta **uma vez** o outro do par OpenAI ↔ Gemini, reusando `generate_validated_batch` (sem segundo loop math/RELY). Em stderr: `[FAILOVER] openai → gemini (timeout)` (ou o par inverso) e `[FAILOVER] usado: …` no sucesso — sem secrets.
+
+- **Sem failover** em auth, recusa do modelo, resposta inválida tipada ou falha de validação/math.
+- **Grok** fica fora da cadeia (single-provider).
+- `--provider openai|gemini` **não** desliga o failover; não há flag `--no-failover` nesta fase.
 
 ## Como testar
 
