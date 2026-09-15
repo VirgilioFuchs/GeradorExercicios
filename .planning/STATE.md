@@ -125,17 +125,16 @@ None. Phase 9 executed ahead of Phase 8 (operator priority).
 | Curriculum | BNCC / habilidades (SEED-001) | Dormant seed | 2026-09-09 | not v1.2 |
 | Observability | Token usage quantitativo + JSON append (SEED-002) | **Complete — Phase 9** | 2026-09-11 | v1.2 |
 | Productization | Host embed + imagens geradas + storytelling (SEED-003) | Dormant seed — **critical** | 2026-09-11 | post v1.2 / next product milestone |
-| UX | CLI wizard perguntas + tips (SEED-004) | Dormant seed — **high** | 2026-09-15 | after reasoning quick; Phase 10 candidate |
+| UX | CLI wizard perguntas + tips (SEED-004) | **Promoted — Phase 10** | 2026-09-15 | v1.2 |
 
 ## Session Continuity
 
 Last session: 2026-09-15
-Stopped at: Reasoning quick PLAN ready; SEED-004 interactive CLI captured
-Resume file: .planning/quick/260915-d26-add-unified-reasoning-thinking-mode-for-/PLAN.md
+Stopped at: Phase 10 CONTEXT locked (SEED-004); ready to plan
+Resume file: .planning/phases/10-interactive-cli-wizard/10-CONTEXT.md
 
 ## Operator Next Steps
 
-- Execute reasoning quick OR adjust defaults
-- Decide SEED-004 → Phase 10 (v1.2) vs next milestone
+- `$gsd-plan-phase 10` — plan Interactive CLI Wizard (`gerar` + reasoning medium)
 - `$gsd-discuss-phase 8` — Provider Failover when ready
 - Optional: merge PR #4 when ready

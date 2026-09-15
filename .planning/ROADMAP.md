@@ -4,7 +4,7 @@
 
 - ✅ **v1 MVP** — Phases 1–3 (shipped 2026-09-04) — [archive](./milestones/v1-ROADMAP.md) · [requirements](./milestones/v1-REQUIREMENTS.md) · [phases](./milestones/v1-phases/) · [audit](./milestones/v1-MILESTONE-AUDIT.md)
 - ✅ **v1.1 Qualidade do exercício** — Phases 4–6 (shipped 2026-09-09) — [archive](./milestones/v1.1-ROADMAP.md) · [requirements](./milestones/v1.1-REQUIREMENTS.md) · [phases](./milestones/v1.1-phases/) · [audit](./milestones/v1.1-MILESTONE-AUDIT.md)
-- 🚧 **v1.2 Ops & Resilience** — Phases 7–9 (in progress)
+- 🚧 **v1.2 Ops & Resilience** — Phases 7–10 (in progress)
 
 ## Phases
 
@@ -28,11 +28,12 @@
 
 ### 🚧 v1.2 Ops & Resilience (In Progress)
 
-**Milestone Goal:** Deixar o lab confiável fora da máquina local — CI automatizado no GitHub, failover de provider quando a API principal falha, e observabilidade quantitativa de tokens LLM.
+**Milestone Goal:** Deixar o lab confiável fora da máquina local — CI, failover de provider, observabilidade de tokens, e UX de geração interativa (`gerar`).
 
 - [x] **Phase 7: Continuous Integration** — GitHub Actions roda pytest sem LLM live em push/PR
 - [ ] **Phase 8: Provider Failover** — Fallback automático OpenAI ↔ Gemini em erros retriáveis/indisponibilidade
 - [x] **Phase 9: Token Usage Observability** — Consumo quantitativo de tokens (append por request + JSON em pasta dedicada)
+- [ ] **Phase 10: Interactive CLI Wizard** — Tag `gerar` com perguntas + tips (inclui reasoning); argparse permanece para CI
 
 ## Phase Details
 
@@ -92,6 +93,25 @@ Plans:
 
 - [x] 09-01-PLAN.md — Token usage collector + provider extractors + NDJSON flush + `[USAGE]` stderr (mocked tests)
 
+### Phase 10: Interactive CLI Wizard
+
+**Goal**: Operador roda `python exercise-ai/main.py gerar` e responde perguntas em PT (tópico → matéria → dificuldade → quantidade → provedor → reasoning → nome do JSON), cada uma com tip; Enter usa defaults (exceto JSON path); reasoning default `medium`; flags argparse continuam para scripts/CI.
+**Depends on**: Phase 9 (reasoning shipped); pode avançar em paralelo à Phase 8
+**Requirements**: WIZ-01, WIZ-02, WIZ-03
+**Success Criteria** (what must be TRUE):
+
+  1. `gerar` inicia o wizard em TTY e coleta a sequência locked em 10-CONTEXT
+  2. Respostas viram `GenerationRequest` + provider + reasoning + path `--out` e disparam o pipeline existente
+  3. Tips aparecem sob cada pergunta; Enter aplica defaults documentados; JSON path re-pergunta se vazio
+  4. Sem `gerar`, argparse atual continua válido; testes CI não dependem de TTY/wizard
+  5. Default global de reasoning alinhado a `medium`
+
+**Plans**: TBD
+
+Plans:
+
+- [ ] 10-01: TBD (created during plan-phase)
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -105,6 +125,7 @@ Plans:
 | 7. Continuous Integration | v1.2 | 1/1 | Complete | 2026-09-11 |
 | 8. Provider Failover | v1.2 | 0/TBD | Not started | - |
 | 9. Token Usage Observability | v1.2 | 1/1 | Complete | 2026-09-15 |
+| 10. Interactive CLI Wizard | v1.2 | 0/TBD | Context ready | - |
 
 ## Future Themes
 
@@ -119,3 +140,4 @@ Tracked for next milestone planning (`$gsd-new-milestone`):
 *Last milestone archived: v1.1 — 2026-09-09*
 *v1.2 roadmap created: 2026-09-09*
 *Phase 9 (SEED-002) promoted: 2026-09-11*
+*Phase 10 (SEED-004) promoted: 2026-09-15*
