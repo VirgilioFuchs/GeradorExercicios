@@ -106,11 +106,11 @@ Plans:
   4. Sem `gerar`, argparse atual continua válido; testes CI não dependem de TTY/wizard
   5. Default global de reasoning alinhado a `medium`
 
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
 
-- [ ] 10-01: TBD (created during plan-phase)
+- [ ] 10-01-PLAN.md — Interactive `gerar` wizard + medium reasoning default + mocked input tests
 
 ## Progress
 
@@ -125,7 +125,7 @@ Plans:
 | 7. Continuous Integration | v1.2 | 1/1 | Complete | 2026-09-11 |
 | 8. Provider Failover | v1.2 | 0/TBD | Not started | - |
 | 9. Token Usage Observability | v1.2 | 1/1 | Complete | 2026-09-15 |
-| 10. Interactive CLI Wizard | v1.2 | 0/TBD | Context ready | - |
+| 10. Interactive CLI Wizard | v1.2 | 0/1 | Planned | - |
 
 ## Future Themes
 
