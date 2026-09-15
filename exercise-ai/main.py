@@ -24,6 +24,7 @@ load_dotenv(dotenv_path=env_path)
 
 from models import DificuldadeEnum, ExerciseBatch, GenerationRequest
 from reliability import generate_validated_batch, resolve_max_retries
+from token_usage import begin_run, flush_token_usage
 
 logger = logging.getLogger("exercise_ai")
 
@@ -185,6 +186,7 @@ def run(
 ) -> None:
     """Executa o pipeline: reliability (gerar→validar) → texto + JSON em out_path."""
     _configure_logging()
+    begin_run()
 
     logger.info("Início da geração de exercícios")
     logger.info(
@@ -223,6 +225,10 @@ def run(
         logger.error("Falha inesperada: %s", exc)
         print(str(exc), file=sys.stderr)
         sys.exit(1)
+    finally:
+        # Single flush site (D-04); SystemExit still runs finally — buffer cleared
+        # so a second flush is a no-op (idempotent).
+        flush_token_usage()
 
 
 def main(argv: list[str] | None = None) -> None:

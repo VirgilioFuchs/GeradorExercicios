@@ -67,11 +67,23 @@ pytest exercise-ai -q
 
 Em push/PR para `master`, o workflow GitHub Actions `CI` executa o mesmo comando.
 
+## Observabilidade de tokens
+
+Cada chamada LLM grava um evento em memória; no fim da run a CLI faz **append** NDJSON em:
+
+`exercise-ai/token-usage/{YYYY-MM-DD}/{provider}.ndjson`
+
+- **Dia** = data civil no fuso local da máquina do operator.
+- **Stderr:** linhas `[USAGE]` com tokens de entrada/saída, total, `duration_ms` e USD quando calculável (`indisponível` se ausente — nunca inventa `0`).
+- **USD:** Grok preferencialmente via `cost_in_usd_ticks`; OpenAI/Gemini via tabela local aproximada (atualizar manualmente; sem scrape de pricing).
+- Artefatos gerados estão no `.gitignore`; a pasta permanece via `.gitkeep`.
+- Testes de usage usam mocks e `TOKEN_USAGE_DIR` injetável — sem LLM e sem arquivos locais de usage commitados.
+
 ## Stdout vs stderr
 
 - **Sucesso (stdout):** texto legível por exercício (`### Exercício N`, `Enunciado:`, `Resposta:`, `Explicação:`).
 - **Sucesso (arquivo `--out`):** JSON UTF-8 do lote (`exercicios`), indentado, `ensure_ascii=False`.
-- **Stderr:** rótulos de estágio (`Gerando…`, `Validando…`, `Nª Regeneração`), duração agregada (`total_ms` + `chamadas`), eventos de desenvolvimento (início, parâmetros sem segredos, sucesso/falha) e detalhes `[VALIDAÇÃO]` / `[API:openai|gemini]`. O motivo de erro só aparece após esgotar regenerações.
+- **Stderr:** rótulos de estágio (`Gerando…`, `Validando…`, `Nª Regeneração`), duração agregada (`total_ms` + `chamadas`), eventos `[USAGE]` (tokens/custo), eventos de desenvolvimento (início, parâmetros sem segredos, sucesso/falha) e detalhes `[VALIDAÇÃO]` / `[API:openai|gemini|grok]`. O motivo de erro só aparece após esgotar regenerações.
 
 Exemplo mínimo do JSON em `--out`:
 

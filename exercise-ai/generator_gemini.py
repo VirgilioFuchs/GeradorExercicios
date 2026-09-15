@@ -19,6 +19,7 @@ import json
 import os
 import re
 import sys
+import time
 
 from google import genai
 from google.genai import errors as genai_errors
@@ -26,6 +27,7 @@ from google.genai import types
 
 from models import ExerciseBatch, GenerationRequest
 import prompts
+from token_usage import extract_gemini_usage, get_collector
 
 # Prefer lite; on usage/capacity errors walk the list.
 GEMINI_MODEL_FALLBACKS: tuple[str, ...] = (
@@ -187,6 +189,38 @@ def _parse_gemini_response(response: object) -> ExerciseBatch:
         ) from exc
 
 
+def _record_gemini_usage(
+    *,
+    response: object | None,
+    model: str,
+    status: str,
+    duration_ms: int,
+    error_kind: str | None = None,
+) -> None:
+    if response is not None:
+        fields = extract_gemini_usage(response, model=model)
+        get_collector().record(
+            provider="gemini",
+            model=model,
+            status=status,  # type: ignore[arg-type]
+            prompt_tokens=fields.prompt_tokens,
+            completion_tokens=fields.completion_tokens,
+            total_tokens=fields.total_tokens,
+            duration_ms=duration_ms,
+            usd=fields.usd,
+            usd_source=fields.usd_source,
+            error_kind=error_kind,
+        )
+    else:
+        get_collector().record(
+            provider="gemini",
+            model=model,
+            status=status,  # type: ignore[arg-type]
+            duration_ms=duration_ms,
+            error_kind=error_kind,
+        )
+
+
 def generate_exercises(
     request: GenerationRequest,
     model: str = DEFAULT_GEMINI_MODEL,
@@ -203,6 +237,8 @@ def generate_exercises(
     last_exc: BaseException | None = None
 
     for idx, candidate in enumerate(candidates):
+        t0 = time.perf_counter()
+        response = None
         try:
             response = client.models.generate_content(
                 model=candidate,
@@ -213,29 +249,78 @@ def generate_exercises(
                 ),
             )
         except genai_errors.APIError as exc:
+            duration_ms = int((time.perf_counter() - t0) * 1000)
             last_exc = exc
             if _is_usage_capacity_error(exc) and idx < len(candidates) - 1:
+                _record_gemini_usage(
+                    response=None,
+                    model=candidate,
+                    status="attempt",
+                    duration_ms=duration_ms,
+                    error_kind=type(exc).__name__,
+                )
                 print(
                     f"[API:gemini] uso/capacidade em {candidate}; "
                     f"tentando {candidates[idx + 1]}",
                     file=sys.stderr,
                 )
                 continue
+            _record_gemini_usage(
+                response=None,
+                model=candidate,
+                status="error",
+                duration_ms=duration_ms,
+                error_kind=type(exc).__name__,
+            )
             raise map_gemini_error(exc) from exc
         except Exception as exc:
+            duration_ms = int((time.perf_counter() - t0) * 1000)
             last_exc = exc
             if _is_usage_capacity_error(exc) and idx < len(candidates) - 1:
+                _record_gemini_usage(
+                    response=None,
+                    model=candidate,
+                    status="attempt",
+                    duration_ms=duration_ms,
+                    error_kind=type(exc).__name__,
+                )
                 print(
                     f"[API:gemini] uso/capacidade em {candidate}; "
                     f"tentando {candidates[idx + 1]}",
                     file=sys.stderr,
                 )
                 continue
+            _record_gemini_usage(
+                response=None,
+                model=candidate,
+                status="error",
+                duration_ms=duration_ms,
+                error_kind=type(exc).__name__,
+            )
             raise map_gemini_error(exc) from exc
 
+        duration_ms = int((time.perf_counter() - t0) * 1000)
         if candidate != model:
             print(f"[API:gemini] modelo usado: {candidate}", file=sys.stderr)
-        return _parse_gemini_response(response)
+        try:
+            batch = _parse_gemini_response(response)
+        except RuntimeError as exc:
+            kind = "empty_response" if "vazia" in str(exc) else "unparseable"
+            _record_gemini_usage(
+                response=response,
+                model=candidate,
+                status="error",
+                duration_ms=duration_ms,
+                error_kind=kind,
+            )
+            raise
+        _record_gemini_usage(
+            response=response,
+            model=candidate,
+            status="success",
+            duration_ms=duration_ms,
+        )
+        return batch
 
     assert last_exc is not None
     raise map_gemini_error(last_exc) from last_exc

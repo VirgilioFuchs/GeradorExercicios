@@ -3,6 +3,8 @@
 .env.*
 !.env.example
 exercise-ai/math_postmortem.jsonl
+exercise-ai/token-usage/**
+!exercise-ai/token-usage/.gitkeep
 exercicios.json
 exercicios*.json
 saida_erros.txt

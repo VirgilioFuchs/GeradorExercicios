@@ -21,6 +21,7 @@ from math_check import (
     drain_inconsistency_records,
     drain_uninterpretable_records,
 )
+from token_usage import get_collector
 
 _ALLOWED = frozenset({0, 1, 2, 3})
 _DEFAULT = 1
@@ -100,6 +101,10 @@ def generate_validated_batch(
                 if is_permanent_api_error(exc):
                     raise
                 if is_retriable_invalid_response(exc) and attempt < max_retries:
+                    get_collector().retag_last(
+                        "attempt",
+                        error_kind=type(exc).__name__,
+                    )
                     continue
                 raise
 
@@ -111,8 +116,16 @@ def generate_validated_batch(
             except ValueError as exc:
                 last_err = exc
                 if attempt < max_retries:
+                    get_collector().retag_last(
+                        "attempt",
+                        error_kind="validation",
+                    )
                     continue
                 # Final failure: postmortem + optional exhaustion prefix (D-08, D-13)
+                get_collector().retag_last(
+                    "error",
+                    error_kind="validation",
+                )
                 _write_postmortem(POSTMORTEM_PATH)
                 reason = str(exc)
                 if max_retries > 0:

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import sys
+import time
 
 from openai import (
     APIConnectionError,
@@ -16,6 +17,11 @@ from openai import (
 
 from models import ExerciseBatch, GenerationRequest
 import prompts
+from token_usage import (
+    extract_grok_usage,
+    extract_openai_usage,
+    get_collector,
+)
 
 _MISSING_KEY_MSG = (
     "Nenhuma chave de API configurada. "
@@ -134,6 +140,43 @@ def map_openai_error(exc: BaseException) -> RuntimeError:
     )
 
 
+def _record_openai_compatible_usage(
+    *,
+    completion: object | None,
+    provider: str,
+    model: str,
+    status: str,
+    duration_ms: int,
+    error_kind: str | None = None,
+) -> None:
+    """Record one usage event for OpenAI or Grok (D-13); extract per provider."""
+    if completion is not None:
+        if provider == "grok":
+            fields = extract_grok_usage(completion, model=model)
+        else:
+            fields = extract_openai_usage(completion, model=model)
+        get_collector().record(
+            provider=provider,
+            model=model,
+            status=status,  # type: ignore[arg-type]
+            prompt_tokens=fields.prompt_tokens,
+            completion_tokens=fields.completion_tokens,
+            total_tokens=fields.total_tokens,
+            duration_ms=duration_ms,
+            usd=fields.usd,
+            usd_source=fields.usd_source,
+            error_kind=error_kind,
+        )
+    else:
+        get_collector().record(
+            provider=provider,
+            model=model,
+            status=status,  # type: ignore[arg-type]
+            duration_ms=duration_ms,
+            error_kind=error_kind,
+        )
+
+
 def _generate_with_openai_compatible(
     request: GenerationRequest,
     *,
@@ -145,6 +188,8 @@ def _generate_with_openai_compatible(
 ) -> ExerciseBatch:
     """Gera exercícios via Structured Outputs (OpenAI SDK / compatible endpoints)."""
     system_prompt, user_prompt = prompts.build_prompts(request)
+    t0 = time.perf_counter()
+    completion = None
 
     try:
         completion = client.beta.chat.completions.parse(
@@ -155,9 +200,18 @@ def _generate_with_openai_compatible(
             ],
             response_format=ExerciseBatch,
         )
+        duration_ms = int((time.perf_counter() - t0) * 1000)
 
         if not getattr(completion, "choices", None):
             print(f"[API:{api_tag}] empty choices", file=sys.stderr)
+            _record_openai_compatible_usage(
+                completion=completion,
+                provider=api_tag,
+                model=model,
+                status="error",
+                duration_ms=duration_ms,
+                error_kind="empty_choices",
+            )
             raise invalid_llm_response(
                 "Não foi possível obter a estrutura de exercícios da resposta do modelo."
             )
@@ -170,6 +224,14 @@ def _generate_with_openai_compatible(
                 f"[API:{api_tag}] refusal: {safe_refusal}",
                 file=sys.stderr,
             )
+            _record_openai_compatible_usage(
+                completion=completion,
+                provider=api_tag,
+                model=model,
+                status="error",
+                duration_ms=duration_ms,
+                error_kind="refusal",
+            )
             raise _permanent_api_error(f"O modelo recusou a geração: {safe_refusal}")
 
         if message.parsed is None:
@@ -177,13 +239,37 @@ def _generate_with_openai_compatible(
                 f"[API:{api_tag}] parsed is None — estrutura ausente na resposta",
                 file=sys.stderr,
             )
+            _record_openai_compatible_usage(
+                completion=completion,
+                provider=api_tag,
+                model=model,
+                status="error",
+                duration_ms=duration_ms,
+                error_kind="parsed_none",
+            )
             raise invalid_llm_response(
                 "Não foi possível obter a estrutura de exercícios da resposta do modelo."
             )
 
+        _record_openai_compatible_usage(
+            completion=completion,
+            provider=api_tag,
+            model=model,
+            status="success",
+            duration_ms=duration_ms,
+        )
         return message.parsed
 
     except OpenAIError as exc:
+        duration_ms = int((time.perf_counter() - t0) * 1000)
+        _record_openai_compatible_usage(
+            completion=completion,
+            provider=api_tag,
+            model=model,
+            status="error",
+            duration_ms=duration_ms,
+            error_kind=type(exc).__name__,
+        )
         raise map_openai_compatible_error(
             exc,
             api_tag=api_tag,
