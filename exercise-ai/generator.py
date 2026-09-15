@@ -17,6 +17,7 @@ from openai import (
 
 from models import ExerciseBatch, GenerationRequest
 import prompts
+from reasoning import openai_compatible_effort_kwargs
 from token_usage import (
     extract_grok_usage,
     extract_openai_usage,
@@ -190,6 +191,7 @@ def _generate_with_openai_compatible(
     system_prompt, user_prompt = prompts.build_prompts(request)
     t0 = time.perf_counter()
     completion = None
+    effort_kwargs = openai_compatible_effort_kwargs(api_tag=api_tag, model=model)
 
     try:
         completion = client.beta.chat.completions.parse(
@@ -199,6 +201,7 @@ def _generate_with_openai_compatible(
                 {"role": "user", "content": user_prompt},
             ],
             response_format=ExerciseBatch,
+            **effort_kwargs,
         )
         duration_ms = int((time.perf_counter() - t0) * 1000)
 

@@ -27,6 +27,7 @@ from google.genai import types
 
 from models import ExerciseBatch, GenerationRequest
 import prompts
+from reasoning import resolve_reasoning_effort, to_gemini_thinking_level
 from token_usage import extract_gemini_usage, get_collector
 
 # Prefer lite; on usage/capacity errors walk the list.
@@ -240,12 +241,17 @@ def generate_exercises(
         t0 = time.perf_counter()
         response = None
         try:
+            thinking_level = to_gemini_thinking_level(resolve_reasoning_effort())
             response = client.models.generate_content(
                 model=candidate,
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
                     response_json_schema=ExerciseBatch.model_json_schema(),
+                    thinking_config=types.ThinkingConfig(
+                        thinking_level=thinking_level,
+                        include_thoughts=False,
+                    ),
                 ),
             )
         except genai_errors.APIError as exc:

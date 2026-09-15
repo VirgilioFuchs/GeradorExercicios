@@ -95,7 +95,9 @@ Recent decisions affecting current work:
 ### Pending Todos
 
 - **SEED-003 (CRÍTICO)** — Embed do gerador em sistema de exercícios já em produção → depois imagens geradas → depois exercícios com storytelling (não v1.2 CI/failover/tokens; promover no próximo milestone de productização)
+- **SEED-004** — CLI interativo (perguntas + tips sob cada campo; sem depender de `--flags`) — depois do reasoning quick / tipicamente pós Phase 8
 - **Phase 8** — Provider Failover still open in v1.2
+- **Quick 260915-d26** — Plano reasoning unificado (OpenAI/Gemini/Grok) pronto; aguarda execute
 
 ### Blockers/Concerns
 
@@ -111,6 +113,7 @@ None. Phase 9 executed ahead of Phase 8 (operator priority).
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260911-fvq | Add Grok provider for exercise generation (`GROK_API_KEY`) | 2026-09-11 | 15f9aff | [260911-fvq-add-grok-provider-for-exercise-generatio](./quick/260911-fvq-add-grok-provider-for-exercise-generatio/) |
+| 260915-d26 | Unified `--reasoning` for Grok/Gemini/OpenAI (default low) | 2026-09-15 | pending | [260915-d26-add-unified-reasoning-thinking-mode-for-](./quick/260915-d26-add-unified-reasoning-thinking-mode-for-/) |
 
 ## Deferred Items
 
@@ -122,15 +125,17 @@ None. Phase 9 executed ahead of Phase 8 (operator priority).
 | Curriculum | BNCC / habilidades (SEED-001) | Dormant seed | 2026-09-09 | not v1.2 |
 | Observability | Token usage quantitativo + JSON append (SEED-002) | **Complete — Phase 9** | 2026-09-11 | v1.2 |
 | Productization | Host embed + imagens geradas + storytelling (SEED-003) | Dormant seed — **critical** | 2026-09-11 | post v1.2 / next product milestone |
+| UX | CLI wizard perguntas + tips (SEED-004) | Dormant seed — **high** | 2026-09-15 | after reasoning quick; Phase 10 candidate |
 
 ## Session Continuity
 
 Last session: 2026-09-15
-Stopped at: Phase 9 execute complete — 09-01-SUMMARY written
-Resume file: none
+Stopped at: Reasoning quick PLAN ready; SEED-004 interactive CLI captured
+Resume file: .planning/quick/260915-d26-add-unified-reasoning-thinking-mode-for-/PLAN.md
 
 ## Operator Next Steps
 
+- Execute reasoning quick OR adjust defaults
+- Decide SEED-004 → Phase 10 (v1.2) vs next milestone
 - `$gsd-discuss-phase 8` — Provider Failover when ready
-- Optional: `$gsd-verify-work 9` for UAT spot-check with real keys
 - Optional: merge PR #4 when ready

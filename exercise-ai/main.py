@@ -163,6 +163,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="Provedor LLM para esta execução: openai|gemini|grok (opcional)",
     )
     parser.add_argument(
+        "--reasoning",
+        choices=["none", "low", "medium", "high"],
+        default=None,
+        help=(
+            "Esforço de raciocínio/thinking: none|low|medium|high "
+            "(padrão: low via LLM_REASONING_EFFORT ou default)"
+        ),
+    )
+    parser.add_argument(
         "--out",
         required=True,
         help="Caminho obrigatório do arquivo JSON de saída",
@@ -243,6 +252,9 @@ def main(argv: list[str] | None = None) -> None:
         except ValueError as err:
             print(str(err), file=sys.stderr)
             sys.exit(1)
+
+    if args.reasoning is not None:
+        os.environ["LLM_REASONING_EFFORT"] = args.reasoning
 
     request = GenerationRequest(
         materia=args.materia,
