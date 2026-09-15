@@ -115,7 +115,7 @@ None. Phase 9 executed ahead of Phase 8 (operator priority).
 | 260911-fvq | Add Grok provider for exercise generation (`GROK_API_KEY`) | 2026-09-11 | 15f9aff | [260911-fvq-add-grok-provider-for-exercise-generatio](./quick/260911-fvq-add-grok-provider-for-exercise-generatio/) |
 | 260915-d26 | Unified `--reasoning` for Grok/Gemini/OpenAI (default low) | 2026-09-15 | e1ab1ef | [260915-d26-add-unified-reasoning-thinking-mode-for-](./quick/260915-d26-add-unified-reasoning-thinking-mode-for-/) |
 | 260915-fast | Scaffold `exercicios-gerados` success/fail dirs | 2026-09-15 | adfb1c3 | [exercicios-gerados](../exercise-ai/exercicios-gerados/) |
-| 260915-e1i | Wire JSON routing to success/ + fail/erros+postmortem | 2026-09-15 | TBD | [260915-e1i-wire-json-routing-to-exercicios-gerados-](./quick/260915-e1i-wire-json-routing-to-exercicios-gerados-/) |
+| 260915-e1i | Wire JSON routing to success/ + fail/erros+postmortem | 2026-09-15 | d7e5f18 | [260915-e1i-wire-json-routing-to-exercicios-gerados-](./quick/260915-e1i-wire-json-routing-to-exercicios-gerados-/) |
 
 ## Deferred Items
 
