@@ -5,17 +5,17 @@ milestone_name: Ops & Resilience
 current_phase: 10
 current_phase_name: Interactive CLI Wizard
 status: phase_10_complete
-stopped_at: Phase 10 complete — v1.2 ops milestone done
-last_updated: "2026-09-15T14:25:32.949Z"
+stopped_at: v1.2 milestone audited (tech_debt)
+last_updated: "2026-09-15T14:29:51.578Z"
 last_activity: 2026-09-15
 last_activity_desc: "`$gsd-execute-phase 10` — WIZ-01..03 shipped (gerar wizard + medium default)"
-state_head: 52fe713e2a7b3c3fb1e91b498c509336088efff9
+state_head: 98859f974b8c013a5c833cf289df6caea78ea0a4
 progress:
   total_phases: 4
-  completed_phases: 4
+  completed_phases: 2
   total_plans: 4
   completed_plans: 4
-  percent: 100
+  percent: 50
 ---
 
 # Project State
@@ -138,9 +138,9 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-09-15T14:25:32.764Z
-Stopped at: Phase 10 complete — v1.2 ops milestone done
-Resume file: .planning/phases/10-interactive-cli-wizard/10-VERIFICATION.md
+Last session: 2026-09-15T14:29:50.972Z
+Stopped at: v1.2 milestone audited (tech_debt)
+Resume file: .planning/v1.2-MILESTONE-AUDIT.md
 
 ## Operator Next Steps
 
