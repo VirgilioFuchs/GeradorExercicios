@@ -170,7 +170,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help=(
             "Esforço de raciocínio/thinking: none|low|medium|high "
-            "(padrão: low via LLM_REASONING_EFFORT ou default)"
+            "(padrão: medium via LLM_REASONING_EFFORT ou default)"
         ),
     )
     parser.add_argument(
@@ -260,6 +260,21 @@ def run(
 
 def main(argv: list[str] | None = None) -> None:
     """Parse CLI args and run the generation pipeline."""
+    if argv is None:
+        argv = sys.argv[1:]
+
+    # Interactive wizard: first token `gerar` (D-01); argparse unchanged otherwise (D-02).
+    if argv and argv[0] == "gerar":
+        if len(argv) > 1:
+            from wizard import _EXTRA_ARGS_MSG
+
+            print(_EXTRA_ARGS_MSG, file=sys.stderr)
+            sys.exit(2)
+        from wizard import run_wizard
+
+        run_wizard()
+        return
+
     parser = build_parser()
     args = parser.parse_args(argv)
 
