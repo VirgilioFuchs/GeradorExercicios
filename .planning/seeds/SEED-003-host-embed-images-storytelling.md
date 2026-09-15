@@ -6,6 +6,10 @@ planted_during: v1.2 Phase 7 (post plan-phase)
 trigger_when: integração produção, embed, embed system, production integration, imagens geradas, image generation, storytelling, narrativa, exercícios com história, white-label, host app
 priority: critical
 scope: milestone
+audit_acknowledged:
+  milestone: v1.2
+  at: 2026-09-15
+  status: dormant
 ---
 
 # SEED-003: Embed em sistema em produção + imagens + storytelling

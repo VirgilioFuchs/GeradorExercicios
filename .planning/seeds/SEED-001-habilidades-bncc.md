@@ -5,6 +5,10 @@ planted: 2026-09-09
 planted_during: v1.2 planning (post v1.1)
 trigger_when: BNCC, habilidades BNCC, curriculum alignment, codes EF/EM, tagged skills on exercises
 scope: milestone
+audit_acknowledged:
+  milestone: v1.2
+  at: 2026-09-15
+  status: dormant
 ---
 
 # SEED-001: Habilidades da BNCC no gerador de exercícios
