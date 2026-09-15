@@ -24,6 +24,7 @@ load_dotenv(dotenv_path=env_path)
 
 from models import DificuldadeEnum, ExerciseBatch, GenerationRequest
 from reliability import generate_validated_batch, resolve_max_retries
+from output_paths import resolve_success_out_path, write_fail_error_log
 from token_usage import begin_run, flush_token_usage
 
 logger = logging.getLogger("exercise_ai")
@@ -174,7 +175,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--out",
         required=True,
-        help="Caminho obrigatório do arquivo JSON de saída",
+        help=(
+            "Arquivo JSON de saída. Caminho relativo → "
+            "exercicios-gerados/success/<nome>; absoluto permanece como informado"
+        ),
     )
     parser.add_argument(
         "--max-retries",
@@ -211,7 +215,8 @@ def run(
         validated_batch = generate_validated_batch(request, max_retries=n)
 
         print(format_batch_text(validated_batch))
-        out = Path(out_path)
+        out = resolve_success_out_path(out_path)
+        out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(
             json.dumps(
                 validated_batch.model_dump(),
@@ -220,19 +225,31 @@ def run(
             ),
             encoding="utf-8",
         )
-        logger.info("Geração concluída com sucesso")
+        logger.info("Geração concluída com sucesso → %s", out)
 
     except ValueError as val_err:
         logger.error("Falha de validação ou configuração: %s", val_err)
         print(str(val_err), file=sys.stderr)
+        try:
+            write_fail_error_log(str(val_err))
+        except OSError:
+            pass
         sys.exit(1)
     except RuntimeError as run_err:
         logger.error("Falha na geração: %s", run_err)
         print(str(run_err), file=sys.stderr)
+        try:
+            write_fail_error_log(str(run_err))
+        except OSError:
+            pass
         sys.exit(1)
     except Exception as exc:
         logger.error("Falha inesperada: %s", exc)
         print(str(exc), file=sys.stderr)
+        try:
+            write_fail_error_log(str(exc))
+        except OSError:
+            pass
         sys.exit(1)
     finally:
         # Single flush site (D-04); SystemExit still runs finally — buffer cleared

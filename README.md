@@ -45,7 +45,7 @@ python exercise-ai/main.py \
 
 | Flag | Obrigatória | Descrição |
 |------|-------------|-----------|
-| `--out` | sim | Caminho do arquivo JSON de saída |
+| `--out` | sim | Arquivo JSON. Relativo → `exercicios-gerados/success/<nome>`; absoluto permanece |
 | `--materia` | não | Matéria (padrão: Matemática) |
 | `--topico` | não | Tópico (padrão: Equação do primeiro grau) |
 | `--dificuldade` | não | `facil` \| `medio` \| `dificil` (padrão: facil) |

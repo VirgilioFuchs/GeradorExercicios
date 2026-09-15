@@ -21,13 +21,14 @@ from math_check import (
     drain_inconsistency_records,
     drain_uninterpretable_records,
 )
+from output_paths import DEFAULT_POSTMORTEM_PATH
 from token_usage import get_collector
 
 _ALLOWED = frozenset({0, 1, 2, 3})
 _DEFAULT = 1
 
-# Injectable for tests; default under package dir (never secrets).
-POSTMORTEM_PATH: Path = Path(__file__).resolve().parent / "math_postmortem.jsonl"
+# Injectable for tests; default under exercicios-gerados/fail/postmortem/.
+POSTMORTEM_PATH: Path = DEFAULT_POSTMORTEM_PATH
 
 
 def resolve_max_retries(cli_value: int | None) -> int:
