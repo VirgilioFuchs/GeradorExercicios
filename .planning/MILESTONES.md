@@ -20,7 +20,7 @@
 
 - CI-02 GitHub UI confirmation optional if not already observed; Nyquist VALIDATION missing for phases 8–10; wizard tests patch `run()` (no single E2E wizard→failover→flush test); Grok excluded from failover by design.
 
-**Archives:** [roadmap](./milestones/v1.2-ROADMAP.md) · [requirements](./milestones/v1.2-REQUIREMENTS.md) · [phases](./milestones/v1.2-phases/) · [audit](./milestones/v1.2-MILESTONE-AUDIT.md)
+**Archives:** [roadmap](./milestones/v1.2-ROADMAP.md) · [requirements](./milestones/v1.2-REQUIREMENTS.md) · [phases](./milestones/v1.2-phases/) · [quick](./milestones/v1.2-quick/) · [audit](./milestones/v1.2-MILESTONE-AUDIT.md)
 
 ---
 
