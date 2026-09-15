@@ -2,20 +2,20 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Ops & Resilience
-current_phase: 8
-current_phase_name: Provider Failover
-status: phase_8_complete
-stopped_at: Phase 10 planned — execute after Phase 8
+current_phase: 10
+current_phase_name: Interactive CLI Wizard
+status: phase_10_planned
+stopped_at: Phase 8 complete; Phase 10 planned — ready to execute
 last_updated: "2026-09-15T14:04:44.508Z"
 last_activity: 2026-09-15
-last_activity_desc: "`$gsd-execute-phase 8` — FAILOVER-01..03 shipped"
+last_activity_desc: "`$gsd-execute-phase 8` — FAILOVER-01..03 shipped; Phase 10 plan ready"
 state_head: 5b9980dd8305af979e8f63c2bd16b4336fa034be
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 3
   total_plans: 4
   completed_plans: 3
-  percent: 0
+  percent: 75
 ---
 
 # Project State
@@ -25,15 +25,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-11)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato
-**Current focus:** Phase 8 complete — next Phase 10 Interactive Wizard (v1.2)
+**Current focus:** Phase 10 Interactive Wizard (planned) — last open v1.2 phase
 
 ## Current Position
 
-Phase: 8 (Provider Failover) — complete
-Plan: 08-01 of 1 — done
-Status: FAILOVER-01 + FAILOVER-02 + FAILOVER-03 complete (125 pytest passed offline)
-Last activity: 2026-09-15 — execute-phase 8 shipped OpenAI↔Gemini failover envelope
-
+Phase: 10 (Interactive CLI Wizard) — planned
+Plan: 10-01 of 1 — ready to execute
+Status: Phase 8 Failover shipped; Phase 9 Tokens complete; Phase 10 CONTEXT+PLAN ready
+Last activity: 2026-09-15 — Phase 8 execute complete; Phase 10 plan revised after checker
 ## Performance Metrics
 
 **Velocity:**
@@ -96,17 +95,19 @@ Recent decisions affecting current work:
 
 - **SEED-003 (CRÍTICO)** — Embed do gerador em sistema de exercícios já em produção → depois imagens geradas → depois exercícios com storytelling (não v1.2 CI/failover/tokens; promover no próximo milestone de productização)
 - **Quick 260915-d26** — Unified `--reasoning` shipped (`e1ab1ef`)
-- **SEED-004** — CLI interativo (perguntas + tips) — dormant; Phase 10 candidate
-- **Phase 8** — Provider Failover still open in v1.2
+- **SEED-004** — CLI interativo (perguntas + tips) — **Phase 10 planned** (`10-01-PLAN.md`)
+- **Phase 8** — Provider Failover **complete** (2026-09-15)
 
 ### Blockers/Concerns
 
-None. Phase 9 executed ahead of Phase 8 (operator priority).
+None.
 
 ### Roadmap Evolution
 
 - Phase 9 added: Token Usage Observability (promoted from SEED-002; after Phase 8 Failover)
 - Phase 9 executed 2026-09-15 (TOKEN-01..03)
+- Phase 8 executed 2026-09-15 (FAILOVER-01..03) after Phase 9 (operator priority)
+- Phase 10 planned 2026-09-15 (WIZ-01..03)
 
 ### Quick Tasks Completed
 

@@ -123,7 +123,7 @@ Plans:
 | 5. Reliability & Error Edges | v1.1 | 1/1 | Complete | 2026-09-08 |
 | 6. Math Quality | v1.1 | 1/1 | Complete | 2026-09-09 |
 | 7. Continuous Integration | v1.2 | 1/1 | Complete | 2026-09-11 |
-| 8. Provider Failover | v1.2 | 0/TBD | Not started | - |
+| 8. Provider Failover | v1.2 | 1/1 | Complete | 2026-09-15 |
 | 9. Token Usage Observability | v1.2 | 1/1 | Complete | 2026-09-15 |
 | 10. Interactive CLI Wizard | v1.2 | 0/1 | Planned | - |
 
