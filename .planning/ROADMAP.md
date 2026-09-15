@@ -86,11 +86,11 @@ Plans:
   4. OpenAI, Gemini e Grok alimentam o mesmo formato de registro (campos ausentes = explícitos/null, não inventados)
   5. Testes cobrem extração/append/flush com mocks — CI continua sem LLM live
 
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
 
-- [ ] 09-01: TBD (created during plan-phase)
+- [ ] 09-01-PLAN.md — Token usage collector + provider extractors + NDJSON flush + `[USAGE]` stderr (mocked tests)
 
 ## Progress
 
