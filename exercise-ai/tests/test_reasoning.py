@@ -13,9 +13,9 @@ import generator_gemini
 import reasoning
 
 
-def test_resolve_reasoning_default_low(monkeypatch):
+def test_resolve_reasoning_default_medium(monkeypatch):
     monkeypatch.delenv("LLM_REASONING_EFFORT", raising=False)
-    assert reasoning.resolve_reasoning_effort() == "low"
+    assert reasoning.resolve_reasoning_effort() == "medium"
 
 
 def test_resolve_reasoning_env_and_explicit(monkeypatch):
@@ -45,7 +45,7 @@ def test_openai_compatible_kwargs_grok_always(monkeypatch):
     kw = reasoning.openai_compatible_effort_kwargs(
         api_tag="grok", model="grok-4.6"
     )
-    assert kw == {"reasoning_effort": "low"}
+    assert kw == {"reasoning_effort": "medium"}
 
 
 def test_openai_compatible_kwargs_openai_omit_gpt4o(monkeypatch, capsys):

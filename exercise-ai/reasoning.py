@@ -1,7 +1,7 @@
 """Unified reasoning / thinking effort for OpenAI, Gemini, and Grok.
 
 Operator surface: CLI ``--reasoning`` / env ``LLM_REASONING_EFFORT``
-(``none|low|medium|high``, default ``low``).
+(``none|low|medium|high``, default ``medium``).
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ from typing import Literal
 ReasoningLevel = Literal["none", "low", "medium", "high"]
 
 REASONING_LEVELS: tuple[ReasoningLevel, ...] = ("none", "low", "medium", "high")
-DEFAULT_REASONING_EFFORT: ReasoningLevel = "low"
+DEFAULT_REASONING_EFFORT: ReasoningLevel = "medium"
 ENV_REASONING = "LLM_REASONING_EFFORT"
 
 # Conservative allowlist prefixes for OpenAI models that accept reasoning_effort.
@@ -26,7 +26,7 @@ _OPENAI_REASONING_PREFIXES: tuple[str, ...] = (
 
 
 def resolve_reasoning_effort(explicit: str | None = None) -> ReasoningLevel:
-    """Return validated effort; CLI/explicit wins over env; default ``low``."""
+    """Return validated effort; CLI/explicit wins over env; default ``medium``."""
     raw = (explicit if explicit is not None else os.getenv(ENV_REASONING, "")).strip()
     if not raw:
         return DEFAULT_REASONING_EFFORT
