@@ -23,7 +23,10 @@ if not env_path.exists():
 load_dotenv(dotenv_path=env_path)
 
 from models import DificuldadeEnum, ExerciseBatch, GenerationRequest
-from reliability import generate_validated_batch, resolve_max_retries
+from failover import generate_with_failover
+from reliability import resolve_max_retries
+from output_paths import resolve_success_out_path, write_fail_error_log
+from token_usage import begin_run, flush_token_usage
 
 logger = logging.getLogger("exercise_ai")
 
@@ -83,6 +86,11 @@ def _ensure_provider_key(provider: str) -> None:
         if not os.getenv("GEMINI_API_KEY", "").strip():
             raise ValueError(
                 "Chave ausente para o provedor gemini. Defina GEMINI_API_KEY no arquivo .env."
+            )
+    elif provider == "grok":
+        if not os.getenv("GROK_API_KEY", "").strip():
+            raise ValueError(
+                "Chave ausente para o provedor grok. Defina GROK_API_KEY no arquivo .env."
             )
 
 
@@ -152,14 +160,26 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--provider",
-        choices=["openai", "gemini"],
+        choices=["openai", "gemini", "grok"],
         default=None,
-        help="Provedor LLM para esta execução: openai|gemini (opcional)",
+        help="Provedor LLM para esta execução: openai|gemini|grok (opcional)",
+    )
+    parser.add_argument(
+        "--reasoning",
+        choices=["none", "low", "medium", "high"],
+        default=None,
+        help=(
+            "Esforço de raciocínio/thinking: none|low|medium|high "
+            "(padrão: medium via LLM_REASONING_EFFORT ou default)"
+        ),
     )
     parser.add_argument(
         "--out",
         required=True,
-        help="Caminho obrigatório do arquivo JSON de saída",
+        help=(
+            "Arquivo JSON de saída. Caminho relativo → "
+            "exercicios-gerados/success/<nome>; absoluto permanece como informado"
+        ),
     )
     parser.add_argument(
         "--max-retries",
@@ -180,6 +200,7 @@ def run(
 ) -> None:
     """Executa o pipeline: reliability (gerar→validar) → texto + JSON em out_path."""
     _configure_logging()
+    begin_run()
 
     logger.info("Início da geração de exercícios")
     logger.info(
@@ -192,10 +213,11 @@ def run(
 
     try:
         n = resolve_max_retries(max_retries)
-        validated_batch = generate_validated_batch(request, max_retries=n)
+        validated_batch = generate_with_failover(request, max_retries=n)
 
         print(format_batch_text(validated_batch))
-        out = Path(out_path)
+        out = resolve_success_out_path(out_path)
+        out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(
             json.dumps(
                 validated_batch.model_dump(),
@@ -204,24 +226,55 @@ def run(
             ),
             encoding="utf-8",
         )
-        logger.info("Geração concluída com sucesso")
+        logger.info("Geração concluída com sucesso → %s", out)
 
     except ValueError as val_err:
         logger.error("Falha de validação ou configuração: %s", val_err)
         print(str(val_err), file=sys.stderr)
+        try:
+            write_fail_error_log(str(val_err))
+        except OSError:
+            pass
         sys.exit(1)
     except RuntimeError as run_err:
         logger.error("Falha na geração: %s", run_err)
         print(str(run_err), file=sys.stderr)
+        try:
+            write_fail_error_log(str(run_err))
+        except OSError:
+            pass
         sys.exit(1)
     except Exception as exc:
         logger.error("Falha inesperada: %s", exc)
         print(str(exc), file=sys.stderr)
+        try:
+            write_fail_error_log(str(exc))
+        except OSError:
+            pass
         sys.exit(1)
+    finally:
+        # Single flush site (D-04); SystemExit still runs finally — buffer cleared
+        # so a second flush is a no-op (idempotent).
+        flush_token_usage()
 
 
 def main(argv: list[str] | None = None) -> None:
     """Parse CLI args and run the generation pipeline."""
+    if argv is None:
+        argv = sys.argv[1:]
+
+    # Interactive wizard: first token `gerar` (D-01); argparse unchanged otherwise (D-02).
+    if argv and argv[0] == "gerar":
+        if len(argv) > 1:
+            from wizard import _EXTRA_ARGS_MSG
+
+            print(_EXTRA_ARGS_MSG, file=sys.stderr)
+            sys.exit(2)
+        from wizard import run_wizard
+
+        run_wizard()
+        return
+
     parser = build_parser()
     args = parser.parse_args(argv)
 
@@ -232,6 +285,9 @@ def main(argv: list[str] | None = None) -> None:
         except ValueError as err:
             print(str(err), file=sys.stderr)
             sys.exit(1)
+
+    if args.reasoning is not None:
+        os.environ["LLM_REASONING_EFFORT"] = args.reasoning
 
     request = GenerationRequest(
         materia=args.materia,

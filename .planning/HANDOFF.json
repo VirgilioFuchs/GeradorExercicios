@@ -1,0 +1,88 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-09-11T15:03:38.628Z",
+  "phase": "9",
+  "phase_name": "Token Usage Observability",
+  "phase_dir": ".planning/phases/09-token-usage-observability",
+  "plan": null,
+  "task": null,
+  "total_tasks": null,
+  "status": "paused",
+  "workflow_interrupted": "gsd-plan-phase 9 --auto",
+  "completed_tasks": [
+    {
+      "id": "discuss",
+      "name": "Phase 9 discuss + CONTEXT.md (D-01..D-20)",
+      "status": "done",
+      "commit": "5c89e0f"
+    },
+    {
+      "id": "promote",
+      "name": "Promote SEED-002 → Phase 9 ROADMAP/REQUIREMENTS TOKEN-01..03",
+      "status": "done",
+      "commit": "5ef60ee"
+    },
+    {
+      "id": "ai-spec-draft",
+      "name": "Draft 09-AI-SPEC.md + COVERAGE.md (plan-phase preflight, uncommitted at pause)",
+      "status": "done",
+      "commit": null
+    }
+  ],
+  "remaining_tasks": [
+    {
+      "id": "plan",
+      "name": "Finish $gsd-plan-phase 9 — write 09-01-PLAN.md + plan-checker",
+      "status": "not_started"
+    },
+    {
+      "id": "execute",
+      "name": "$gsd-execute-phase 9 after plan verified",
+      "status": "not_started"
+    },
+    {
+      "id": "phase8",
+      "name": "Phase 8 Provider Failover (still ahead in default order; Phase 9 can plan independently)",
+      "status": "not_started"
+    }
+  ],
+  "blockers": [
+    {
+      "description": "plan-phase 9 --auto interrupted by user before planner wrote 09-01-PLAN.md (Task/Write aborted ~140s)",
+      "type": "technical",
+      "workaround": "Resume with $gsd-plan-phase 9 (or --skip-research); CONTEXT + AI-SPEC already present"
+    }
+  ],
+  "async_jobs": [],
+  "human_actions_pending": [
+    {
+      "action": "Optional: merge PR #4 (Phase 7 CI) when ready",
+      "context": "CI green earlier; unrelated to Phase 9 pause",
+      "blocking": false
+    }
+  ],
+  "decisions": [
+    {
+      "decision": "Phase 9 after Phase 8 (option 1) — tokens as v1.2 Phase 9",
+      "rationale": "Operator chose keep Failover as 8, tokens next",
+      "phase": "9"
+    },
+    {
+      "decision": "D-01..D-20 locked in 09-CONTEXT.md",
+      "rationale": "NDJSON/day/provider files, end-of-run flush, [USAGE]+USD, indisponível, attempts/errors/successes",
+      "phase": "9"
+    },
+    {
+      "decision": "No new AI framework — observability only (09-AI-SPEC)",
+      "rationale": "Extract usage from existing OpenAI/Gemini/Grok SDKs",
+      "phase": "9"
+    }
+  ],
+  "uncommitted_files": [
+    ".planning/phases/09-token-usage-observability/09-AI-SPEC.md",
+    ".planning/phases/09-token-usage-observability/COVERAGE.md",
+    ".planning/config.json"
+  ],
+  "next_action": "Run $gsd-plan-phase 9 (research already disabled in config; CONTEXT ready) to produce 09-01-PLAN.md, then plan-checker, then $gsd-execute-phase 9",
+  "context_notes": "Session also shipped Grok provider (quick 260911-fvq, 15f9aff) and restored tests. Mid plan-phase when user paused. workflow._auto_chain_active may still be true from plan-phase init — clear or honor on resume. Suite baseline 80 tests after Grok."
+}

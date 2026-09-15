@@ -43,10 +43,10 @@ def _make_openai_exc(cls, msg: str = "x"):
 
 
 def test_missing_api_keys_raises_value_error_naming_both():
-    """ERR-01: absent LLM/GEMINI keys — not TEST-02 chave ausente."""
+    """ERR-01: absent LLM/GEMINI/GROK keys — not TEST-02 chave ausente."""
     old = {
         k: os.environ.pop(k)
-        for k in ("LLM_API_KEY", "GEMINI_API_KEY", "LLM_PROVIDER")
+        for k in ("LLM_API_KEY", "GEMINI_API_KEY", "GROK_API_KEY", "LLM_PROVIDER")
         if k in os.environ
     }
     try:
@@ -54,8 +54,54 @@ def test_missing_api_keys_raises_value_error_naming_both():
             generator._resolve_provider()
         err = str(exc_info.value)
         assert "GEMINI_API_KEY" in err and "LLM_API_KEY" in err
+        assert "GROK_API_KEY" in err
     finally:
         os.environ.update(old)
+
+
+def test_resolve_provider_explicit_and_auto_grok(monkeypatch):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("LLM_API_KEY", raising=False)
+    monkeypatch.setenv("GROK_API_KEY", "xai-test")
+    monkeypatch.delenv("LLM_PROVIDER", raising=False)
+    assert generator._resolve_provider() == "grok"
+
+    monkeypatch.setenv("LLM_PROVIDER", "grok")
+    monkeypatch.setenv("GEMINI_API_KEY", "AIza-present")
+    assert generator._resolve_provider() == "grok"
+
+
+def test_grok_empty_choices_typed_retriable(monkeypatch):
+    """Empty choices → PT RuntimeError + [API:grok], retriable."""
+    monkeypatch.setenv("GROK_API_KEY", "dummy-grok")
+    monkeypatch.delenv("LLM_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    req = GenerationRequest(topico="x", dificuldade=DificuldadeEnum.FACIL, quantidade=1)
+    client = MagicMock()
+    completion = MagicMock()
+    completion.choices = []
+    client.beta.chat.completions.parse.return_value = completion
+    buf = io.StringIO()
+    with contextlib.redirect_stderr(buf):
+        with pytest.raises(RuntimeError) as exc_info:
+            with patch.object(generator, "get_grok_client", return_value=client):
+                generator._generate_with_grok(req)
+    assert getattr(exc_info.value, "retriable", None) is True
+    assert "[API:grok] empty choices" in buf.getvalue()
+
+
+def test_map_grok_auth_mentions_grok_key():
+    buf = io.StringIO()
+    with contextlib.redirect_stderr(buf):
+        out = generator.map_openai_compatible_error(
+            _make_openai_exc(AuthenticationError),
+            api_tag="grok",
+            of_label="do Grok",
+            auth_key_name="GROK_API_KEY",
+        )
+    assert getattr(out, "retriable", None) is False
+    assert "GROK_API_KEY" in str(out)
+    assert "[API:grok]" in buf.getvalue()
 
 
 @pytest.mark.parametrize(
