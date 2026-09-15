@@ -113,7 +113,7 @@ None. Phase 9 executed ahead of Phase 8 (operator priority).
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260911-fvq | Add Grok provider for exercise generation (`GROK_API_KEY`) | 2026-09-11 | 15f9aff | [260911-fvq-add-grok-provider-for-exercise-generatio](./quick/260911-fvq-add-grok-provider-for-exercise-generatio/) |
-| 260915-d26 | Unified `--reasoning` for Grok/Gemini/OpenAI (default low) | 2026-09-15 | pending | [260915-d26-add-unified-reasoning-thinking-mode-for-](./quick/260915-d26-add-unified-reasoning-thinking-mode-for-/) |
+| 260915-d26 | Unified `--reasoning` for Grok/Gemini/OpenAI (default low) | 2026-09-15 | e1ab1ef | [260915-d26-add-unified-reasoning-thinking-mode-for-](./quick/260915-d26-add-unified-reasoning-thinking-mode-for-/) |
 
 ## Deferred Items
 
