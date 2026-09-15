@@ -18,12 +18,26 @@ Copie `exercise-ai/.env.example` para `exercise-ai/.env` (ou `.env` na raiz do r
 | `GEMINI_API_KEY` | Chave da API Google Gemini (formato `AIza...`) |
 | `GROK_API_KEY` | Chave da API xAI Grok |
 | `LLM_PROVIDER` | Opcional: `openai`, `gemini` ou `grok`. Se omitido, o provedor é detectado pelas chaves disponíveis |
-| `LLM_REASONING_EFFORT` | Opcional: `none` \| `low` \| `medium` \| `high` (padrão `low`). Sobrescrito por `--reasoning` |
+| `LLM_REASONING_EFFORT` | Opcional: `none` \| `low` \| `medium` \| `high` (padrão `medium`). Sobrescrito por `--reasoning` |
 | `RELY_MAX_RETRIES` | Regenerações após a primeira tentativa (`0`–`3`). Padrão `1` se omitido. Sobrescrito por `--max-retries` |
 
 ## Como executar
 
-`--out` é **obrigatório**. Flags de geração omitidas usam os defaults da demo (Matemática / Equação do primeiro grau / facil / 3).
+`--out` é **obrigatório** no modo argparse. Flags de geração omitidas usam os defaults da demo (Matemática / Equação do primeiro grau / facil / 3).
+
+### Wizard interativo (`gerar`)
+
+Em um terminal interativo (TTY):
+
+```bash
+python exercise-ai/main.py gerar
+```
+
+O fluxo pergunta (com tip sob cada campo): tipo/tópico → matéria → dificuldade → quantidade → provedor → reasoning → nome do JSON. **Enter** aceita o default da demo; o caminho do JSON é obrigatório (re-pergunta se vazio). Reasoning padrão do Enter e do env: **`medium`**.
+
+Para CI/scripts, continue usando as flags argparse (não use `gerar`).
+
+### Argparse (CI / scripts)
 
 ```bash
 python exercise-ai/main.py --out exercicios.json
@@ -38,7 +52,7 @@ python exercise-ai/main.py \
   --dificuldade facil \
   --quantidade 3 \
   --provider openai \
-  --reasoning low \
+  --reasoning medium \
   --max-retries 1 \
   --out exercicios.json
 ```
@@ -51,7 +65,7 @@ python exercise-ai/main.py \
 | `--dificuldade` | não | `facil` \| `medio` \| `dificil` (padrão: facil) |
 | `--quantidade` | não | Inteiro de 1 a 40 (padrão: 3) |
 | `--provider` | não | `openai` \| `gemini` \| `grok` para esta execução |
-| `--reasoning` | não | Esforço de raciocínio: `none` \| `low` \| `medium` \| `high` (padrão `low`) |
+| `--reasoning` | não | Esforço de raciocínio: `none` \| `low` \| `medium` \| `high` (padrão `medium`) |
 | `--max-retries` | não | Regenerações após a 1ª tentativa (`0`–`3`). Se omitido: `RELY_MAX_RETRIES` ou padrão `1` |
 
 **Reasoning / thinking:** Grok recebe `reasoning_effort` na API; Gemini usa `ThinkingConfig.thinking_level` (`none` → `minimal`). OpenAI só envia o param em modelos com suporte (ex. família `gpt-5` / `o*`); o default `gpt-4o-mini` **omite** o campo (não é reasoning model).
