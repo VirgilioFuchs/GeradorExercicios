@@ -23,10 +23,9 @@ if not env_path.exists():
 load_dotenv(dotenv_path=env_path)
 
 from models import DificuldadeEnum, ExerciseBatch, GenerationRequest
-from failover import generate_with_failover
-from reliability import resolve_max_retries
 from output_paths import resolve_success_out_path, write_fail_error_log
-from token_usage import begin_run, flush_token_usage
+from service import generate_batch
+from token_usage import flush_token_usage
 
 logger = logging.getLogger("exercise_ai")
 
@@ -198,9 +197,8 @@ def run(
     out_path: Path | str,
     max_retries: int | None = None,
 ) -> None:
-    """Executa o pipeline: reliability (gerar→validar) → texto + JSON em out_path."""
+    """CLI adapter: delegate pipeline to service, then present / write / exit."""
     _configure_logging()
-    begin_run()
 
     logger.info("Início da geração de exercícios")
     logger.info(
@@ -211,22 +209,35 @@ def run(
         request.quantidade,
     )
 
-    try:
-        n = resolve_max_retries(max_retries)
-        validated_batch = generate_with_failover(request, max_retries=n)
+    # Bridge CLI --max-retries via env so generate_batch stays kwargs-free (D-01).
+    _env_key = "RELY_MAX_RETRIES"
+    _had_key = _env_key in os.environ
+    _prior = os.environ.get(_env_key)
 
-        print(format_batch_text(validated_batch))
-        out = resolve_success_out_path(out_path)
-        out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(
-            json.dumps(
-                validated_batch.model_dump(),
-                indent=2,
-                ensure_ascii=False,
-            ),
-            encoding="utf-8",
-        )
-        logger.info("Geração concluída com sucesso → %s", out)
+    try:
+        if max_retries is not None:
+            os.environ[_env_key] = str(max_retries)
+        try:
+            validated_batch = generate_batch(request)
+
+            print(format_batch_text(validated_batch))
+            out = resolve_success_out_path(out_path)
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text(
+                json.dumps(
+                    validated_batch.model_dump(),
+                    indent=2,
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+            logger.info("Geração concluída com sucesso → %s", out)
+        finally:
+            if max_retries is not None:
+                if _had_key:
+                    os.environ[_env_key] = _prior  # type: ignore[assignment]
+                else:
+                    os.environ.pop(_env_key, None)
 
     except ValueError as val_err:
         logger.error("Falha de validação ou configuração: %s", val_err)
@@ -253,8 +264,8 @@ def run(
             pass
         sys.exit(1)
     finally:
-        # Single flush site (D-04); SystemExit still runs finally — buffer cleared
-        # so a second flush is a no-op (idempotent).
+        # Safety-net flush (service already flushes); SystemExit still runs finally —
+        # buffer cleared so a second flush is a no-op (idempotent).
         flush_token_usage()
 
 
