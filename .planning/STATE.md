@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: —
 status: awaiting_next_milestone
 stopped_at: v1.2 archived — run $gsd-new-milestone
-last_updated: "2026-09-15T14:41:03.835Z"
+last_updated: "2026-09-16T12:06:31.691Z"
 last_activity: 2026-09-15
 last_activity_desc: Milestone v1.2 completed and archived; phases moved to milestones/v1.2-phases/
-state_head: 2519def6a17964f88c4f64ed4680243f1499dedb
+state_head: 80072d471740a43a19ae7d6f9d48a6e51e58b055
 progress:
   total_phases: 0
   completed_phases: 0
@@ -56,3 +56,4 @@ Resume file: .planning/MILESTONES.md
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
+| 1 | wizard: matéria before tipo de exercício | 2026-09-16 | 80072d4 | — |
