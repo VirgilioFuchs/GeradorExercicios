@@ -1,0 +1,82 @@
+# Requirements: Gerador de Exercícios com IA
+
+**Defined:** 2026-09-16
+**Core Value:** Gerar exercícios matemáticos estruturados e validados via LLM, agora também como biblioteca embutível em um sistema host.
+**Milestone:** v2.0 Embed em Produção (SEED-003 Slice A)
+
+## v2.0 Requirements
+
+Requirements for this milestone. Each maps to roadmap phases.
+
+### Embed
+
+- [ ] **EMBED-01**: Host chama `generate_batch(request)` e recebe `ExerciseBatch` validado — sem print de exercício, sem arquivo de saída, sem `sys.exit`
+- [ ] **EMBED-02**: Host distingue falha de configuração, entrada inválida e geração esgotada sem casar mensagem PT (`kind` / subclasses dos tipos já levantados)
+- [ ] **EMBED-03**: CLI argparse e wizard `gerar` permanecem idênticos (regressão zero); bound argparse 1–40 preservado junto com `Field(ge=1, le=40)` no domínio
+- [ ] **EMBED-04**: Após qualquer chamada (com ou sem failover), `LLM_PROVIDER` (e overrides de reasoning, se usados) voltam ao valor anterior
+- [ ] **EMBED-05**: Client Gemini tem timeout HTTP finito; pior caso documentado para o host
+- [ ] **EMBED-06**: Diagnósticos e formatação CLI não quebram em cp1252 com glifos como `√` / `→` (sucesso deixa de ser reportado como falha)
+- [ ] **EMBED-07**: Documentação curta do contrato (JSON + tabela de erros) + lista de nomes de módulo reservados (detecção; packaging parkado)
+
+### Demo
+
+- [ ] **DEMO-01**: Página local em `demo/` (`http://[::1]:8642/`, stdlib only, fora do CI) mostra form CLI-equivalente, exercícios renderizados, JSON bruto, estado "Gerando…" e erro por categoria
+- [ ] **DEMO-02**: Servidor recusa bind não-loopback; enforce sequencial com Lock → HTTP 409; exige `application/json` + Host/Origin allowlist no POST de geração; banner throwaway + nota de expiração no README
+
+## Deferred Requirements
+
+Acknowledged but not in the v2.0 roadmap. Lead items for the next milestone are marked.
+
+### Packaging (next milestone — lead item)
+
+- **PKG-01**: Packaging `pyproject.toml` + rename `exercise_ai/` — **lead item do próximo milestone** (pré-condição do embed in-process real; `sys.path.insert` empiricamente quebrado)
+
+### Observability / API surface (next embed-hardening pass)
+
+- **OBS-01**: Uso/custo/`run_id`/provider efetivo devolvidos junto com o lote (não alargar `-> ExerciseBatch` nesta v2.0)
+- **LOG-01**: Conversão print→logging nos ~33 sites (débito conhecido; host usa `redirect_stderr` por enquanto)
+
+### Product seeds (later)
+
+- **SEED-005**: Postmortem mais utilizável
+- **SEED-006**: Lotes dinâmicos (dificuldade/raciocínio por exercício, quantidade maior)
+- **SEED-003-B/C**: Imagens e storytelling
+
+## Out of Scope
+
+Explicitly excluded from v2.0. Documented to prevent scope creep.
+
+| Feature | Reason |
+|---------|--------|
+| `Settings` object | YAGNI; env continua como config |
+| HTTP produto / FastAPI / Flask / Streamlit | Demo é throwaway stdlib |
+| Concorrência / async / thread pool | Contrato sequencial |
+| Packaging / rename neste milestone | Parkado; lead do próximo (PKG-01) |
+| Imagens / storytelling | SEED-003 Slices B/C |
+| Persistência / DB / cache de resultados | Host ownership |
+| i18n de mensagens de erro | Discriminador machine-readable + mensagem PT |
+
+## Traceability
+
+Which phases cover which requirements. Updated during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| EMBED-01 | — | Pending |
+| EMBED-02 | — | Pending |
+| EMBED-03 | — | Pending |
+| EMBED-04 | — | Pending |
+| EMBED-05 | — | Pending |
+| EMBED-06 | — | Pending |
+| EMBED-07 | — | Pending |
+| DEMO-01 | — | Pending |
+| DEMO-02 | — | Pending |
+
+**Coverage:**
+- v2.0 requirements: 9 total
+- Mapped to phases: 0 (filled by roadmapper)
+- Unmapped: 9
+
+---
+*Requirements defined: 2026-09-16*
+*Last updated: 2026-09-16 after operator confirmation*
