@@ -1,18 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: —
-status: awaiting_next_milestone
-stopped_at: v1.2 archived — run $gsd-new-milestone
-last_updated: "2026-09-16T12:06:31.691Z"
-last_activity: 2026-09-15
-last_activity_desc: Milestone v1.2 completed and archived; phases moved to milestones/v1.2-phases/
-state_head: 80072d471740a43a19ae7d6f9d48a6e51e58b055
+milestone: v2.0
+milestone_name: Embed em Produção
+status: planning
+last_updated: "2026-09-16T13:02:50.437Z"
+last_activity: 2026-09-16
 progress:
   total_phases: 0
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
-milestone_name: —
+  percent: 0
 ---
 
 # Project State
@@ -26,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-09-15)
 
 ## Current Position
 
-Phase: —
+Phase: Not started (defining requirements)
 Plan: —
-Status: v1.2 Ops & Resilience shipped and archived
-Last activity: 2026-09-15 — `$gsd-complete-milestone v1.2`
+Status: Defining requirements
+Last activity: 2026-09-16 — Milestone v2.0 started
 
 ## Session Continuity
 

@@ -19,13 +19,17 @@ O usuário consegue gerar exercícios de matemática confiáveis e estruturados 
 
 **Known debt (accepted at v1.2 close):** Nyquist VALIDATION gaps (phases 8–10); optional CI-02 GitHub UI reconfirm; wizard E2E integration test optional; exhaustion plural grammar; Grok out of failover by design.
 
-## Next Milestone Goals
+## Current Milestone: v2.0 Embed em Produção
 
-Define via `$gsd-new-milestone`. Leading candidate from seeds:
+**Goal:** Expor o gerador como biblioteca embutível em outro sistema e demonstrar o fluxo de integração para o time do host (SEED-003 Slice A).
 
-- **SEED-003 (critical)** — Embed do gerador em sistema de exercícios em produção → imagens → storytelling
-- SEED-001 BNCC (dormant) if curriculum returns
-- Not assumed: MySQL / analytics / agent (v2+ themes)
+**Target features:**
+- `service.py` — fronteira de embed: `GenerationRequest` → `ExerciseBatch`, sem print, sem arquivo, sem `sys.exit`
+- `main.run()` como adapter; CLI argparse e wizard `gerar` preservados (regressão zero)
+- Contrato de erro utilizável pelo host: `kind` nos `ValueError` de config, `LLM_PROVIDER` restaurado, bound 1–40 no domínio
+- Demo local apresentável em `demo/` (`http://[::1]:8642/`, stdlib only, fora do CI) com exercícios + JSON do contrato
+
+**Explicitamente fora:** objeto `Settings` (env segue como config — KISS), `pyproject`/rename (parkado até o stack do host ser conhecido), HTTP/auth, concorrência, imagens e storytelling (Slices B e C).
 
 ## Requirements
 
@@ -42,7 +46,10 @@ Define via `$gsd-new-milestone`. Leading candidate from seeds:
 
 ### Active
 
-_(none — define in `$gsd-new-milestone`)_
+- Host embute o gerador chamando uma função de serviço e recebe o lote validado — v2.0
+- Falha no gerador não derruba o processo do host, e o tipo de falha é distinguível — v2.0
+- CLI e wizard seguem idênticos após a extração do serviço — v2.0
+- Demo local mostra o fluxo e o JSON que o host consome — v2.0
 
 ### Out of Scope
 
@@ -50,7 +57,9 @@ _(none — define in `$gsd-new-milestone`)_
 - RAG, filas, microsserviços — YAGNI
 - MySQL / analytics / personalização / agente — v2+ themes
 - BNCC — SEED-001 dormant (acknowledged at v1.2 close)
-- Host embed / imagens / storytelling — SEED-003 next product milestone
+- Imagens / storytelling — SEED-003 Slices B e C, depois do embed
+- Lotes dinâmicos (dificuldade/raciocínio por exercício) — SEED-006 dormant
+- Packaging (`pyproject` / rename `exercise_ai/`) — parkado até o stack do host ser conhecido
 
 ## Context
 
@@ -104,4 +113,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-15 after archiving v1.2*
+*Last updated: 2026-09-16 — v2.0 Embed em Produção started*
