@@ -47,6 +47,18 @@ class _StderrStream:
         sys.stderr.flush()
 
 
+def _reconfigure_stdio() -> None:
+    """Prefer UTF-8 stdout/stderr with replace so math glyphs do not crash the CLI."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if not callable(reconfigure):
+            continue
+        try:
+            reconfigure(encoding="utf-8", errors="replace")
+        except (OSError, ValueError, AttributeError):
+            pass
+
+
 def _configure_logging() -> None:
     """Send development LOG-01 events to stderr (no log files)."""
     if logger.handlers:
@@ -180,7 +192,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--out",
         required=True,
         help=(
-            "Arquivo JSON de saída. Caminho relativo → "
+            "Arquivo JSON de saída. Caminho relativo -> "
             "exercicios-gerados/success/<nome>; absoluto permanece como informado"
         ),
     )
@@ -202,6 +214,7 @@ def run(
     max_retries: int | None = None,
 ) -> None:
     """CLI adapter: delegate pipeline to service, then present / write / exit."""
+    _reconfigure_stdio()
     _configure_logging()
 
     logger.info("Início da geração de exercícios")
@@ -235,7 +248,7 @@ def run(
                 ),
                 encoding="utf-8",
             )
-            logger.info("Geração concluída com sucesso → %s", out)
+            logger.info("Geração concluída com sucesso -> %s", out)
         finally:
             if max_retries is not None:
                 if _had_key:
@@ -282,6 +295,7 @@ def run(
 
 def main(argv: list[str] | None = None) -> None:
     """Parse CLI args and run the generation pipeline."""
+    _reconfigure_stdio()
     if argv is None:
         argv = sys.argv[1:]
 

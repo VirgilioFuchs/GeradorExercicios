@@ -83,7 +83,7 @@ def generate_with_failover(
             raise
 
         kind = getattr(primary_exc, "api_error_kind", "generic")
-        print(f"[FAILOVER] {primary} → {peer} ({kind})", file=sys.stderr)
+        print(f"[FAILOVER] {primary} -> {peer} ({kind})", file=sys.stderr)
         ensure_secondary_key(peer)
         switch_provider(peer)
 

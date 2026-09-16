@@ -14,14 +14,25 @@ VALIDATION_REPORT_MODE: str = "all"
 _FIELD_NAMES = ("enunciado", "resposta", "explicacao")
 
 
+def _write_stderr_safe(text: str) -> None:
+    """Print to stderr without raising UnicodeEncodeError on cp1252 consoles."""
+    try:
+        print(text, file=sys.stderr)
+    except UnicodeEncodeError:
+        encoding = getattr(sys.stderr, "encoding", None) or "ascii"
+        safe = text.encode(encoding, errors="replace").decode(encoding, errors="replace")
+        print(safe, file=sys.stderr)
+
+
 def _log_validation_failure(summary: str, batch: object) -> None:
     """Write detailed [VALIDAÇÃO] log + raw batch JSON to stderr (never API keys)."""
-    print(f"[VALIDAÇÃO] {summary}", file=sys.stderr)
+    _write_stderr_safe(f"[VALIDAÇÃO] {summary}")
     if isinstance(batch, ExerciseBatch):
-        raw = json.dumps(batch.model_dump(), ensure_ascii=False, indent=2)
+        # ensure_ascii escapes math glyphs so narrow consoles never crash mid-dump
+        raw = json.dumps(batch.model_dump(), ensure_ascii=True, indent=2)
     else:
-        raw = json.dumps(batch, ensure_ascii=False, indent=2, default=str)
-    print(raw, file=sys.stderr)
+        raw = json.dumps(batch, ensure_ascii=True, indent=2, default=str)
+    _write_stderr_safe(raw)
 
 
 def validate_exercise_batch(batch: ExerciseBatch, request: GenerationRequest) -> ExerciseBatch:
