@@ -62,21 +62,23 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| EMBED-01 | — | Pending |
-| EMBED-02 | — | Pending |
-| EMBED-03 | — | Pending |
-| EMBED-04 | — | Pending |
-| EMBED-05 | — | Pending |
-| EMBED-06 | — | Pending |
-| EMBED-07 | — | Pending |
-| DEMO-01 | — | Pending |
-| DEMO-02 | — | Pending |
+| EMBED-01 | Phase 11 | Pending |
+| EMBED-02 | Phase 11 | Pending |
+| EMBED-03 | Phase 11 | Pending |
+| EMBED-04 | Phase 11 | Pending |
+| EMBED-05 | Phase 11 | Pending |
+| EMBED-06 | Phase 11 | Pending |
+| EMBED-07 | Phase 11 | Pending |
+| DEMO-01 | Phase 12 | Pending |
+| DEMO-02 | Phase 12 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 9 total
-- Mapped to phases: 0 (filled by roadmapper)
-- Unmapped: 9
+- Mapped to phases: 9
+- Unmapped: 0
+- Phase 11: 7 (EMBED-01..07)
+- Phase 12: 2 (DEMO-01..02)
 
 ---
 *Requirements defined: 2026-09-16*
-*Last updated: 2026-09-16 after operator confirmation*
+*Last updated: 2026-09-16 — roadmap traceability (Phases 11–12)*

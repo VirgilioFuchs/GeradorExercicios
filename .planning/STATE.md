@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Embed em Produção
 status: planning
-last_updated: "2026-09-16T13:02:50.437Z"
+last_updated: "2026-09-16T13:34:00.000Z"
 last_activity: 2026-09-16
 progress:
-  total_phases: 0
+  total_phases: 2
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -17,36 +17,68 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-15)
+See: .planning/PROJECT.md (updated 2026-09-16)
 
-**Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato
-**Current focus:** Awaiting next milestone (`$gsd-new-milestone`) — SEED-003 leading candidate
+**Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato — agora também como biblioteca embutível
+**Current focus:** v2.0 Embed em Produção — Phase 11 (Service Layer Extraction)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 11 of 12 (Service Layer Extraction)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-09-16 — Milestone v2.0 started
+Status: Ready to plan
+Last activity: 2026-09-16 — Roadmap v2.0 created (Phases 11–12)
 
-## Session Continuity
+Progress: [░░░░░░░░░░] 0%
 
-Last session: 2026-09-15
-Stopped at: v1.2 archived — ready for `$gsd-cleanup` (quick) then `$gsd-new-milestone`
-Resume file: .planning/MILESTONES.md
+## Performance Metrics
 
-## Operator Next Steps
+**Velocity:**
+- Total plans completed (v2.0): 0
+- Average duration: —
+- Total execution time: —
 
-- `$gsd-cleanup` — archive `.planning/quick/` into `milestones/v1.2-quick/` (phases already archived)
-- `$gsd-new-milestone` — define next requirements (SEED-003 productization)
-- Optional: push git tag `v1.2` if not pushed
+**By Phase:**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| 11. Service Layer Extraction | 0 | — | — |
+| 12. Local Embed Demo | 0 | — | — |
+
+*Updated after each plan completion*
+
+## Accumulated Context
+
+### Decisions
+
+Decisions are logged in PROJECT.md Key Decisions table.
+Recent decisions affecting current work:
+
+- v2.0: Keep `generate_batch(...) -> ExerciseBatch` (do not widen return type)
+- v2.0: Packaging (PKG-01) parked — lead item of next milestone
+- v2.0: Print→logging deferred as known debt; host uses `redirect_stderr`
+- v2.0: Demo = ThreadingHTTPServer + Lock → 409, `[::1]:8642`, stdlib only
+- v2.0: Encoding harden + Gemini timeout are Phase 11 in-scope
+- v2.0: Pure seam move first, then env/`kind`/hygiene
+
+### Pending Todos
+
+None yet.
+
+### Blockers/Concerns
+
+- First real host integration cannot succeed without unparking PKG-01 after v2.0
+- Token NDJSON flush on service path: plan-phase must choose env-root or guarded no-op
 
 ## Deferred Items
 
 | Category | Item | Status | Deferred At | Milestone |
 |----------|------|--------|-------------|-----------|
+| Packaging | PKG-01 pyproject + rename `exercise_ai/` | Lead of next milestone | 2026-09-16 | v2.0 |
+| Observability | OBS-01 usage/cost alongside batch | Next embed-hardening | 2026-09-16 | v2.0 |
+| Logging | LOG-01 print→logging (~33 sites) | Known debt | 2026-09-16 | v2.0 |
 | Seeds | SEED-001 BNCC (dormant) | Acknowledged at v1.2 close | 2026-09-15 | v1.2 |
-| Seeds | SEED-003 host embed / images / storytelling | Acknowledged at v1.2 close — next product milestone | 2026-09-15 | v1.2 |
+| Seeds | SEED-003 B/C images / storytelling | After embed | 2026-09-16 | v2.0 |
 | Ops | Nyquist VALIDATION gaps (phases 8–10) | Accepted tech debt | 2026-09-15 | v1.2 |
 | Product | MySQL / analytics / personalização / agente | Deferred | 2026-09-04 | v2+ |
 
@@ -55,3 +87,9 @@ Resume file: .planning/MILESTONES.md
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 1 | wizard: matéria before tipo de exercício | 2026-09-16 | 80072d4 | — |
+
+## Session Continuity
+
+Last session: 2026-09-16
+Stopped at: Roadmap v2.0 written — Phases 11–12 ready for `$gsd-plan-phase 11`
+Resume file: None
