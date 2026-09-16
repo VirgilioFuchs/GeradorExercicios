@@ -2,15 +2,20 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Embed em Produção
-status: planned
-last_updated: "2026-09-16T14:20:00.000Z"
+current_phase: 11
+current_phase_name: Service Layer Extraction
+status: in_progress
+stopped_at: Completed 11-01-PLAN.md
+last_updated: "2026-09-16T14:52:12.120Z"
 last_activity: 2026-09-16
+last_activity_desc: Completed 11-01 pure service seam extraction
+state_head: 114471a88e8d9c9d993a86b932ea451239fa0962
 progress:
   total_phases: 2
   completed_phases: 0
   total_plans: 3
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+  percent: 33
 ---
 
 # Project State
@@ -34,6 +39,7 @@ Progress: [░░░░░░░░░░] 0%
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed (v2.0): 0
 - Average duration: —
 - Total execution time: —
@@ -46,6 +52,11 @@ Progress: [░░░░░░░░░░] 0%
 | 12. Local Embed Demo | 0 | — | — |
 
 *Updated after each plan completion*
+**Per-Plan Metrics:**
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 11 P01 | 6 min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -60,6 +71,8 @@ Recent decisions affecting current work:
 - v2.0: Demo = ThreadingHTTPServer + Lock → 409, `[::1]:8642`, stdlib only
 - v2.0: Encoding harden + Gemini timeout are Phase 11 in-scope
 - v2.0: Pure seam move first, then env/`kind`/hygiene
+- [Phase 11]: Pure move only: generate_batch(request) with env bridge for CLI max_retries
+- [Phase 11]: begin_run/flush live in service; run retains finally flush as safety net
 
 ### Pending Todos
 
@@ -90,6 +103,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-16
-Stopped at: Phase 11 plans written (11-01..11-03) — ready for plan-check / `$gsd-execute-phase 11`
+Last session: 2026-09-16T14:52:12.084Z
+Stopped at: Completed 11-01-PLAN.md
 Resume file: None

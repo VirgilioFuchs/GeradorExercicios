@@ -10,7 +10,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Embed
 
-- [ ] **EMBED-01**: Host chama `generate_batch(request)` e recebe `ExerciseBatch` validado — sem print de exercício, sem arquivo de saída, sem `sys.exit`
+- [x] **EMBED-01**: Host chama `generate_batch(request)` e recebe `ExerciseBatch` validado — sem print de exercício, sem arquivo de saída, sem `sys.exit`
 - [ ] **EMBED-02**: Host distingue falha de configuração, entrada inválida e geração esgotada sem casar mensagem PT (`kind` / subclasses dos tipos já levantados)
 - [ ] **EMBED-03**: CLI argparse e wizard `gerar` permanecem idênticos (regressão zero); bound argparse 1–40 preservado junto com `Field(ge=1, le=40)` no domínio
 - [ ] **EMBED-04**: Após qualquer chamada (com ou sem failover), `LLM_PROVIDER` (e overrides de reasoning, se usados) voltam ao valor anterior
@@ -62,7 +62,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| EMBED-01 | Phase 11 | Pending |
+| EMBED-01 | Phase 11 | Complete |
 | EMBED-02 | Phase 11 | Pending |
 | EMBED-03 | Phase 11 | Pending |
 | EMBED-04 | Phase 11 | Pending |
@@ -73,6 +73,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DEMO-02 | Phase 12 | Pending |
 
 **Coverage:**
+
 - v2.0 requirements: 9 total
 - Mapped to phases: 9
 - Unmapped: 0

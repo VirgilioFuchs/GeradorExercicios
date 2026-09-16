@@ -59,10 +59,11 @@
   4. Após qualquer chamada (com ou sem failover), `LLM_PROVIDER` (e overrides de reasoning, se usados) voltam ao valor anterior
   5. Client Gemini tem timeout HTTP finito com pior caso documentado; diagnósticos/CLI não quebram em cp1252 com glifos como `√`/`→`; documentação curta do contrato (JSON + tabela de erros) e lista de nomes de módulo reservados estão disponíveis
 
-**Plans**: 3 plans
+**Plans**: 1/3 plans executed
 
 Plans:
-- [ ] 11-01-PLAN.md — Pure seam: `service.generate_batch` + `run()` adapter + re-point pinned tests
+
+- [x] 11-01-PLAN.md — Pure seam: `service.generate_batch` + `run()` adapter + re-point pinned tests
 - [ ] 11-02-PLAN.md — Domain 1–40, error subclasses, scoped env restore, FS hygiene / guarded flush
 - [ ] 11-03-PLAN.md — Encoding harden, Gemini timeout, README embed contract + reserved names
 
@@ -88,7 +89,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 11. Service Layer Extraction | 0/3 | Planned | - |
+| 11. Service Layer Extraction | 1/3 | In Progress|  |
 | 12. Local Embed Demo | 0/? | Not started | - |
 
 ## Next Milestone (after v2.0)
