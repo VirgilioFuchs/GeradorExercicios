@@ -5,17 +5,17 @@ milestone_name: Embed em Produção
 current_phase: 11
 current_phase_name: Service Layer Extraction
 status: in_progress
-stopped_at: Completed 11-01-PLAN.md
-last_updated: "2026-09-16T14:52:12.120Z"
+stopped_at: Completed 11-02-PLAN.md
+last_updated: "2026-09-16T15:07:49.691Z"
 last_activity: 2026-09-16
 last_activity_desc: Completed 11-01 pure service seam extraction
-state_head: 114471a88e8d9c9d993a86b932ea451239fa0962
+state_head: ae2d881784ab4f0e78e4a3075078596340399ab6
 progress:
   total_phases: 2
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
-  percent: 33
+  completed_plans: 2
+  percent: 0
 ---
 
 # Project State
@@ -34,7 +34,7 @@ Plan: 11-02 (of 11-03) next
 Status: 11-01 complete — ready for 11-02
 Last activity: 2026-09-16 — Completed 11-01 pure service seam extraction
 
-Progress: [███░░░░░░░] 33%
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Progress: [███░░░░░░░] 33%
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 11 P01 | 6 min | 2 tasks | 7 files |
+| Phase 11 P02 | 14 min | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -73,6 +74,9 @@ Recent decisions affecting current work:
 - v2.0: Pure seam move first, then env/`kind`/hygiene
 - [Phase 11]: Pure move only: generate_batch(request) with env bridge for CLI max_retries
 - [Phase 11]: begin_run/flush live in service; run retains finally flush as safety net
+- [Phase 11]: Error classes in service.py; leaf modules lazy-import to avoid cycles
+- [Phase 11]: Validation exhaustion raises InvalidRequestError(kind=validation_exhausted)
+- [Phase 11]: Postmortem CLI-owned; flush OSError-guarded; always-on scoped env restore
 
 ### Pending Todos
 
@@ -103,6 +107,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-16T14:52:12.084Z
-Stopped at: Completed 11-01-PLAN.md
+Last session: 2026-09-16T15:07:49.661Z
+Stopped at: Completed 11-02-PLAN.md
 Resume file: None
