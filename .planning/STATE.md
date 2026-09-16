@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Embed em Produção
-status: planning
-last_updated: "2026-09-16T13:34:00.000Z"
+status: planned
+last_updated: "2026-09-16T14:20:00.000Z"
 last_activity: 2026-09-16
 progress:
   total_phases: 2
   completed_phases: 0
-  total_plans: 0
+  total_plans: 3
   completed_plans: 0
   percent: 0
 ---
@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-09-16)
 ## Current Position
 
 Phase: 11 of 12 (Service Layer Extraction)
-Plan: —
-Status: Ready to plan
-Last activity: 2026-09-16 — Roadmap v2.0 created (Phases 11–12)
+Plan: 11-01 (of 11-03) ready to execute
+Status: Plans created — ready for `$gsd-execute-phase 11`
+Last activity: 2026-09-16 — Phase 11 planned (3 plans, waves 1–3)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -42,7 +42,7 @@ Progress: [░░░░░░░░░░] 0%
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 11. Service Layer Extraction | 0 | — | — |
+| 11. Service Layer Extraction | 0/3 | — | — |
 | 12. Local Embed Demo | 0 | — | — |
 
 *Updated after each plan completion*
@@ -68,7 +68,7 @@ None yet.
 ### Blockers/Concerns
 
 - First real host integration cannot succeed without unparking PKG-01 after v2.0
-- Token NDJSON flush on service path: plan-phase must choose env-root or guarded no-op
+- Token NDJSON flush: Plan 11-02 uses guarded `OSError` no-op (D-07); no new env root this phase
 
 ## Deferred Items
 
@@ -91,5 +91,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-09-16
-Stopped at: Roadmap v2.0 written — Phases 11–12 ready for `$gsd-plan-phase 11`
+Stopped at: Phase 11 plans written (11-01..11-03) — ready for plan-check / `$gsd-execute-phase 11`
 Resume file: None
