@@ -104,7 +104,8 @@ def test_main_source_keeps_plain_stderr_contract():
     assert "Erro na execução da geração" not in msrc
     assert "def run(" in msrc
     assert "run_demo" not in msrc
-    assert "generate_with_failover" in msrc
+    assert "generate_batch" in msrc
+    assert "from service import" in msrc or "service.generate_batch" in msrc
     assert "--max-retries" in msrc
 
 
@@ -251,11 +252,21 @@ def test_cli_rejects_max_retries_outside_range():
 def test_cli_max_retries_passes_to_run(demo_batch, tmp_path, monkeypatch):
     monkeypatch.delenv("RELY_MAX_RETRIES", raising=False)
     out_path = tmp_path / "out.json"
+    import service
+
+    resolved: list[tuple[int | None, int]] = []
+    real_resolve = service.resolve_max_retries
+
+    def spy_resolve(cli_value: int | None) -> int:
+        n = real_resolve(cli_value)
+        resolved.append((cli_value, n))
+        return n
+
     with patch.object(reliability, "generate_exercises", return_value=demo_batch) as gen:
-        with patch.object(main, "resolve_max_retries", wraps=main.resolve_max_retries) as resolv:
+        with patch.object(service, "resolve_max_retries", side_effect=spy_resolve):
             main.main(["--out", str(out_path), "--max-retries", "0"])
     assert gen.call_count == 1
-    assert resolv.call_args.args[0] == 0
+    assert resolved == [(None, 0)]
     assert out_path.exists()
 
 

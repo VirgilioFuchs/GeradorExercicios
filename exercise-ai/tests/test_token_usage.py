@@ -311,6 +311,7 @@ def test_main_run_flush_in_finally(usage_dir, monkeypatch, tmp_path, capsys):
     """main.run flushes once in finally even on SystemExit."""
     from models import DificuldadeEnum, Exercise, ExerciseBatch, GenerationRequest
     import main as main_mod
+    import service
 
     batch = ExerciseBatch(
         exercicios=[
@@ -338,8 +339,8 @@ def test_main_run_flush_in_finally(usage_dir, monkeypatch, tmp_path, capsys):
         )
         return batch
 
-    monkeypatch.setattr(main_mod, "generate_with_failover", fake_validated)
-    monkeypatch.setattr(main_mod, "resolve_max_retries", lambda x: 0)
+    monkeypatch.setattr(service, "generate_with_failover", fake_validated)
+    monkeypatch.setattr(service, "resolve_max_retries", lambda x: 0)
     out = tmp_path / "out.json"
     main_mod.run(request, out_path=out, max_retries=0)
     day = datetime.now().astimezone().date().isoformat()

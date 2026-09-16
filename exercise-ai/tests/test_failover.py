@@ -362,9 +362,11 @@ def test_run_failover_writes_out_and_redacts(
             raise _permanent("timeout", f"leak? {DUMMY_LLM_KEY}")
         return demo_batch
 
+    import service
+
     out, err = io.StringIO(), io.StringIO()
     with patch.object(
-        main,
+        service,
         "generate_with_failover",
         side_effect=lambda req, max_retries: failover.generate_with_failover(
             req,

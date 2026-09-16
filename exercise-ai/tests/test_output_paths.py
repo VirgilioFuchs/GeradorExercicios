@@ -11,6 +11,7 @@ from models import DificuldadeEnum, Exercise, ExerciseBatch, GenerationRequest
 import main as main_mod
 import output_paths
 import reliability
+import service
 
 
 def test_resolve_success_out_relative_under_success():
@@ -54,7 +55,7 @@ def test_run_success_relative_out_writes_success_dir(monkeypatch, tmp_path):
         topico="x", dificuldade=DificuldadeEnum.FACIL, quantidade=1
     )
     monkeypatch.setattr(
-        main_mod, "generate_with_failover", lambda *a, **k: batch
+        service, "generate_with_failover", lambda *a, **k: batch
     )
     main_mod.run(req, out_path="meu.json", max_retries=0)
     dest = success / "meu.json"
@@ -75,7 +76,7 @@ def test_run_failure_writes_error_log(monkeypatch, tmp_path):
     def boom(*a, **k):
         raise RuntimeError("geração falhou teste")
 
-    monkeypatch.setattr(main_mod, "generate_with_failover", boom)
+    monkeypatch.setattr(service, "generate_with_failover", boom)
     with pytest.raises(SystemExit) as ei:
         main_mod.run(req, out_path=tmp_path / "x.json", max_retries=0)
     assert ei.value.code == 1
