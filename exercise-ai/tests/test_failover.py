@@ -123,7 +123,7 @@ def test_openai_to_gemini_failover_success(demo_batch, request_demo, monkeypatch
     assert calls[0][1] == 1 and calls[1][1] == 1
     assert switched == ["gemini"]
     stderr = err.getvalue()
-    assert "[FAILOVER] openai → gemini (timeout)" in stderr
+    assert "[FAILOVER] openai -> gemini (timeout)" in stderr
     assert "[FAILOVER] usado: gemini" in stderr
     assert DUMMY_LLM_KEY not in stderr
     assert DUMMY_GEMINI_KEY not in stderr
@@ -160,7 +160,7 @@ def test_gemini_to_openai_eligible_kinds(kind, demo_batch, request_demo, monkeyp
 
     assert calls["n"] == 2
     assert switched == ["openai"]
-    assert f"[FAILOVER] gemini → openai ({kind})" in err.getvalue()
+    assert f"[FAILOVER] gemini -> openai ({kind})" in err.getvalue()
     assert switched.count("openai") == 1
 
 
@@ -284,7 +284,7 @@ def test_missing_secondary_key_no_second_generate(request_demo, monkeypatch):
     assert ".env" in str(ei.value)
     assert calls["n"] == 1
     assert switched == []
-    assert "[FAILOVER] openai → gemini (timeout)" in err.getvalue()
+    assert "[FAILOVER] openai -> gemini (timeout)" in err.getvalue()
     assert DUMMY_LLM_KEY not in str(ei.value)
 
 
@@ -384,7 +384,7 @@ def test_run_failover_writes_out_and_redacts(
     assert len(parsed["exercicios"]) == 3
     assert "### Exercício 1" in out.getvalue()
     stderr = err.getvalue()
-    assert "[FAILOVER] openai → gemini (timeout)" in stderr
+    assert "[FAILOVER] openai -> gemini (timeout)" in stderr
     assert DUMMY_LLM_KEY not in stderr
     assert DUMMY_GEMINI_KEY not in stderr
     assert calls["n"] == 2
