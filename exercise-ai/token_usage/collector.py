@@ -106,20 +106,25 @@ class TokenUsageCollector:
         root = base_dir if base_dir is not None else TOKEN_USAGE_DIR
         day = datetime.now().astimezone().date().isoformat()
         day_dir = root / day
-        day_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            day_dir.mkdir(parents=True, exist_ok=True)
 
-        by_provider: dict[str, list[UsageEvent]] = {}
-        for ev in self.events:
-            by_provider.setdefault(ev.provider, []).append(ev)
+            by_provider: dict[str, list[UsageEvent]] = {}
+            for ev in self.events:
+                by_provider.setdefault(ev.provider, []).append(ev)
 
-        for provider, evs in by_provider.items():
-            path = day_dir / f"{provider}.ndjson"
-            with path.open("a", encoding="utf-8") as fh:
-                for ev in evs:
-                    fh.write(json.dumps(_event_to_dict(ev), ensure_ascii=False) + "\n")
+            for provider, evs in by_provider.items():
+                path = day_dir / f"{provider}.ndjson"
+                with path.open("a", encoding="utf-8") as fh:
+                    for ev in evs:
+                        fh.write(json.dumps(_event_to_dict(ev), ensure_ascii=False) + "\n")
 
-        _print_run_summary(self.events)
-        self.events.clear()
+            _print_run_summary(self.events)
+        except OSError:
+            # Never mask an in-flight exception from the caller's finally (D-07).
+            pass
+        finally:
+            self.events.clear()
 
 
 _collector = TokenUsageCollector()
@@ -134,7 +139,10 @@ def begin_run(run_id: str | None = None) -> str:
 
 
 def flush_token_usage() -> None:
-    _collector.flush()
+    try:
+        _collector.flush()
+    except OSError:
+        pass
 
 
 def _event_to_dict(ev: UsageEvent) -> dict[str, Any]:

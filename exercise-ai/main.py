@@ -24,6 +24,7 @@ load_dotenv(dotenv_path=env_path)
 
 from models import MAX_QUANTIDADE, DificuldadeEnum, ExerciseBatch, GenerationRequest
 from output_paths import resolve_success_out_path, write_fail_error_log
+import reliability
 from service import ConfigError, generate_batch
 from token_usage import flush_token_usage
 
@@ -246,6 +247,10 @@ def run(
         logger.error("Falha de validação ou configuração: %s", val_err)
         print(str(val_err), file=sys.stderr)
         try:
+            reliability._write_postmortem(reliability.POSTMORTEM_PATH)
+        except OSError:
+            pass
+        try:
             write_fail_error_log(str(val_err))
         except OSError:
             pass
@@ -269,7 +274,10 @@ def run(
     finally:
         # Safety-net flush (service already flushes); SystemExit still runs finally —
         # buffer cleared so a second flush is a no-op (idempotent).
-        flush_token_usage()
+        try:
+            flush_token_usage()
+        except OSError:
+            pass
 
 
 def main(argv: list[str] | None = None) -> None:

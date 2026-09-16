@@ -131,7 +131,6 @@ def generate_validated_batch(
                     "error",
                     error_kind="validation",
                 )
-                _write_postmortem(POSTMORTEM_PATH)
                 reason = str(exc)
                 from service import InvalidRequestError
 
