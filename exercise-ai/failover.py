@@ -41,13 +41,19 @@ def failover_peer(provider: str) -> str | None:
 
 
 def ensure_secondary_key(provider: str) -> None:
-    """Raise clear PT ValueError if the secondary provider key is missing (D-03)."""
+    """Raise ConfigError if the secondary provider key is missing (D-03)."""
+    from service import ConfigError
+
     env_name = _KEY_ENV.get(provider)
     if env_name is None:
-        raise ValueError(f"Provedor secundário desconhecido: {provider}.")
+        raise ConfigError(
+            f"Provedor secundário desconhecido: {provider}.",
+            kind="unknown_provider",
+        )
     if not os.getenv(env_name, "").strip():
-        raise ValueError(
-            f"Chave ausente para o provedor {provider}. Defina {env_name} no arquivo .env."
+        raise ConfigError(
+            f"Chave ausente para o provedor {provider}. Defina {env_name} no arquivo .env.",
+            kind="secondary_missing_key",
         )
 
 

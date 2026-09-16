@@ -27,13 +27,16 @@ _OPENAI_REASONING_PREFIXES: tuple[str, ...] = (
 
 def resolve_reasoning_effort(explicit: str | None = None) -> ReasoningLevel:
     """Return validated effort; CLI/explicit wins over env; default ``medium``."""
+    from service import ConfigError
+
     raw = (explicit if explicit is not None else os.getenv(ENV_REASONING, "")).strip()
     if not raw:
         return DEFAULT_REASONING_EFFORT
     level = raw.lower()
     if level not in REASONING_LEVELS:
-        raise ValueError(
-            f"reasoning inválido '{raw}': use {', '.join(REASONING_LEVELS)}."
+        raise ConfigError(
+            f"reasoning inválido '{raw}': use {', '.join(REASONING_LEVELS)}.",
+            kind="invalid_reasoning",
         )
     return level  # type: ignore[return-value]
 

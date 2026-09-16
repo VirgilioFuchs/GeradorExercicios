@@ -76,9 +76,11 @@ _USAGE_BODY_HINTS = (
 
 def get_client() -> genai.Client:
     """Inicializa o cliente Gemini usando GEMINI_API_KEY do ambiente."""
+    from service import ConfigError
+
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key or not api_key.strip():
-        raise ValueError(_MISSING_KEY_MSG)
+        raise ConfigError(_MISSING_KEY_MSG, kind="missing_key")
     return genai.Client(api_key=api_key.strip())
 
 
@@ -117,19 +119,20 @@ def _gemini_error_detail(exc: BaseException) -> str:
     return " ".join(parts)
 
 
-def invalid_llm_response(msg: str) -> RuntimeError:
-    """Typed invalid-response RuntimeError — retriable for reliability loop (D-19)."""
-    err = RuntimeError(msg)
-    err.retriable = True
-    return err
+def invalid_llm_response(msg: str) -> GenerationFailedError:
+    """Typed invalid-response error — retriable for reliability loop (D-19)."""
+    from service import GenerationFailedError
+
+    return GenerationFailedError(msg, retriable=True)
 
 
-def _permanent_api_error(msg: str, *, api_error_kind: str) -> RuntimeError:
+def _permanent_api_error(msg: str, *, api_error_kind: str) -> GenerationFailedError:
     """Auth/timeout/rate-limit/connection/generic mapped — not retriable (D-06)."""
-    err = RuntimeError(msg)
-    err.retriable = False
-    err.api_error_kind = api_error_kind
-    return err
+    from service import GenerationFailedError
+
+    return GenerationFailedError(
+        msg, retriable=False, api_error_kind=api_error_kind
+    )
 
 
 def _is_usage_capacity_error(exc: BaseException) -> bool:
@@ -153,7 +156,7 @@ def _model_candidates(preferred: str) -> list[str]:
     return ordered
 
 
-def map_gemini_error(exc: BaseException) -> RuntimeError:
+def map_gemini_error(exc: BaseException) -> GenerationFailedError:
     """Map Gemini API/transport errors via status_code table; log [API:gemini] detail."""
     print(f"[API:gemini] {_gemini_error_detail(exc)}", file=sys.stderr)
 

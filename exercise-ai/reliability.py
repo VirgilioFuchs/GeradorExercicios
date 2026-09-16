@@ -33,6 +33,8 @@ POSTMORTEM_PATH: Path = DEFAULT_POSTMORTEM_PATH
 
 def resolve_max_retries(cli_value: int | None) -> int:
     """Resolve regenerations after first try: CLI > RELY_MAX_RETRIES > 1 (D-01..D-04)."""
+    from service import ConfigError
+
     if cli_value is not None:
         n = cli_value
     else:
@@ -43,12 +45,14 @@ def resolve_max_retries(cli_value: int | None) -> int:
             try:
                 n = int(raw)
             except ValueError as exc:
-                raise ValueError(
-                    f"max-retries inválido '{raw}': use um inteiro 0, 1, 2 ou 3."
+                raise ConfigError(
+                    f"max-retries inválido '{raw}': use um inteiro 0, 1, 2 ou 3.",
+                    kind="invalid_retries",
                 ) from exc
     if n not in _ALLOWED:
-        raise ValueError(
-            f"max-retries inválido '{n}': use um inteiro 0, 1, 2 ou 3."
+        raise ConfigError(
+            f"max-retries inválido '{n}': use um inteiro 0, 1, 2 ou 3.",
+            kind="invalid_retries",
         )
     return n
 
@@ -129,11 +133,16 @@ def generate_validated_batch(
                 )
                 _write_postmortem(POSTMORTEM_PATH)
                 reason = str(exc)
+                from service import InvalidRequestError
+
                 if max_retries > 0:
-                    raise ValueError(
-                        f"após {max_retries} regenerações: {reason}"
+                    raise InvalidRequestError(
+                        f"após {max_retries} regenerações: {reason}",
+                        kind="validation_exhausted",
                     ) from exc
-                raise
+                raise InvalidRequestError(
+                    reason, kind="validation_exhausted"
+                ) from exc
 
         assert last_err is not None
         raise last_err

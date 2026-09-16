@@ -47,22 +47,28 @@ def _resolve_provider() -> str:
     if os.getenv("GROK_API_KEY", "").strip():
         return "grok"
 
-    raise ValueError(_MISSING_KEY_MSG)
+    from service import ConfigError
+
+    raise ConfigError(_MISSING_KEY_MSG, kind="missing_key")
 
 
 def get_client() -> OpenAI:
     """Inicializa o cliente OpenAI usando a variável LLM_API_KEY do ambiente."""
+    from service import ConfigError
+
     api_key = os.getenv("LLM_API_KEY")
     if not api_key or not api_key.strip():
-        raise ValueError(_MISSING_KEY_MSG)
+        raise ConfigError(_MISSING_KEY_MSG, kind="missing_key")
     return OpenAI(api_key=api_key.strip(), timeout=30.0)
 
 
 def get_grok_client() -> OpenAI:
     """Inicializa cliente OpenAI-compatible apontando para a API xAI (Grok)."""
+    from service import ConfigError
+
     api_key = os.getenv("GROK_API_KEY")
     if not api_key or not api_key.strip():
-        raise ValueError(_MISSING_KEY_MSG)
+        raise ConfigError(_MISSING_KEY_MSG, kind="missing_key")
     return OpenAI(
         api_key=api_key.strip(),
         base_url=_GROK_BASE_URL,
@@ -90,19 +96,20 @@ def _openai_error_detail(exc: BaseException) -> str:
     return " ".join(parts)
 
 
-def invalid_llm_response(msg: str) -> RuntimeError:
-    """Typed invalid-response RuntimeError — retriable for reliability loop (D-19)."""
-    err = RuntimeError(msg)
-    err.retriable = True
-    return err
+def invalid_llm_response(msg: str) -> GenerationFailedError:
+    """Typed invalid-response error — retriable for reliability loop (D-19)."""
+    from service import GenerationFailedError
+
+    return GenerationFailedError(msg, retriable=True)
 
 
-def _permanent_api_error(msg: str, *, api_error_kind: str) -> RuntimeError:
+def _permanent_api_error(msg: str, *, api_error_kind: str) -> GenerationFailedError:
     """Auth/timeout/rate-limit/connection/refusal — not retriable (D-06)."""
-    err = RuntimeError(msg)
-    err.retriable = False
-    err.api_error_kind = api_error_kind
-    return err
+    from service import GenerationFailedError
+
+    return GenerationFailedError(
+        msg, retriable=False, api_error_kind=api_error_kind
+    )
 
 
 def map_openai_compatible_error(
@@ -111,7 +118,7 @@ def map_openai_compatible_error(
     api_tag: str,
     of_label: str,
     auth_key_name: str,
-) -> RuntimeError:
+) -> GenerationFailedError:
     """Map typed OpenAI-SDK errors to plain-PT RuntimeError; log [API:{tag}] detail."""
     print(f"[API:{api_tag}] {_openai_error_detail(exc)}", file=sys.stderr)
 
@@ -141,8 +148,8 @@ def map_openai_compatible_error(
     )
 
 
-def map_openai_error(exc: BaseException) -> RuntimeError:
-    """Map typed OpenAI errors to plain-PT RuntimeError; log [API:openai] detail."""
+def map_openai_error(exc: BaseException) -> GenerationFailedError:
+    """Map typed OpenAI errors to GenerationFailedError; log [API:openai] detail."""
     return map_openai_compatible_error(
         exc,
         api_tag="openai",

@@ -24,7 +24,7 @@ load_dotenv(dotenv_path=env_path)
 
 from models import MAX_QUANTIDADE, DificuldadeEnum, ExerciseBatch, GenerationRequest
 from output_paths import resolve_success_out_path, write_fail_error_log
-from service import generate_batch
+from service import ConfigError, generate_batch
 from token_usage import flush_token_usage
 
 logger = logging.getLogger("exercise_ai")
@@ -78,18 +78,21 @@ def _ensure_provider_key(provider: str) -> None:
     """Fail with a provider-specific PT message when the chosen key is missing (D-11)."""
     if provider == "openai":
         if not os.getenv("LLM_API_KEY", "").strip():
-            raise ValueError(
-                "Chave ausente para o provedor openai. Defina LLM_API_KEY no arquivo .env."
+            raise ConfigError(
+                "Chave ausente para o provedor openai. Defina LLM_API_KEY no arquivo .env.",
+                kind="missing_key",
             )
     elif provider == "gemini":
         if not os.getenv("GEMINI_API_KEY", "").strip():
-            raise ValueError(
-                "Chave ausente para o provedor gemini. Defina GEMINI_API_KEY no arquivo .env."
+            raise ConfigError(
+                "Chave ausente para o provedor gemini. Defina GEMINI_API_KEY no arquivo .env.",
+                kind="missing_key",
             )
     elif provider == "grok":
         if not os.getenv("GROK_API_KEY", "").strip():
-            raise ValueError(
-                "Chave ausente para o provedor grok. Defina GROK_API_KEY no arquivo .env."
+            raise ConfigError(
+                "Chave ausente para o provedor grok. Defina GROK_API_KEY no arquivo .env.",
+                kind="missing_key",
             )
 
 
