@@ -358,3 +358,21 @@ def test_openai_refusal_and_parsed_none(monkeypatch):
     assert "estrutura" in low or "obter" in low or "parse" in low
     assert getattr(exc_info.value, "retriable", None) is True
     assert "[API:openai]" in buf.getvalue()
+
+
+def test_gemini_client_http_timeout_is_30000_ms(monkeypatch):
+    """EMBED-05 / D-11: genai.Client gets HttpOptions.timeout=30000 (milliseconds)."""
+    monkeypatch.setenv("GEMINI_API_KEY", "AIza-timeout-pin")
+    captured: dict = {}
+
+    def _fake_client(**kwargs):
+        captured.update(kwargs)
+        return MagicMock()
+
+    with patch.object(generator_gemini.genai, "Client", side_effect=_fake_client):
+        generator_gemini.get_client()
+
+    http_options = captured.get("http_options")
+    assert http_options is not None, "get_client must pass http_options"
+    timeout = getattr(http_options, "timeout", None)
+    assert timeout == 30000, f"expected 30000 ms, got {timeout!r}"
