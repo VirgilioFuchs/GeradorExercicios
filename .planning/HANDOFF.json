@@ -1,0 +1,31 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-09-16T15:22:50.837Z",
+  "phase": "11",
+  "phase_name": "Service Layer Extraction",
+  "phase_dir": ".planning/phases/11-service-layer-extraction",
+  "plan": null,
+  "task": null,
+  "total_tasks": null,
+  "status": "paused",
+  "completed_tasks": [
+    {"id": "11-01", "name": "Pure service seam extraction", "status": "done", "commit": "bf77c0f"},
+    {"id": "11-02", "name": "Domain bounds, error subclasses, env/FS hygiene", "status": "done", "commit": "ae2d881"},
+    {"id": "11-03", "name": "Encoding, Gemini timeout, README contract", "status": "done", "commit": "e392fd5"},
+    {"id": "verify", "name": "Phase goal verification", "status": "done", "commit": null}
+  ],
+  "remaining_tasks": [
+    {"id": "12", "name": "Phase 12 Local Embed Demo", "status": "not_started"}
+  ],
+  "blockers": [],
+  "async_jobs": [],
+  "human_actions_pending": [],
+  "decisions": [
+    {"decision": "generate_batch(request) -> ExerciseBatch only", "rationale": "D-01/D-02 KISS; kwargs later", "phase": "11"},
+    {"decision": "Error subclasses ConfigError/InvalidRequestError/GenerationFailedError", "rationale": "D-03 EMBED-02", "phase": "11"},
+    {"decision": "Packaging parked; README contract section", "rationale": "D-12; PKG-01 next milestone", "phase": "11"}
+  ],
+  "uncommitted_files": [],
+  "next_action": "Run $gsd-discuss-phase 12 or $gsd-plan-phase 12 for Local Embed Demo",
+  "context_notes": "Phase 11 verified passed (7/7 must-haves, EMBED-01..07). Suite 155 passed. Branch gsd/ship-phase-03-tests-logging-docs. Push requested after pause."
+}
