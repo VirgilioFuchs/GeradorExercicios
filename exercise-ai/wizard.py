@@ -181,16 +181,16 @@ def collect_wizard_answers(
 
     read = input_fn if input_fn is not None else input
 
-    topico = _ask_text(
-        "Tipo de exercício (tópico):",
-        TIP_TOPICO,
-        default=main_mod._DEFAULT_TOPICO,
-        input_fn=read,
-    )
     materia = _ask_text(
         "Matéria:",
         TIP_MATERIA,
         default=main_mod._DEFAULT_MATERIA,
+        input_fn=read,
+    )
+    topico = _ask_text(
+        "Tipo de exercício (tópico):",
+        TIP_TOPICO,
+        default=main_mod._DEFAULT_TOPICO,
         input_fn=read,
     )
     dificuldade = _ask_dificuldade(

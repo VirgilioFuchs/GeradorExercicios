@@ -33,7 +33,7 @@ Em um terminal interativo (TTY):
 python exercise-ai/main.py gerar
 ```
 
-O fluxo pergunta (com tip sob cada campo): tipo/tópico → matéria → dificuldade → quantidade → provedor → reasoning → nome do JSON. **Enter** aceita o default da demo; o caminho do JSON é obrigatório (re-pergunta se vazio). Reasoning padrão do Enter e do env: **`medium`**.
+O fluxo pergunta (com tip sob cada campo): matéria → tipo/tópico → dificuldade → quantidade → provedor → reasoning → nome do JSON. **Enter** aceita o default da demo; o caminho do JSON é obrigatório (re-pergunta se vazio). Reasoning padrão do Enter e do env: **`medium`**.
 
 Para CI/scripts, continue usando as flags argparse (não use `gerar`).
 

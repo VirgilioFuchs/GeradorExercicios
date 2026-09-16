@@ -80,8 +80,8 @@ def test_gerar_main_calls_run_with_mapped_request(tmp_path, monkeypatch, capsys)
         captured["reasoning"] = os.environ.get("LLM_REASONING_EFFORT")
 
     script = [
-        "Frações",
         "Álgebra",
+        "Frações",
         "medio",
         "5",
         "openai",
@@ -168,8 +168,8 @@ def test_invalid_dificuldade_quantidade_reasoning_reprompt(capsys):
     answers = wizard.collect_wizard_answers(
         input_fn=_scripted_input(
             [
-                "",  # topico default
                 "",  # materia default
+                "",  # topico default
                 "hard",  # invalid dificuldade
                 "medio",
                 "99",  # invalid quantidade
