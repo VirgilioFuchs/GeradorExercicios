@@ -78,7 +78,7 @@ Em falha de validação estrutural ou resposta LLM inválida, o gerador regenera
 
 ### Failover OpenAI ↔ Gemini
 
-Se o provider primário falhar com erro de API de disponibilidade (`timeout`, `rate_limit`, `connection` ou `generic`), o lab tenta **uma vez** o outro do par OpenAI ↔ Gemini, reusando `generate_validated_batch` (sem segundo loop math/RELY). Em stderr: `[FAILOVER] openai → gemini (timeout)` (ou o par inverso) e `[FAILOVER] usado: …` no sucesso — sem secrets.
+Se o provider primário falhar com erro de API de disponibilidade (`timeout`, `rate_limit`, `connection` ou `generic`), o lab tenta **uma vez** o outro do par OpenAI ↔ Gemini, reusando `generate_validated_batch` (sem segundo loop math/RELY). Em stderr: `[FAILOVER] openai -> gemini (timeout)` (ou o par inverso) e `[FAILOVER] usado: …` no sucesso — sem secrets.
 
 - **Sem failover** em auth, recusa do modelo, resposta inválida tipada ou falha de validação/math.
 - **Grok** fica fora da cadeia (single-provider).
@@ -105,6 +105,72 @@ Cada chamada LLM grava um evento em memória; no fim da run a CLI faz **append**
 - **USD:** Grok preferencialmente via `cost_in_usd_ticks`; OpenAI/Gemini via tabela local aproximada (atualizar manualmente; sem scrape de pricing).
 - Artefatos gerados estão no `.gitignore`; a pasta permanece via `.gitkeep`.
 - Testes de usage usam mocks e `TOKEN_USAGE_DIR` injetável — sem LLM e sem arquivos locais de usage commitados.
+
+## Embed / biblioteca
+
+Contrato para um host embutir o gerador **in-process** (sem packaging nesta milestone — não importe `exercise_ai` como pacote instalado).
+
+### Como chamar
+
+Coloque `exercise-ai/` em `sys.path` e chame a API pública:
+
+```python
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path("exercise-ai").resolve()))
+
+from models import GenerationRequest, DificuldadeEnum
+from service import (
+    generate_batch,
+    ConfigError,
+    InvalidRequestError,
+    GenerationFailedError,
+)
+
+batch = generate_batch(
+    GenerationRequest(
+        materia="Matemática",
+        topico="Equação do primeiro grau",
+        dificuldade=DificuldadeEnum.FACIL,
+        quantidade=3,
+    )
+)
+# Sucesso: ExerciseBatch — serializável via batch.model_dump()
+data = batch.model_dump()  # {"exercicios": [{"enunciado", "resposta", "explicacao"}, ...]}
+```
+
+Assinatura: `generate_batch(request: GenerationRequest) -> ExerciseBatch` — **somente** `request` (sem kwargs `max_retries` / `provider` / `reasoning` nesta fase).
+
+### Erros (três subclasses)
+
+O host deve ramificar por **classe** (e opcionalmente `.kind` / attrs), não por matching de mensagem PT:
+
+| Exceção | Base | Quando | Attrs úteis |
+|---------|------|--------|-------------|
+| `ConfigError` | `ValueError` | Chave/config ausente ou inválida | `.kind` (ex. `missing_key`) |
+| `InvalidRequestError` | `ValueError` | Pedido/lote rejeitado (incl. esgotamento de validação) | `.kind` (ex. `validation_exhausted`) |
+| `GenerationFailedError` | `RuntimeError` | Falha de API/provedor após o pipeline | `.retriable`, `.api_error_kind` |
+
+Não trate `ValueError` genérico como contrato de host para esgotamento de validação — use `InvalidRequestError`.
+
+Diagnósticos internos ainda usam `print` em stderr; o host pode usar `contextlib.redirect_stderr` até LOG-01.
+
+### Contrato sequencial
+
+**Uma geração por vez por processo.** Não há suporte a concorrência nesta fase — não chame `generate_batch` em paralelo no mesmo processo.
+
+### Nomes de módulo reservados
+
+Enquanto o packaging estiver parkado (PKG-01), os módulos flat publicados via `sys.path` colidem com nomes homônimos no host. Reserve / detecte:
+
+`main`, `models`, `prompts`, `validator`, `generator`, `generator_gemini`, `failover`, `reliability`, `reasoning`, `math_check`, `output_paths`, `wizard`, `token_usage`, `service`
+
+Detecção opcional (exemplo): `set(sys.modules) & {"models", "service", ...}` antes de inserir `exercise-ai/` no path.
+
+### Timeout Gemini e pior caso
+
+O client Gemini usa `HttpOptions.timeout=30000` (**milissegundos** ≈ 30s, alinhado ao OpenAI `timeout=30.0`). Em pior caso o host pode esperar **vários minutos**: até `(max_retries+1)` tentativas × até 5 fallbacks de modelo Gemini × um hop de failover × 30s de timeout HTTP — ordem de grandeza, não SLA.
 
 ## Stdout vs stderr
 
