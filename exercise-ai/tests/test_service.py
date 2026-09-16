@@ -118,3 +118,62 @@ def test_validation_exhaustion_raises_invalid_request_error():
             reliability.generate_validated_batch(_fixture_request(), max_retries=0)
     assert caught.value.kind == "validation_exhausted"
     assert isinstance(caught.value, ValueError)
+
+
+def test_generate_batch_restores_env_after_provider_mutation(monkeypatch):
+    """LLM_PROVIDER / LLM_REASONING_EFFORT restored after generate_batch (D-08)."""
+    import os
+
+    monkeypatch.delenv("LLM_PROVIDER", raising=False)
+    monkeypatch.setenv("LLM_REASONING_EFFORT", "low")
+
+    def mutate_env(_request, max_retries=0):
+        os.environ["LLM_PROVIDER"] = "gemini"
+        os.environ["LLM_REASONING_EFFORT"] = "high"
+        return _fixture_batch()
+
+    with patch.object(service, "generate_with_failover", side_effect=mutate_env):
+        with patch.object(service, "resolve_max_retries", return_value=0):
+            with patch.object(service, "begin_run"):
+                with patch.object(service, "flush_token_usage"):
+                    service.generate_batch(_fixture_request())
+
+    assert "LLM_PROVIDER" not in os.environ
+    assert os.environ.get("LLM_REASONING_EFFORT") == "low"
+
+
+def test_service_path_exhaustion_writes_no_postmortem(tmp_path, monkeypatch):
+    """Service/library exhaustion must not write postmortem (D-06)."""
+    import reliability
+
+    postmortem = tmp_path / "math_postmortem.jsonl"
+    monkeypatch.setattr(reliability, "POSTMORTEM_PATH", postmortem, raising=False)
+    bad = ExerciseBatch(
+        exercicios=[Exercise(enunciado="e1", resposta="", explicacao="x1")]
+    )
+    with patch.object(reliability, "generate_exercises", return_value=bad):
+        with patch.object(service, "resolve_max_retries", return_value=0):
+            with patch.object(service, "begin_run"):
+                with patch.object(service, "flush_token_usage"):
+                    # Real failover → reliability path (not patched away).
+                    with pytest.raises(service.InvalidRequestError):
+                        service.generate_batch(_fixture_request())
+    assert not postmortem.exists()
+
+
+def test_flush_oserror_does_not_mask_generation_error():
+    """OSError from flush must not replace in-flight generation error (D-07)."""
+    boom = service.GenerationFailedError(
+        "falha api", retriable=False, api_error_kind="generic"
+    )
+
+    def flush_boom():
+        raise OSError("read-only filesystem")
+
+    with patch.object(service, "generate_with_failover", side_effect=boom):
+        with patch.object(service, "resolve_max_retries", return_value=0):
+            with patch.object(service, "begin_run"):
+                with patch.object(service, "flush_token_usage", side_effect=flush_boom):
+                    with pytest.raises(service.GenerationFailedError) as caught:
+                        service.generate_batch(_fixture_request())
+    assert caught.value is boom
