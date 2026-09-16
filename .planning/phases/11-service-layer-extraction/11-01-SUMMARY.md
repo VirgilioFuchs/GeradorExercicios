@@ -115,7 +115,7 @@ Each task was committed atomically:
 1. **Task 1: End-to-end host path tracer** - `bf77c0f` (feat)
 2. **Task 2: Re-point main-internal patches** - `c344920` (test)
 
-**Plan metadata:** (see final docs commit)
+**Plan metadata:** `4278900` (docs: complete plan); `421e0e8` (docs: STATE position)
 
 ## Files Created/Modified
 - `exercise-ai/service.py` - Public `generate_batch` host seam

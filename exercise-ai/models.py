@@ -1,7 +1,8 @@
 """Data schemas and models for exercise generation."""
 
 from enum import Enum
-from pydantic import BaseModel, Field
+
+from pydantic import BaseModel, Field, field_validator
 
 
 class DificuldadeEnum(str, Enum):
@@ -11,12 +12,30 @@ class DificuldadeEnum(str, Enum):
     DIFICIL = "dificil"
 
 
+MAX_QUANTIDADE = 40
+
+
 class GenerationRequest(BaseModel):
     """Parâmetros de entrada para solicitação de geração de exercícios."""
     materia: str = Field(default="Matemática", description="Matéria dos exercícios")
-    topico: str = Field(..., description="Tópico específico da matéria")
+    topico: str = Field(..., min_length=1, description="Tópico específico da matéria")
     dificuldade: DificuldadeEnum = Field(..., description="Nível de dificuldade")
-    quantidade: int = Field(..., gt=0, description="Quantidade exata de exercícios a gerar")
+    quantidade: int = Field(
+        ...,
+        ge=1,
+        le=MAX_QUANTIDADE,
+        description="Quantidade exata de exercícios a gerar",
+    )
+
+    @field_validator("topico", mode="before")
+    @classmethod
+    def _strip_nonempty_topico(cls, value: object) -> object:
+        if isinstance(value, str):
+            stripped = value.strip()
+            if not stripped:
+                raise ValueError("topico não pode ser vazio")
+            return stripped
+        return value
 
 
 class Exercise(BaseModel):

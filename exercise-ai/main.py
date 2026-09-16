@@ -22,7 +22,7 @@ if not env_path.exists():
     env_path = current_dir.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
-from models import DificuldadeEnum, ExerciseBatch, GenerationRequest
+from models import MAX_QUANTIDADE, DificuldadeEnum, ExerciseBatch, GenerationRequest
 from output_paths import resolve_success_out_path, write_fail_error_log
 from service import generate_batch
 from token_usage import flush_token_usage
@@ -33,7 +33,7 @@ _DEFAULT_MATERIA = "Matemática"
 _DEFAULT_TOPICO = "Equação do primeiro grau"
 _DEFAULT_DIFICULDADE = "facil"
 _DEFAULT_QUANTIDADE = 3
-_MAX_QUANTIDADE = 40
+_MAX_QUANTIDADE = MAX_QUANTIDADE
 
 
 class _StderrStream:
