@@ -75,13 +75,19 @@ _USAGE_BODY_HINTS = (
 
 
 def get_client() -> genai.Client:
-    """Inicializa o cliente Gemini usando GEMINI_API_KEY do ambiente."""
+    """Inicializa o cliente Gemini usando GEMINI_API_KEY do ambiente.
+
+    HttpOptions.timeout is milliseconds (google-genai); 30000 ~= OpenAI timeout=30.0s.
+    """
     from service import ConfigError
 
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key or not api_key.strip():
         raise ConfigError(_MISSING_KEY_MSG, kind="missing_key")
-    return genai.Client(api_key=api_key.strip())
+    return genai.Client(
+        api_key=api_key.strip(),
+        http_options=types.HttpOptions(timeout=30000),
+    )
 
 
 def _coerce_status_code(exc: BaseException) -> int | None:
