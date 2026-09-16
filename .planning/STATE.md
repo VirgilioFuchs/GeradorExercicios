@@ -4,18 +4,18 @@ milestone: v2.0
 milestone_name: Embed em Produção
 current_phase: 11
 current_phase_name: Service Layer Extraction
-status: in_progress
-stopped_at: Completed 11-02-PLAN.md
-last_updated: "2026-09-16T15:07:49.691Z"
+status: ready_for_verification
+stopped_at: Completed 11-03-PLAN.md
+last_updated: "2026-09-16T15:17:04.923Z"
 last_activity: 2026-09-16
-last_activity_desc: Completed 11-02 domain bounds, errors, env/FS hygiene
-state_head: 7c2e7ad
+last_activity_desc: Completed 11-03 encoding, Gemini timeout, README embed contract
+state_head: e392fd5866a93cdf824394e80178325c26723854
 progress:
   total_phases: 2
   completed_phases: 0
   total_plans: 3
-  completed_plans: 2
-  percent: 67
+  completed_plans: 3
+  percent: 100
 ---
 
 # Project State
@@ -30,25 +30,25 @@ See: .planning/PROJECT.md (updated 2026-09-16)
 ## Current Position
 
 Phase: 11 of 12 (Service Layer Extraction)
-Plan: 11-03 (of 11-03) next
-Status: 11-02 complete — ready for 11-03
-Last activity: 2026-09-16 — Completed 11-02 domain bounds, errors, env/FS hygiene
+Plan: 11-03 (of 11-03) complete
+Status: 11-03 complete — ready for phase verification
+Last activity: 2026-09-16 — Completed 11-03 encoding, Gemini timeout, README embed contract
 
-Progress: [██████░░░░] 67%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed (v2.0): 2
-- Average duration: 10 min
-- Total execution time: 20 min
+- Total plans completed (v2.0): 3
+- Average duration: 9 min
+- Total execution time: 26 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 11. Service Layer Extraction | 2/3 | 20 min | 10 min |
+| 11. Service Layer Extraction | 3/3 | 26 min | 9 min |
 | 12. Local Embed Demo | 0 | — | — |
 
 *Updated after each plan completion*
@@ -58,6 +58,7 @@ Progress: [██████░░░░] 67%
 |------|----------|-------|-------|
 | Phase 11 P01 | 6 min | 2 tasks | 7 files |
 | Phase 11 P02 | 14 min | 3 tasks | 11 files |
+| Phase 11 P03 | 6 min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,8 @@ Recent decisions affecting current work:
 - [Phase 11]: Error classes in service.py; leaf modules lazy-import to avoid cycles
 - [Phase 11]: Validation exhaustion raises InvalidRequestError(kind=validation_exhausted)
 - [Phase 11]: Postmortem CLI-owned; flush OSError-guarded; always-on scoped env restore
+- [Phase 11]: Gemini HttpOptions.timeout=30000 ms (Context7 python-genai) — SDK timeout field is milliseconds; align magnitude to OpenAI 30s
+- [Phase 11]: README Embed contract only; reserved names detection-only — D-12; no CONTRACT.md; packaging parked PKG-01
 
 ### Pending Todos
 
@@ -107,6 +110,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-16T15:07:49.661Z
-Stopped at: Completed 11-02-PLAN.md
+Last session: 2026-09-16T15:17:04.885Z
+Stopped at: Completed 11-03-PLAN.md
 Resume file: None

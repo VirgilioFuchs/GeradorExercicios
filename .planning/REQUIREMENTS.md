@@ -14,9 +14,9 @@ Requirements for this milestone. Each maps to roadmap phases.
 - [x] **EMBED-02**: Host distingue falha de configuração, entrada inválida e geração esgotada sem casar mensagem PT (`kind` / subclasses dos tipos já levantados)
 - [x] **EMBED-03**: CLI argparse e wizard `gerar` permanecem idênticos (regressão zero); bound argparse 1–40 preservado junto com `Field(ge=1, le=40)` no domínio
 - [x] **EMBED-04**: Após qualquer chamada (com ou sem failover), `LLM_PROVIDER` (e overrides de reasoning, se usados) voltam ao valor anterior
-- [ ] **EMBED-05**: Client Gemini tem timeout HTTP finito; pior caso documentado para o host
-- [ ] **EMBED-06**: Diagnósticos e formatação CLI não quebram em cp1252 com glifos como `√` / `→` (sucesso deixa de ser reportado como falha)
-- [ ] **EMBED-07**: Documentação curta do contrato (JSON + tabela de erros) + lista de nomes de módulo reservados (detecção; packaging parkado)
+- [x] **EMBED-05**: Client Gemini tem timeout HTTP finito; pior caso documentado para o host
+- [x] **EMBED-06**: Diagnósticos e formatação CLI não quebram em cp1252 com glifos como `√` / `→` (sucesso deixa de ser reportado como falha)
+- [x] **EMBED-07**: Documentação curta do contrato (JSON + tabela de erros) + lista de nomes de módulo reservados (detecção; packaging parkado)
 
 ### Demo
 
@@ -66,9 +66,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EMBED-02 | Phase 11 | Complete |
 | EMBED-03 | Phase 11 | Complete |
 | EMBED-04 | Phase 11 | Complete |
-| EMBED-05 | Phase 11 | Pending |
-| EMBED-06 | Phase 11 | Pending |
-| EMBED-07 | Phase 11 | Pending |
+| EMBED-05 | Phase 11 | Complete |
+| EMBED-06 | Phase 11 | Complete |
+| EMBED-07 | Phase 11 | Complete |
 | DEMO-01 | Phase 12 | Pending |
 | DEMO-02 | Phase 12 | Pending |
 
