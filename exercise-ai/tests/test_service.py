@@ -89,3 +89,32 @@ def test_run_still_writes_out_and_exits_on_failure(tmp_path, monkeypatch, capsys
     with pytest.raises(SystemExit) as se:
         main_mod.run(_fixture_request(), out_path=tmp_path / "x.json", max_retries=0)
     assert se.value.code == 1
+
+
+def test_config_error_kind_missing_key(monkeypatch):
+    """Host can discriminate ConfigError via isinstance + .kind (D-03/D-04)."""
+    monkeypatch.delenv("LLM_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("GROK_API_KEY", raising=False)
+    monkeypatch.setenv("LLM_PROVIDER", "openai")
+
+    import generator
+
+    with pytest.raises(service.ConfigError) as caught:
+        generator.get_client()
+    assert caught.value.kind == "missing_key"
+    assert isinstance(caught.value, ValueError)
+
+
+def test_validation_exhaustion_raises_invalid_request_error():
+    """Reliability final failure is InvalidRequestError with kind (EMBED-02)."""
+    bad = ExerciseBatch(
+        exercicios=[Exercise(enunciado="e1", resposta="", explicacao="x1")]
+    )
+    import reliability
+
+    with patch.object(reliability, "generate_exercises", return_value=bad):
+        with pytest.raises(service.InvalidRequestError) as caught:
+            reliability.generate_validated_batch(_fixture_request(), max_retries=0)
+    assert caught.value.kind == "validation_exhausted"
+    assert isinstance(caught.value, ValueError)
