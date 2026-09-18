@@ -80,7 +80,13 @@ Plans:
   2. Servidor recusa bind não-loopback; segunda geração concorrente recebe HTTP 409 (Lock); POST de geração exige `application/json` e Host/Origin na allowlist
   3. Banner throwaway e README da demo deixam explícita a nota de expiração / delete-at-close
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+
+- [ ] 12-01-PLAN.md — Wave 0 guards/error_map + tracer POST `/gerar` → `generate_batch` (Lock/Host/Origin/JSON)
+- [ ] 12-02-PLAN.md — Full UI D-01..D-12 + throwaway chrome/docs D-13..D-16
+
 **UI hint**: yes
 
 **Notes**: Stdlib only (`ThreadingHTTPServer` + `AF_INET6`); fora do pacote e do CI. Demo carrega `.env` no próprio `__main__` — service não faz `load_dotenv` na importação.
@@ -90,7 +96,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 11. Service Layer Extraction | 3/3 | Complete    | 2026-09-16 |
-| 12. Local Embed Demo | 0/? | Not started | - |
+| 12. Local Embed Demo | 0/2 | Planned | - |
 
 ## Next Milestone (after v2.0)
 

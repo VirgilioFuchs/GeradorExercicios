@@ -39,12 +39,13 @@ created: "2026-09-18"
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| TBD | TBD | 0 | DEMO-02 | T-12-loopback | Refuse non-loopback bind | unit | `pytest demo/tests/test_guards.py::test_refuse_non_loopback -x` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | DEMO-02 | T-12-headers | Host/Origin/Content-Type allowlist | unit | `pytest demo/tests/test_guards.py::test_headers -x` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | DEMO-02 | T-12-lock | Lock busy → 409 | unit | `pytest demo/tests/test_guards.py::test_lock_409 -x` | ❌ W0 | ⬜ pending |
-| TBD | TBD | 0 | DEMO-01 | T-12-errors | Exception → error JSON shape | unit | `pytest demo/tests/test_error_map.py -x` | ❌ W0 | ⬜ pending |
-| TBD | TBD | — | DEMO-01 | — | Form/tabs/Gerando…/live LLM | manual UAT | Operator opens `http://[::1]:8642/` | N/A | ⬜ pending |
-| TBD | TBD | — | DEMO-02 | T-12-accrete | Banner + README anti-accretion | manual / doc | Read `demo/README.md` + UI | N/A | ⬜ pending |
+| 12-01-T1 | 12-01 | 1 | DEMO-02 | T-12-01 | Refuse non-loopback bind | unit | `pytest demo/tests/test_guards.py::test_refuse_non_loopback -x` | ❌ W0 | ⬜ pending |
+| 12-01-T1 | 12-01 | 1 | DEMO-02 | T-12-02 | Host/Origin/Content-Type allowlist | unit | `pytest demo/tests/test_guards.py -q` | ❌ W0 | ⬜ pending |
+| 12-01-T1 | 12-01 | 1 | DEMO-02 | T-12-03 | Lock busy → 409 | unit | `pytest demo/tests/test_guards.py -q` | ❌ W0 | ⬜ pending |
+| 12-01-T1 | 12-01 | 1 | DEMO-01 | T-12-04 | Exception → error JSON shape | unit | `pytest demo/tests/test_error_map.py -q` | ❌ W0 | ⬜ pending |
+| 12-01-T2 | 12-01 | 1 | DEMO-01/02 | T-12-02..04 | Tracer POST /gerar mocked E2E | unit | `pytest demo/tests -q` | ❌ W0 | ⬜ pending |
+| 12-02-T1 | 12-02 | 2 | DEMO-01 | T-12-06 | Form/tabs/Gerando…/live LLM | manual UAT | Operator opens `http://[::1]:8642/` | N/A | ⬜ pending |
+| 12-02-T2 | 12-02 | 2 | DEMO-02 | T-12-07 | Banner + README anti-accretion | manual / doc | Read `demo/README.md` + UI | N/A | ⬜ pending |
 
 *Planner must replace TBD Task IDs when writing PLAN.md. Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
