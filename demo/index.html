@@ -5,17 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Demo Embed — Gerador de Exercícios</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 1.5rem auto; padding: 0 1rem; }
+    body { font-family: system-ui, sans-serif; max-width: 42rem; margin: 1.5rem auto; padding: 0 1rem; }
     fieldset { margin-bottom: 1rem; }
     label { display: block; margin: 0.4rem 0; }
-    button { margin-top: 0.5rem; }
-    pre { background: #f4f4f4; padding: 0.75rem; overflow: auto; }
-    .err { color: #a00; white-space: pre-wrap; }
+    button[type="submit"] { margin-top: 0.5rem; }
+    .hint { color: #555; font-size: 0.9rem; }
+    .tabs { display: flex; gap: 0.5rem; margin: 1rem 0 0.5rem; }
+    .tabs button[aria-selected="true"] { font-weight: 700; }
+    .panel { border: 1px solid #ddd; padding: 0.75rem; min-height: 6rem; }
+    .panel[hidden] { display: none; }
+    .exercise { margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid #eee; }
+    .exercise:last-child { border-bottom: none; }
+    pre { background: #f4f4f4; padding: 0.75rem; overflow: auto; margin: 0; }
+    .error-region { margin: 1rem 0; }
+    .error-badge {
+      display: inline-block;
+      background: #fee;
+      color: #a00;
+      border: 1px solid #c88;
+      padding: 0.35rem 0.6rem;
+      margin-bottom: 0.35rem;
+      font-family: ui-monospace, monospace;
+      font-size: 0.85rem;
+    }
+    .error-msg { color: #a00; white-space: pre-wrap; }
+    .error-kind { color: #666; font-size: 0.85rem; }
   </style>
 </head>
 <body>
-  <h1>Demo local (tracer)</h1>
-  <p>POST <code>application/json</code> para <code>/gerar</code> — contrato <code>GenerationRequest</code>.</p>
+  <h1>Demo local Embed</h1>
+  <p class="hint">Formulário → geração → exercícios. JSON do contrato é secundário (abas).</p>
 
   <form id="gerar-form">
     <fieldset>
@@ -33,7 +52,7 @@
     </fieldset>
     <fieldset>
       <legend>Ambiente (só nesta demo)</legend>
-      <p>Estes controles <strong>não</strong> entram no JSON do lote.</p>
+      <p class="hint">Estes controles <strong>não</strong> entram no JSON do lote (<code>GenerationRequest</code> / <code>ExerciseBatch</code>).</p>
       <label>provider
         <select name="provider">
           <option value="">auto</option>
@@ -54,51 +73,25 @@
     <button type="submit" id="submit-btn">Gerar</button>
   </form>
 
-  <div id="error" class="err" hidden></div>
-  <pre id="out">Aguardando POST /gerar…</pre>
+  <div id="error-region" class="error-region" hidden>
+    <div id="error-badge" class="error-badge"></div>
+    <div id="error-msg" class="error-msg"></div>
+    <div id="error-kind" class="error-kind"></div>
+  </div>
 
-  <script>
-    const form = document.getElementById("gerar-form");
-    const out = document.getElementById("out");
-    const err = document.getElementById("error");
-    const btn = document.getElementById("submit-btn");
+  <div class="tabs" role="tablist" aria-label="Resultados">
+    <button type="button" role="tab" id="tab-exercicios" aria-selected="true" aria-controls="panel-exercicios">Exercícios</button>
+    <button type="button" role="tab" id="tab-json" aria-selected="false" aria-controls="panel-json">JSON</button>
+  </div>
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      err.hidden = true;
-      err.textContent = "";
-      btn.disabled = true;
-      btn.textContent = "Gerando…";
-      const fd = new FormData(form);
-      const payload = {
-        materia: fd.get("materia"),
-        topico: fd.get("topico"),
-        dificuldade: fd.get("dificuldade"),
-        quantidade: Number(fd.get("quantidade")),
-        provider: fd.get("provider") || "",
-        reasoning: fd.get("reasoning") || "medium",
-      };
-      try {
-        const res = await fetch("/gerar", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        const data = await res.json();
-        out.textContent = JSON.stringify(data, null, 2);
-        if (!data.ok) {
-          err.hidden = false;
-          const eobj = data.error || {};
-          err.textContent = [eobj.class, eobj.message, eobj.kind].filter(Boolean).join(" — ");
-        }
-      } catch (ex) {
-        err.hidden = false;
-        err.textContent = String(ex);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "Gerar";
-      }
-    });
-  </script>
+  <div id="panel-exercicios" class="panel" role="tabpanel" aria-labelledby="tab-exercicios">
+    <p id="exercicios-empty" class="hint">Nenhum exercício ainda. Gere um lote para ver o resultado.</p>
+    <div id="exercicios-list"></div>
+  </div>
+  <div id="panel-json" class="panel" role="tabpanel" aria-labelledby="tab-json" hidden>
+    <pre id="json-out"></pre>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
