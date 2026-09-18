@@ -5,11 +5,11 @@ milestone_name: Embed em Produção
 current_phase: 12
 current_phase_name: Local Embed Demo
 status: planning
-stopped_at: Phase 11 complete, ready to plan Phase 12
-last_updated: "2026-09-16T15:22:49.851Z"
+stopped_at: Phase 12 context gathered
+last_updated: "2026-09-18T12:25:06.556Z"
 last_activity: 2026-09-16
 last_activity_desc: Phase 11 complete, transitioned to Phase 12
-state_head: 832ec91307ea8cc03524e34beeebd39eab7578a0
+state_head: dd9e9d9c7ec5583af6ae1862a0d9aca909a1da8d
 progress:
   total_phases: 2
   completed_phases: 1
@@ -111,6 +111,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-16T15:17:04.885Z
-Stopped at: Phase 11 complete, ready to plan Phase 12
-Resume file: None
+Last session: 2026-09-18T12:25:06.138Z
+Stopped at: Phase 12 context gathered
+Resume file: .planning/phases/12-local-embed-demo/12-CONTEXT.md
