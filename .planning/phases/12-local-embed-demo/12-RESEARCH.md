@@ -490,22 +490,19 @@ Absent `Origin` is allowed (direct navigation / same-origin fetch without Origin
 
 **If wrong:** planner picks explicit values in PLAN.md (status codes, route path, filename).
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **POST route path**
-   - What we know: need one JSON generation endpoint
-   - What's unclear: `/gerar` vs `/api/gerar`
-   - Recommendation: `/gerar` (PT, short, matches button label) — lock in plan
+1. **POST route path** — **RESOLVED** by `12-01-PLAN.md` discretion lock: path is `/gerar` (not `/api/gerar`). Plan 01 tasks wire `do_POST` for `/gerar` and tracer/client fetch to that path.
+   - What we knew: need one JSON generation endpoint; `/gerar` vs `/api/gerar` unclear
+   - Locked: `/gerar` (PT, short, matches Gerar UX) — see 12-01 "Discretion locked" + Task 2 behavior/action
 
-2. **HTTP status for bad Content-Type / Host**
-   - What we know: 409 locked for busy; 403 for bad Origin/Host in PITFALLS
-   - What's unclear: 415 vs 400 for Content-Type
-   - Recommendation: 403 Host/Origin, 415 Content-Type, 400 JSON parse / validation before service
+2. **HTTP status for bad Content-Type / Host** — **RESOLVED** by `12-01-PLAN.md` discretion locks: Host/Origin mismatch → **403**; bad Content-Type → **415** (busy remains **409** with literal `HTTP 409` per D-11).
+   - What we knew: 409 locked for busy; 403 for bad Origin/Host in PITFALLS; 415 vs 400 for Content-Type unclear
+   - Locked: 403 Host/Origin, 415 Content-Type — see 12-01 "Discretion locked" + Wave 0 `check_post_headers` behavior
 
-3. **Whether to ship `demo/tests/`**
-   - What we know: demo fora do CI; nyquist wants Validation Architecture
-   - What's unclear: how strictly to automate guard tests
-   - Recommendation: Wave 0 adds pure-function unit tests under `demo/tests/` run manually / optional local pytest; **do not** change `.github/workflows/ci.yml`
+3. **Whether to ship `demo/tests/`** — **RESOLVED** by `12-01-PLAN.md` Wave 0: ship offline pure-function unit tests under `demo/tests/` (`test_guards.py`, `test_error_map.py`, plus tracer `test_tracer_gerar.py`); run via `pytest demo/tests -q` locally; **do not** change `.github/workflows/ci.yml`.
+   - What we knew: demo fora do CI; nyquist wants Validation Architecture; automation strictness unclear
+   - Locked: Wave 0 offline tests required in Plan 01; outside CI — see 12-01 Task 1 (tdd) + must_haves artifacts
 
 ## Environment Availability
 
