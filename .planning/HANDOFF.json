@@ -1,31 +1,101 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-16T15:22:50.837Z",
-  "phase": "11",
-  "phase_name": "Service Layer Extraction",
-  "phase_dir": ".planning/phases/11-service-layer-extraction",
+  "timestamp": "2026-09-18T14:59:23.930Z",
+  "phase": null,
+  "phase_name": null,
+  "phase_dir": null,
   "plan": null,
   "task": null,
-  "total_tasks": null,
+  "total_tasks": 0,
   "status": "paused",
+  "milestone": "v2.0",
+  "milestone_status": "shipped",
+  "context_kind": "default",
   "completed_tasks": [
-    {"id": "11-01", "name": "Pure service seam extraction", "status": "done", "commit": "bf77c0f"},
-    {"id": "11-02", "name": "Domain bounds, error subclasses, env/FS hygiene", "status": "done", "commit": "ae2d881"},
-    {"id": "11-03", "name": "Encoding, Gemini timeout, README contract", "status": "done", "commit": "e392fd5"},
-    {"id": "verify", "name": "Phase goal verification", "status": "done", "commit": null}
+    {
+      "id": 1,
+      "name": "v2.0 Phase 11 Service Layer Extraction",
+      "status": "done",
+      "commit": "0a4c7c9"
+    },
+    {
+      "id": 2,
+      "name": "v2.0 Phase 12 Local Embed Demo + UAT",
+      "status": "done",
+      "commit": "3204ce1"
+    },
+    {
+      "id": 3,
+      "name": "v2.0 milestone audit (passed)",
+      "status": "done",
+      "commit": "b50e1e4"
+    },
+    {
+      "id": 4,
+      "name": "v2.0 complete-milestone + archive + tag",
+      "status": "done",
+      "commit": "3434257"
+    }
   ],
   "remaining_tasks": [
-    {"id": "12", "name": "Phase 12 Local Embed Demo", "status": "not_started"}
+    {
+      "id": 1,
+      "name": "Start next milestone via $gsd-new-milestone",
+      "status": "not_started",
+      "notes": "Lead: PKG-01 packaging pyproject.toml + rename exercise_ai/"
+    }
   ],
-  "blockers": [],
+  "blockers": [
+    {
+      "description": "Real in-process host embed still blocked without PKG-01 (sys.path.insert empirically broken)",
+      "type": "technical",
+      "workaround": "demo/ uses path hacks for throwaway accept; do not treat demo as production packaging"
+    }
+  ],
   "async_jobs": [],
-  "human_actions_pending": [],
-  "decisions": [
-    {"decision": "generate_batch(request) -> ExerciseBatch only", "rationale": "D-01/D-02 KISS; kwargs later", "phase": "11"},
-    {"decision": "Error subclasses ConfigError/InvalidRequestError/GenerationFailedError", "rationale": "D-03 EMBED-02", "phase": "11"},
-    {"decision": "Packaging parked; README contract section", "rationale": "D-12; PKG-01 next milestone", "phase": "11"}
+  "human_actions_pending": [
+    {
+      "action": "Optional: push tag v2.0 and branch commits to remote (branch ahead 19)",
+      "context": "Tag exists locally only; user was not asked to push during close",
+      "blocking": false
+    },
+    {
+      "action": "Optional: decide whether to delete demo/ (anti-accretion) or keep until host team is done",
+      "context": "DEMO-02 documented delete-at-close; left in tree at operator discretion",
+      "blocking": false
+    }
   ],
-  "uncommitted_files": [],
-  "next_action": "Run $gsd-discuss-phase 12 or $gsd-plan-phase 12 for Local Embed Demo",
-  "context_notes": "Phase 11 verified passed (7/7 must-haves, EMBED-01..07). Suite 155 passed. Branch gsd/ship-phase-03-tests-logging-docs. Push requested after pause."
+  "decisions": [
+    {
+      "decision": "Keep generate_batch(...) -> ExerciseBatch (do not widen return)",
+      "rationale": "OBS-01 deferred; host maps errors via kind/subclasses",
+      "phase": "11"
+    },
+    {
+      "decision": "PKG-01 parked as lead of next milestone",
+      "rationale": "Host stack unknown; rename is pre-condition for real embed",
+      "phase": "v2.0"
+    },
+    {
+      "decision": "Demo = stdlib ThreadingHTTPServer + Lock→409 on [::1]:8642",
+      "rationale": "Throwaway accept of embed contract; outside package/CI",
+      "phase": "12"
+    },
+    {
+      "decision": "Milestone closeout override_closeout for dormant SEED-005/006",
+      "rationale": "Audit status passed; seeds acknowledged so audit-open clears",
+      "phase": "v2.0-close"
+    }
+  ],
+  "uncommitted_files": [
+    ".planning/.gsd-allow-shrink",
+    ".planning/HANDOFF.json (deleted then recreated by pause)",
+    ".planning/config.json",
+    ".cursor/ (untracked)",
+    ".serena/ (untracked)",
+    "exercise-ai/token-usage-logs/ (untracked)",
+    "skills/ (untracked)"
+  ],
+  "next_action": "Monday: run $gsd-resume-work then $gsd-new-milestone — define next version around PKG-01 (pyproject + rename exercise_ai/), optionally OBS-01/LOG-01",
+  "context_notes": "Paused Friday 2026-09-18 after shipping v2.0 Embed em Produção. No active phase — phases 11–12 archived under .planning/milestones/v2.0-phases/. REQUIREMENTS.md deleted (fresh for next milestone). Tag v2.0 local. Resume Monday with new-milestone, not execute-phase."
 }
