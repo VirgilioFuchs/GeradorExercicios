@@ -6,6 +6,10 @@ planted_during: post-v1.2 (awaiting next milestone)
 trigger_when: postmortem, math_postmortem, diagnóstico de falha, fail/postmortem, usable failure report, melhorar postmortem
 priority: medium
 scope: phase
+audit_acknowledged:
+  milestone: v2.0
+  at: 2026-09-18
+  status: dormant
 ---
 
 # SEED-005: Postmortem mais utilizável

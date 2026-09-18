@@ -1,56 +1,16 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.2 — Ops & Resilience",
+  "milestone": "v2.0 — Embed em Produção",
   "phases": [
     {
-      "number": "1",
-      "name": "Project Setup & LLM Pipeline",
+      "number": "11",
+      "name": "Service Layer Extraction",
       "status": "complete"
     },
     {
-      "number": "2",
-      "name": "Validation & Error Handling",
-      "status": "complete"
-    },
-    {
-      "number": "3",
-      "name": "Tests, Logging & Docs",
-      "status": "complete"
-    },
-    {
-      "number": "4",
-      "name": "CLI argparse",
-      "status": "complete"
-    },
-    {
-      "number": "5",
-      "name": "Reliability & Error Edges",
-      "status": "complete"
-    },
-    {
-      "number": "6",
-      "name": "Math Quality",
-      "status": "complete"
-    },
-    {
-      "number": "7",
-      "name": "Continuous Integration",
-      "status": "complete"
-    },
-    {
-      "number": "8",
-      "name": "Provider Failover",
-      "status": "complete"
-    },
-    {
-      "number": "9",
-      "name": "Token Usage Observability",
-      "status": "complete"
-    },
-    {
-      "number": "10",
-      "name": "Interactive CLI Wizard",
+      "number": "12",
+      "name": "Local Embed Demo",
       "status": "complete"
     }
   ],
@@ -59,5 +19,5 @@
     "label": "Show progress",
     "reason": "Unsure of state — showing progress"
   },
-  "updated_at": "2026-09-15T14:38:02.297Z"
+  "updated_at": "2026-09-18T14:52:02.044Z"
 }

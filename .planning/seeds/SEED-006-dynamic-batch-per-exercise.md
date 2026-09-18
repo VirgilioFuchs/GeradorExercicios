@@ -6,6 +6,10 @@ planted_during: post-v1.2 (awaiting next milestone)
 trigger_when: lote dinâmico, batch, per-exercise, dificuldade por exercício, reasoning por atividade, quantidade alta, mixed difficulty, tipo de raciocínio
 priority: high
 scope: milestone
+audit_acknowledged:
+  milestone: v2.0
+  at: 2026-09-18
+  status: dormant
 ---
 
 # SEED-006: Lotes dinâmicos — quantidade + dificuldade e raciocínio por exercício
