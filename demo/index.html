@@ -30,9 +30,44 @@
     }
     .error-msg { color: #a00; white-space: pre-wrap; }
     .error-kind { color: #666; font-size: 0.85rem; }
+    .throwaway-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      background: #fff8e1;
+      border: 1px solid #e0c060;
+      padding: 0.6rem 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .throwaway-banner[hidden] { display: none; }
+    .throwaway-banner .banner-text { flex: 1; }
+    .throwaway-banner button {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+      padding: 0 0.25rem;
+    }
+    footer.footnote {
+      margin-top: 2rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid #ddd;
+      font-size: 0.8rem;
+      color: #555;
+    }
   </style>
 </head>
 <body>
+  <div id="throwaway-banner" class="throwaway-banner" role="status">
+    <div class="banner-text">
+      <strong>Throwaway demo</strong> — apague no fechamento da v2.0.
+      Loopback only: <code>http://[::1]:8642/</code>. Não use em staging.
+    </div>
+    <button type="button" id="banner-dismiss" aria-label="Dispensar banner">×</button>
+  </div>
+
   <h1>Demo local Embed</h1>
   <p class="hint">Formulário → geração → exercícios. JSON do contrato é secundário (abas).</p>
 
@@ -91,6 +126,11 @@
   <div id="panel-json" class="panel" role="tabpanel" aria-labelledby="tab-json" hidden>
     <pre id="json-out"></pre>
   </div>
+
+  <footer class="footnote">
+    Demo throwaway — delete at v2.0 close. Somente loopback
+    <code>http://[::1]:8642/</code>. Fora do CI; sem deps novas.
+  </footer>
 
   <script src="app.js"></script>
 </body>

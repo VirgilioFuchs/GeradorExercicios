@@ -110,6 +110,12 @@ Cada chamada LLM grava um evento em memória; no fim da run a CLI faz **append**
 
 Contrato para um host embutir o gerador **in-process** (sem packaging nesta milestone — não importe `exercise_ai` como pacote instalado).
 
+### Demo local (throwaway)
+
+Há um demo stdlib em [`demo/`](demo/) para ver o fluxo embed end-to-end:
+`python demo/serve.py` → abra **http://[::1]:8642/**. É throwaway — **delete at
+v2.0 close**; fora do CI. Detalhes anti-accretion em [`demo/README.md`](demo/README.md).
+
 ### Como chamar
 
 Coloque `exercise-ai/` em `sys.path` e chame a API pública:

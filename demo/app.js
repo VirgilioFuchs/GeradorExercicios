@@ -28,6 +28,28 @@
   var jsonOut = document.getElementById("json-out");
 
   var lastSuccessBatch = null;
+  var BANNER_KEY = "demo-throwaway-banner-dismissed";
+  var banner = document.getElementById("throwaway-banner");
+  var bannerDismiss = document.getElementById("banner-dismiss");
+
+  // D-16: dismissible banner for browser session via sessionStorage
+  try {
+    if (sessionStorage.getItem(BANNER_KEY) === "1" && banner) {
+      banner.hidden = true;
+    }
+  } catch (_) {
+    /* private mode / blocked storage — leave banner visible */
+  }
+  if (bannerDismiss && banner) {
+    bannerDismiss.addEventListener("click", function () {
+      banner.hidden = true;
+      try {
+        sessionStorage.setItem(BANNER_KEY, "1");
+      } catch (_) {
+        /* ignore */
+      }
+    });
+  }
 
   function showTab(which) {
     var isEx = which === "exercicios";

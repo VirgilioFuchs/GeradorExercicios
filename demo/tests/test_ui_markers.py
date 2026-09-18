@@ -28,6 +28,7 @@ def test_app_js_has_client_behavior_markers() -> None:
         "Gerando",
         "HTTP 409",
         "lastSuccessBatch",
+        "sessionStorage",  # D-16 banner dismiss
     ):
         assert needle in text, f"missing marker in app.js: {needle!r}"
 
