@@ -38,6 +38,43 @@
 
 ---
 
+## Milestone: v2.0 — Embed em Produção
+
+**Shipped:** 2026-09-18  
+**Phases:** 2 | **Plans:** 5 | **Tasks:** 12
+
+### What Was Built
+- Pure `service.generate_batch(request) -> ExerciseBatch` with `main.run` as CLI adapter
+- Host-safe seam: 1–40 bounds, error subclasses/`kind`, always-on env restore, guarded flush
+- cp1252-safe diagnostics, Gemini 30s timeout, README embed contract
+- Stdlib demo on `[::1]:8642` with guards + full UI (form, tabs, Gerando…, errors)
+
+### What Worked
+- Pure seam move first (suite green) before env/`kind`/encoding hygiene
+- Demo consumes contract only (no `main`); dotenv stays in demo `__main__`
+- UAT closed the live gap after verification human_needed
+
+### What Was Inefficient
+- Phase 12 Nyquist VALIDATION left as draft (not reconciled)
+- Packaging PKG-01 parked again — real host embed still blocked
+- Branch name still `gsd/ship-phase-03-*` through v2.0
+
+### Patterns Established
+- Keep return type `-> ExerciseBatch`; host maps subclasses via `kind`
+- Throwaway demo = stdlib ThreadingHTTPServer + Lock→409 + anti-accretion banner
+- Milestone audit `passed` with accepted deferred PKG/OBS/LOG as next-milestone debt
+
+### Key Lessons
+1. Do not widen the embed return type in the same milestone as the seam extraction
+2. Demo outside package/CI keeps product surface clean
+3. Acknowledge dormant seeds at close so audit-open does not block archive
+
+### Cost Observations
+- Suite: 155 package + 17 demo tests, no live LLM
+- Timeline: 2026-09-16 → 2026-09-18 (~3 days); ~57 files / +5525 LOC in milestone range
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -46,10 +83,14 @@
 |-----------|----------|-------|
 | v1 | tech_debt accepted | Nyquist/SECURITY debt carried |
 | v1.1 | verified_closeout | Audit passed 6/6; phases archived |
+| v1.2 | override_closeout | Seeds SEED-001/003 acknowledged |
+| v2.0 | override_closeout | Audit passed; SEED-005/006 acknowledged; phases archived by `milestone.complete` |
 
 ### Recurring Friction
 
 - Planning artifact gates (SECURITY, ROADMAP headings) surface late at ship/complete
+- Packaging rename keeps slipping; blocks real host embed
+- Nyquist VALIDATION often left draft after execute
 
 ---
-*Updated after v1.1 archive — 2026-09-09*
+*Updated after v2.0 archive — 2026-09-18*

@@ -2,39 +2,37 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Embed em Produção
-current_phase: 12
-current_phase_name: Local Embed Demo
-status: completed
+status: Awaiting next milestone
 stopped_at: Phase 12 complete — all phases complete
-last_updated: "2026-09-18T14:40:37.476Z"
+last_updated: "2026-09-18T14:52:01.918Z"
 last_activity: 2026-09-18
-last_activity_desc: Phase 12 complete
-state_head: 4b7d97ad54b8626ccb8cb8eb8dfb6dbd2779019c
+last_activity_desc: Milestone v2.0 completed and archived
+state_head: b50e1e43f36071d49ba30ee10d3c991c4f8f7a99
 progress:
   total_phases: 2
   completed_phases: 2
   total_plans: 5
   completed_plans: 5
   percent: 100
+current_phase: 12
+current_phase_name: Local Embed Demo
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-16)
+See: .planning/PROJECT.md (updated 2026-09-18)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato — agora também como biblioteca embutível
-**Current focus:** v2.0 Embed em Produção — Phase 11 (Service Layer Extraction)
+**Current focus:** Planning next milestone (PKG-01 lead)
 
 ## Current Position
 
-Phase: 12 of 12 (Local Embed Demo)
-Plan: Not started
-Status: All phases complete
-Last activity: 2026-09-18 — Phase 12 complete
-
-Progress: [█████░░░░░] 50%
+Phase: Milestone v2.0 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-09-18 — Milestone v2.0 completed and archived
 
 ## Performance Metrics
 
@@ -99,6 +97,8 @@ None yet.
 | Packaging | PKG-01 pyproject + rename `exercise_ai/` | Lead of next milestone | 2026-09-16 | v2.0 |
 | Observability | OBS-01 usage/cost alongside batch | Next embed-hardening | 2026-09-16 | v2.0 |
 | Logging | LOG-01 print→logging (~33 sites) | Known debt | 2026-09-16 | v2.0 |
+| Seeds | SEED-005-usable-postmortem (dormant) | acknowledged at close | 2026-09-18 | v2.0 |
+| Seeds | SEED-006-dynamic-batch-per-exercise (dormant) | acknowledged at close | 2026-09-18 | v2.0 |
 | Seeds | SEED-001 BNCC (dormant) | Acknowledged at v1.2 close | 2026-09-15 | v1.2 |
 | Seeds | SEED-003 B/C images / storytelling | After embed | 2026-09-16 | v2.0 |
 | Ops | Nyquist VALIDATION gaps (phases 8–10) | Accepted tech debt | 2026-09-15 | v1.2 |
@@ -115,3 +115,7 @@ None yet.
 Last session: 2026-09-18T14:15:52.703Z
 Stopped at: Phase 12 complete — all phases complete
 Resume file: .planning/phases/12-local-embed-demo/12-VERIFICATION.md
+
+## Operator Next Steps
+
+- Start the next milestone with $gsd-new-milestone

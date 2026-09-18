@@ -1,5 +1,30 @@
 # Milestones
 
+## v2.0 Embed em Produção (Shipped: 2026-09-18)
+
+**Closeout:** override_closeout (2 dormant seeds acknowledged at close; audit status `passed`)  
+**Known verification overrides:** 2 newly acknowledged (SEED-005, SEED-006), 2 carried forward from a prior close (see STATE.md Deferred Items)  
+**Phases completed:** 2 phases, 5 plans, 12 tasks  
+**Requirements:** 9/9 v2.0 satisfied  
+**Integration:** 4/4 wiring · 3/3 E2E flows  
+**Audit:** [v2.0-MILESTONE-AUDIT.md](./milestones/v2.0-MILESTONE-AUDIT.md)
+
+**Key accomplishments:**
+
+- Pure move of `service.generate_batch(request) -> ExerciseBatch` with `main.run` as CLI adapter; suite green after re-pointing monkeypatches
+- Host-safe seam: 1–40 domain bounds, discriminable error kinds, always-on env restore, CLI-only postmortem, OSError-guarded flush.
+- Windows cp1252-safe diagnostics, Gemini 30s HTTP timeout, and a README host embed contract covering the three error subclasses.
+- Stdlib AF_INET6 demo on [::1]:8642 with POST /gerar → generate_batch, Host/Origin/JSON guards, Lock→409, and offline Wave 0 tests
+- Operator demo UX with Contrato/Ambiente form, Exercícios|JSON tabs, Gerando…/error badges, throwaway banner, and anti-accretion docs
+
+**Known tech debt (accepted):**
+
+- PKG-01 packaging/rename (lead of next milestone); OBS-01 usage alongside batch; LOG-01 print→logging; Nyquist VALIDATION draft for phase 12 / missing for 11; `demo/` throwaway pending delete-at-operator discretion.
+
+**Archives:** [roadmap](./milestones/v2.0-ROADMAP.md) · [requirements](./milestones/v2.0-REQUIREMENTS.md) · [phases](./milestones/v2.0-phases/) · [audit](./milestones/v2.0-MILESTONE-AUDIT.md)
+
+---
+
 ## v1.2 Ops & Resilience (Shipped: 2026-09-15)
 
 **Closeout:** override_closeout (2 dormant seeds acknowledged at close; audit status `tech_debt` accepted)  

@@ -2,11 +2,11 @@
 
 ## What This Is
 
-Uma aplicação Python CLI que gera exercícios de matemática via LLM (OpenAI Structured Outputs, Gemini e Grok), recebe parâmetros (matéria, tópico, dificuldade, quantidade) e retorna JSON estruturado com enunciado, resposta e explicação. Laboratório incremental para estudar chamadas a LLM, prompt engineering, structured output, validação, confiabilidade e ops — sem frameworks de agentes.
+Uma aplicação Python CLI e biblioteca embutível que gera exercícios de matemática via LLM (OpenAI Structured Outputs, Gemini e Grok), recebe parâmetros (matéria, tópico, dificuldade, quantidade) e retorna JSON estruturado com enunciado, resposta e explicação. Laboratório incremental para estudar chamadas a LLM, prompt engineering, structured output, validação, confiabilidade, ops e embed in-process — sem frameworks de agentes.
 
 ## Core Value
 
-O usuário consegue gerar exercícios de matemática confiáveis e estruturados a partir de parâmetros simples, com validação que garante formato correto antes de usar o resultado.
+O usuário consegue gerar exercícios de matemática confiáveis e estruturados a partir de parâmetros simples, com validação que garante formato correto antes de usar o resultado — agora também via `service.generate_batch` para um host embutir o gerador.
 
 ## Current State
 
@@ -14,26 +14,21 @@ O usuário consegue gerar exercícios de matemática confiáveis e estruturados 
 - **v1 MVP** (2026-09-04) — pipeline modular, dual-provider, validação estrutural, pytest, logging sanitizado
 - **v1.1 Qualidade do exercício** (2026-09-09) — CLI argparse + dual-output, regeneração limitada (RELY), edges ERR-05, checagem matemática básica
 - **v1.2 Ops & Resilience** (2026-09-15) — GitHub Actions CI, failover OpenAI↔Gemini, token usage NDJSON/`[USAGE]`, wizard interativo `gerar`, reasoning default `medium`
+- **v2.0 Embed em Produção** (2026-09-18) — `service.generate_batch` → `ExerciseBatch`, erros discrimináveis (`kind`/subclasses), env restore, encoding/timeout, demo local throwaway `demo/` em `[::1]:8642`
 
-**Stack:** Python 3.11+, openai, pydantic v2, python-dotenv, google-genai, pytest. Code under `exercise-ai/`. Suite: 133 tests (no live LLM).
+**Stack:** Python 3.11+, openai, pydantic v2, python-dotenv, google-genai, pytest. Code under `exercise-ai/`. Suite: 155 package tests + 17 demo tests (no live LLM).
 
-**Known debt (accepted at v1.2 close):** Nyquist VALIDATION gaps (phases 8–10); optional CI-02 GitHub UI reconfirm; wizard E2E integration test optional; exhaustion plural grammar; Grok out of failover by design.
+**Known debt (accepted at v2.0 close):** PKG-01 packaging/rename (lead of next milestone); OBS-01 usage alongside batch; LOG-01 print→logging; Nyquist VALIDATION draft/gaps (phases 8–12); dormant seeds SEED-001/005/006; SEED-003 B/C.
 
-## Current Milestone: v2.0 Embed em Produção
+## Next Milestone Goals
 
-**Goal:** Expor o gerador como biblioteca embutível em outro sistema e demonstrar o fluxo de integração para o time do host (SEED-003 Slice A).
+**Lead:** **PKG-01** — Packaging `pyproject.toml` + rename `exercise_ai/` (pré-condição do embed in-process real).
 
-**Target features:**
-- `service.py` — fronteira de embed: `GenerationRequest` → `ExerciseBatch`, sem print, sem arquivo, sem `sys.exit`
-- `main.run()` como adapter; CLI argparse e wizard `gerar` preservados (regressão zero)
-- Contrato de erro utilizável pelo host: `kind` nos `ValueError` de config, `LLM_PROVIDER` restaurado, bound 1–40 no domínio
-- Demo local apresentável em `demo/` (`http://[::1]:8642/`, stdlib only, fora do CI) com exercícios + JSON do contrato
-
-**Explicitamente fora:** objeto `Settings` (env segue como config — KISS), `pyproject`/rename (parkado até o stack do host ser conhecido), HTTP/auth, concorrência, imagens e storytelling (Slices B e C).
+Other candidates: OBS-01 (usage/cost with batch), LOG-01 (print→logging), SEED-003 B/C (imagens/storytelling).
 
 ## Requirements
 
-### Validated (through v1.2)
+### Validated (through v2.0)
 
 - ✓ Pipeline LLM + JSON tipado + validação estrutural — v1
 - ✓ Dual/triple provider (OpenAI, Gemini, Grok) + API error mapping — v1 / quick
@@ -43,33 +38,43 @@ O usuário consegue gerar exercícios de matemática confiáveis e estruturados 
 - ✓ Failover OpenAI↔Gemini — v1.2 / FAILOVER-01..03
 - ✓ Token usage observability — v1.2 / TOKEN-01..03
 - ✓ Wizard `gerar` + reasoning medium — v1.2 / WIZ-01..03
+- ✓ Host chama `generate_batch` e recebe `ExerciseBatch` (sem print/arquivo/`sys.exit`) — v2.0 / EMBED-01
+- ✓ Erros discrimináveis por `kind`/subclasses — v2.0 / EMBED-02
+- ✓ CLI + wizard idênticos pós-extração; bound 1–40 — v2.0 / EMBED-03
+- ✓ `LLM_PROVIDER` (e overrides) restaurados após chamada — v2.0 / EMBED-04
+- ✓ Gemini timeout HTTP finito documentado — v2.0 / EMBED-05
+- ✓ Diagnósticos/CLI cp1252-safe (`√`/`→`) — v2.0 / EMBED-06
+- ✓ README contrato JSON + erros + nomes reservados — v2.0 / EMBED-07
+- ✓ Demo local stdlib `[::1]:8642` (form, tabs, Gerando…, erros) — v2.0 / DEMO-01
+- ✓ Demo guards (loopback, Lock→409, Host/Origin/JSON) + anti-accretion — v2.0 / DEMO-02
 
 ### Active
 
-- Host embute o gerador chamando uma função de serviço e recebe o lote validado — v2.0
-- Falha no gerador não derruba o processo do host, e o tipo de falha é distinguível — v2.0
-- CLI e wizard seguem idênticos após a extração do serviço — v2.0
-- Demo local mostra o fluxo e o JSON que o host consome — v2.0
+- Packaging `pyproject.toml` + rename `exercise_ai/` — próximo milestone / PKG-01
+- Usage/cost/`run_id`/provider efetivo junto com o lote — OBS-01 (não alargar `-> ExerciseBatch` em v2.0)
+- Conversão print→logging (~33 sites) — LOG-01
 
 ### Out of Scope
 
 - LangChain, CrewAI, AutoGen — YAGNI no lab
 - RAG, filas, microsserviços — YAGNI
 - MySQL / analytics / personalização / agente — v2+ themes
-- BNCC — SEED-001 dormant (acknowledged at v1.2 close)
-- Imagens / storytelling — SEED-003 Slices B e C, depois do embed
-- Lotes dinâmicos (dificuldade/raciocínio por exercício) — SEED-006 dormant
-- Packaging (`pyproject` / rename `exercise_ai/`) — parkado até o stack do host ser conhecido
+- BNCC — SEED-001 dormant
+- Imagens / storytelling — SEED-003 Slices B e C
+- Lotes dinâmicos — SEED-006 dormant
+- HTTP produto / FastAPI / Flask / Streamlit — demo foi throwaway stdlib
+- Concorrência / async / thread pool — contrato sequencial
 
 ## Context
 
-Pipeline v1.2:
+Pipeline v2.0:
 
 ```
-CLI (argparse | gerar wizard) → Prompt → LLM (OpenAI|Gemini|Grok)
+Host/demo → service.generate_batch(GenerationRequest)
+  → Prompt → LLM (OpenAI|Gemini|Grok)
   → Failover envelope (OpenAI↔Gemini) → Validação + math_check → RELY
-  → stdout + --out JSON (+ exercicios-gerados routing)
-  → [USAGE] / token-usage NDJSON · [FAILOVER] · fail/erros+postmortem
+  → ExerciseBatch | ConfigError | InvalidRequestError | GenerationFailedError
+CLI (argparse | gerar wizard) → main.run → generate_batch (+ stdout/--out / flush)
 ```
 
 ## Constraints
@@ -94,11 +99,17 @@ CLI (argparse | gerar wizard) → Prompt → LLM (OpenAI|Gemini|Grok)
 | Token metrics do not drive failover | Observability ≠ routing | ✓ Good |
 | `gerar` coexists with argparse | CI/scripts stay non-interactive | ✓ Good |
 | Reasoning default medium | Wizard + flags aligned (D-08) | ✓ Good |
+| Keep `generate_batch(...) -> ExerciseBatch` | Do not widen return in v2.0 | ✓ Good |
+| Packaging PKG-01 parked | Lead of next milestone | — Pending |
+| Print→logging deferred; host `redirect_stderr` | Known debt LOG-01 | — Pending |
+| Demo = ThreadingHTTPServer + Lock→409, `[::1]:8642`, stdlib | Throwaway accept of embed contract | ✓ Good |
+| Error classes in service.py; leaf lazy-import | Avoid cycles | ✓ Good |
+| Gemini HttpOptions.timeout=30000 ms | Align magnitude to OpenAI 30s | ✓ Good |
 
 <details>
-<summary>Prior milestone notes (v1 → v1.1 → v1.2)</summary>
+<summary>Prior milestone notes (v1 → v1.1 → v1.2 → v2.0)</summary>
 
-v1 delivered the MVP pipeline. v1.1 hardened CLI, reliability, and basic math. v1.2 added CI, provider failover, token observability, and the interactive `gerar` wizard.
+v1 delivered the MVP pipeline. v1.1 hardened CLI, reliability, and basic math. v1.2 added CI, provider failover, token observability, and the interactive `gerar` wizard. v2.0 extracted the embed seam and shipped a local throwaway demo.
 
 </details>
 
@@ -113,4 +124,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-16 — v2.0 Embed em Produção started*
+*Last updated: 2026-09-18 after v2.0 milestone*
