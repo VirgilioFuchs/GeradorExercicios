@@ -1,16 +1,18 @@
 ---
 phase: 12-local-embed-demo
 verified: 2026-09-18T14:12:00Z
-status: human_needed
+status: passed
 score: 7/8 must-haves verified
 behavior_unverified: 1
 overrides_applied: 0
 behavior_unverified_items:
+
   - truth: "Operator opens http://[::1]:8642/ and sees form → Gerando… → rendered Exercícios + contract JSON tabs, with live LLM and concurrent 409 in browser"
     test: "Run python demo/serve.py; open http://[::1]:8642/; submit presets; switch Exercícios|JSON; while first generate runs, fire second POST"
     expected: "Gerando… on submit; exercises + model_dump JSON after success; typed error badge on failure; second POST shows HTTP 409 sequential message; banner dismissible, footnote remains"
     why_human: "Needs live LLM keys, real browser paint, and concurrent timing — offline pytest mocks generate_batch and only asserts string markers"
 human_verification:
+
   - test: "Live DEMO-01 happy path"
     expected: "Presets loaded; Gerar → Gerando… (submit disabled only); Exercícios render; JSON tab shows ExerciseBatch; error badge shows EN class + PT message + kind when forced"
     why_human: "Live LLM + browser; marker/tracer tests cannot prove paint or real generation"

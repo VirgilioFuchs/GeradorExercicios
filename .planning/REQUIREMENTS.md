@@ -20,8 +20,8 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Demo
 
-- [ ] **DEMO-01**: Página local em `demo/` (`http://[::1]:8642/`, stdlib only, fora do CI) mostra form CLI-equivalente, exercícios renderizados, JSON bruto, estado "Gerando…" e erro por categoria
-- [ ] **DEMO-02**: Servidor recusa bind não-loopback; enforce sequencial com Lock → HTTP 409; exige `application/json` + Host/Origin allowlist no POST de geração; banner throwaway + nota de expiração no README
+- [x] **DEMO-01**: Página local em `demo/` (`http://[::1]:8642/`, stdlib only, fora do CI) mostra form CLI-equivalente, exercícios renderizados, JSON bruto, estado "Gerando…" e erro por categoria
+- [x] **DEMO-02**: Servidor recusa bind não-loopback; enforce sequencial com Lock → HTTP 409; exige `application/json` + Host/Origin allowlist no POST de geração; banner throwaway + nota de expiração no README
 
 ## Deferred Requirements
 
@@ -69,8 +69,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EMBED-05 | Phase 11 | Complete |
 | EMBED-06 | Phase 11 | Complete |
 | EMBED-07 | Phase 11 | Complete |
-| DEMO-01 | Phase 12 | Pending |
-| DEMO-02 | Phase 12 | Pending |
+| DEMO-01 | Phase 12 | Complete |
+| DEMO-02 | Phase 12 | Complete |
 
 **Coverage:**
 

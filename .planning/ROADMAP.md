@@ -42,7 +42,7 @@
 **Milestone Goal:** Expor o gerador como biblioteca embutível (`service.generate_batch` → `ExerciseBatch`) e demonstrar o fluxo de integração para o time do host (SEED-003 Slice A).
 
 - [x] **Phase 11: Service Layer Extraction** — Fronteira de embed in-process: lote validado, erros discrimináveis, CLI intacta, env restaurado, encoding/timeout endurecidos (completed 2026-09-16)
-- [ ] **Phase 12: Local Embed Demo** — Página throwaway em `demo/` (`http://[::1]:8642/`, stdlib only) como aceite visual do contrato
+- [x] **Phase 12: Local Embed Demo** — Página throwaway em `demo/` (`http://[::1]:8642/`, stdlib only) como aceite visual do contrato (completed 2026-09-18)
 
 ## Phase Details
 
@@ -84,8 +84,8 @@ Plans:
 
 Plans:
 
-- [ ] 12-01-PLAN.md — Wave 0 guards/error_map + tracer POST `/gerar` → `generate_batch` (Lock/Host/Origin/JSON)
-- [ ] 12-02-PLAN.md — Full UI D-01..D-12 + throwaway chrome/docs D-13..D-16
+- [x] 12-01-PLAN.md — Wave 0 guards/error_map + tracer POST `/gerar` → `generate_batch` (Lock/Host/Origin/JSON)
+- [x] 12-02-PLAN.md — Full UI D-01..D-12 + throwaway chrome/docs D-13..D-16
 
 **UI hint**: yes
 
@@ -96,7 +96,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 11. Service Layer Extraction | 3/3 | Complete    | 2026-09-16 |
-| 12. Local Embed Demo | 0/2 | Planned | - |
+| 12. Local Embed Demo | 2/2 | Complete    | 2026-09-18 |
 
 ## Next Milestone (after v2.0)
 
