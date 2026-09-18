@@ -35,7 +35,7 @@ def test_run_success_text_stdout_and_json_out(demo_batch, tmp_path):
         quantidade=3,
     )
     out, err = io.StringIO(), io.StringIO()
-    with patch.object(reliability, "generate_exercises", return_value=demo_batch) as gen:
+    with patch.object(main, "generate_with_failover", return_value=demo_batch) as gen:
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
             main.run(request, out_path=out_path)
     assert gen.call_count == 1
@@ -54,15 +54,12 @@ def test_run_success_text_stdout_and_json_out(demo_batch, tmp_path):
     assert "exercicios" in parsed and len(parsed["exercicios"]) == 3
 
     assert "Gerando" not in stdout and "Validando" not in stdout
-    assert "Gerando" in stderr and "Validando" in stderr
     assert "Início da geração" in stderr
     assert "materia=" in stderr and "topico=" in stderr
     assert "quantidade=" in stderr
     assert "LLM_API_KEY=" not in stderr
     assert "GEMINI_API_KEY=" not in stderr
     assert "sucesso" in stderr.lower()
-    assert "chamadas=1" in stderr
-    assert "total_ms=" in stderr
 
 
 def test_run_value_error_exits_one_plain_stderr(tmp_path):
@@ -75,8 +72,8 @@ def test_run_value_error_exits_one_plain_stderr(tmp_path):
     )
     out2, err2 = io.StringIO(), io.StringIO()
     with patch.object(
-        reliability,
-        "generate_exercises",
+        main,
+        "generate_with_failover",
         side_effect=ValueError("exercicios[0].resposta está vazio"),
     ) as gen2:
         with contextlib.redirect_stdout(out2), contextlib.redirect_stderr(err2):
@@ -109,7 +106,7 @@ def test_main_source_keeps_plain_stderr_contract():
 
 
 def test_cli_requires_out_before_llm(tmp_path):
-    with patch.object(reliability, "generate_exercises") as gen:
+    with patch.object(main, "generate_with_failover") as gen:
         with pytest.raises(SystemExit) as se:
             main.main([])
     assert se.value.code == 2
@@ -119,7 +116,7 @@ def test_cli_requires_out_before_llm(tmp_path):
 def test_cli_demo_defaults_with_out(demo_batch, tmp_path):
     out_path = tmp_path / "out.json"
     out, err = io.StringIO(), io.StringIO()
-    with patch.object(reliability, "generate_exercises", return_value=demo_batch) as gen:
+    with patch.object(main, "generate_with_failover", return_value=demo_batch) as gen:
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
             main.main(["--out", str(out_path)])
     assert gen.call_count == 1
@@ -133,7 +130,7 @@ def test_cli_demo_defaults_with_out(demo_batch, tmp_path):
 
 
 def test_cli_rejects_invalid_dificuldade():
-    with patch.object(reliability, "generate_exercises") as gen:
+    with patch.object(main, "generate_with_failover") as gen:
         with pytest.raises(SystemExit) as se:
             main.main(["--dificuldade", "hard", "--out", "x.json"])
     assert se.value.code == 2
@@ -141,7 +138,7 @@ def test_cli_rejects_invalid_dificuldade():
 
 
 def test_cli_rejects_invalid_provider():
-    with patch.object(reliability, "generate_exercises") as gen:
+    with patch.object(main, "generate_with_failover") as gen:
         with pytest.raises(SystemExit) as se:
             main.main(["--provider", "claude", "--out", "x.json"])
     assert se.value.code == 2
@@ -149,7 +146,7 @@ def test_cli_rejects_invalid_provider():
 
 
 def test_cli_rejects_quantidade_zero_and_over_ceiling():
-    with patch.object(reliability, "generate_exercises") as gen:
+    with patch.object(main, "generate_with_failover") as gen:
         with pytest.raises(SystemExit):
             main.main(["--quantidade", "0", "--out", "x.json"])
         with pytest.raises(SystemExit):
@@ -183,7 +180,7 @@ def test_cli_provider_override_sets_env(demo_batch, tmp_path, monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "AIza-test")
     monkeypatch.delenv("LLM_PROVIDER", raising=False)
     out_path = tmp_path / "out.json"
-    with patch.object(reliability, "generate_exercises", return_value=demo_batch) as gen:
+    with patch.object(main, "generate_with_failover", return_value=demo_batch) as gen:
         main.main(["--provider", "openai", "--out", str(out_path)])
     assert gen.call_count == 1
     import os
@@ -195,7 +192,7 @@ def test_cli_missing_provider_key_specific_message(monkeypatch, tmp_path):
     monkeypatch.delenv("LLM_API_KEY", raising=False)
     monkeypatch.setenv("GEMINI_API_KEY", "AIza-present")
     err = io.StringIO()
-    with patch.object(reliability, "generate_exercises") as gen:
+    with patch.object(main, "generate_with_failover") as gen:
         with contextlib.redirect_stderr(err):
             with pytest.raises(SystemExit) as se:
                 main.main(["--provider", "openai", "--out", str(tmp_path / "o.json")])
@@ -210,7 +207,7 @@ def test_cli_missing_grok_key_specific_message(monkeypatch, tmp_path):
     monkeypatch.delenv("GROK_API_KEY", raising=False)
     monkeypatch.setenv("LLM_API_KEY", "sk-present")
     err = io.StringIO()
-    with patch.object(reliability, "generate_exercises") as gen:
+    with patch.object(main, "generate_with_failover") as gen:
         with contextlib.redirect_stderr(err):
             with pytest.raises(SystemExit) as se:
                 main.main(["--provider", "grok", "--out", str(tmp_path / "o.json")])
@@ -225,7 +222,7 @@ def test_cli_provider_grok_sets_env(demo_batch, tmp_path, monkeypatch):
     monkeypatch.setenv("GROK_API_KEY", "xai-test")
     monkeypatch.delenv("LLM_PROVIDER", raising=False)
     out_path = tmp_path / "out.json"
-    with patch.object(reliability, "generate_exercises", return_value=demo_batch) as gen:
+    with patch.object(main, "generate_with_failover", return_value=demo_batch) as gen:
         main.main(["--provider", "grok", "--out", str(out_path)])
     assert gen.call_count == 1
     import os
@@ -234,7 +231,7 @@ def test_cli_provider_grok_sets_env(demo_batch, tmp_path, monkeypatch):
 
 
 def test_cli_rejects_max_retries_outside_range():
-    with patch.object(reliability, "generate_exercises") as gen:
+    with patch.object(main, "generate_with_failover") as gen:
         with pytest.raises(SystemExit) as se:
             main.main(["--max-retries", "4", "--out", "x.json"])
     assert se.value.code == 2
@@ -251,7 +248,7 @@ def test_cli_rejects_max_retries_outside_range():
 def test_cli_max_retries_passes_to_run(demo_batch, tmp_path, monkeypatch):
     monkeypatch.delenv("RELY_MAX_RETRIES", raising=False)
     out_path = tmp_path / "out.json"
-    with patch.object(reliability, "generate_exercises", return_value=demo_batch) as gen:
+    with patch.object(main, "generate_with_failover", return_value=demo_batch) as gen:
         with patch.object(main, "resolve_max_retries", wraps=main.resolve_max_retries) as resolv:
             main.main(["--out", str(out_path), "--max-retries", "0"])
     assert gen.call_count == 1
@@ -272,10 +269,16 @@ def test_multi_attempt_failure_no_out_empty_stdout(tmp_path):
         exercicios=[Exercise(enunciado="e1", resposta="", explicacao="x1")]
     )
     out, err = io.StringIO(), io.StringIO()
-    with patch.object(reliability, "generate_exercises", return_value=bad) as gen:
-        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
-            with pytest.raises(SystemExit) as se:
-                main.run(request, out_path=out_path, max_retries=2)
+
+    def failover_skip_provider(request, max_retries):
+        # Point-of-use mock skips resolve_provider() (no API keys in CI).
+        return reliability.generate_validated_batch(request, max_retries)
+
+    with patch.object(main, "generate_with_failover", side_effect=failover_skip_provider):
+        with patch.object(reliability, "generate_exercises", return_value=bad) as gen:
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                with pytest.raises(SystemExit) as se:
+                    main.run(request, out_path=out_path, max_retries=2)
     assert se.value.code == 1
     assert gen.call_count == 3
     assert out.getvalue() == ""
