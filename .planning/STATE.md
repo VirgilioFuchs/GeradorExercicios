@@ -1,16 +1,20 @@
 ---
 gsd_state_version: 1.0
 milestone: v2.1
-milestone_name: Lotes dinâmicos
+current_phase_name: defining requirements
 status: planning
-last_updated: "2026-09-21T12:15:14.786Z"
+stopped_at: "Session resumed, proceeding to choose next action (primary: $gsd-new-milestone)"
+last_updated: "2026-09-21T13:04:06.318Z"
 last_activity: 2026-09-21
+last_activity_desc: Milestone v2.1 started
+state_head: 5b0cfe33e049a67bee7df227d7353ef379e21ec4
 progress:
   total_phases: 0
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
   percent: 0
+milestone_name: Lotes dinâmicos
 ---
 
 # Project State
@@ -106,6 +110,7 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 1 | wizard: matéria before tipo de exercício | 2026-09-16 | 80072d4 | — |
 | 2 | model catalogs GPT/Gemini/Grok from Modelos.txt + capacity fallbacks | 2026-09-21 | 961fc2e | 260921-d9y-add-gpt-gemini-grok-model-catalogs-from- |
+| 3 | --description | 2026-09-21 | 5b0cfe3 | 260921-dsv-demo-select-model-from-model-catalog-lis |
 
 ## Session Continuity
 
