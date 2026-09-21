@@ -1,101 +1,65 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-18T14:59:23.930Z",
-  "phase": null,
-  "phase_name": null,
-  "phase_dir": null,
-  "plan": null,
+  "timestamp": "2026-09-21T14:59:57.656Z",
+  "phase": "13",
+  "phase_name": "Request schema & plan contract",
+  "phase_dir": "13-request-schema-plan-contract",
+  "plan": 1,
   "task": null,
-  "total_tasks": 0,
+  "total_tasks": null,
   "status": "paused",
-  "milestone": "v2.0",
-  "milestone_status": "shipped",
-  "context_kind": "default",
   "completed_tasks": [
     {
       "id": 1,
-      "name": "v2.0 Phase 11 Service Layer Extraction",
+      "name": "13-01 tracer schema + XOR/equal-split/CAP-01 + verify_plan_echo",
       "status": "done",
-      "commit": "0a4c7c9"
+      "commit": "6018adc"
     },
     {
       "id": 2,
-      "name": "v2.0 Phase 12 Local Embed Demo + UAT",
+      "name": "DEMO-01 scope pull into Phase 14 (REQUIREMENTS/ROADMAP)",
       "status": "done",
-      "commit": "3204ce1"
-    },
-    {
-      "id": 3,
-      "name": "v2.0 milestone audit (passed)",
-      "status": "done",
-      "commit": "b50e1e4"
-    },
-    {
-      "id": 4,
-      "name": "v2.0 complete-milestone + archive + tag",
-      "status": "done",
-      "commit": "3434257"
+      "commit": "883ba40"
     }
   ],
   "remaining_tasks": [
     {
       "id": 1,
-      "name": "Start next milestone via $gsd-new-milestone",
-      "status": "not_started",
-      "notes": "Lead: PKG-01 packaging pyproject.toml + rename exercise_ai/"
-    }
-  ],
-  "blockers": [
-    {
-      "description": "Real in-process host embed still blocked without PKG-01 (sys.path.insert empirically broken)",
-      "type": "technical",
-      "workaround": "demo/ uses path hacks for throwaway accept; do not treat demo as production packaging"
-    }
-  ],
-  "async_jobs": [],
-  "human_actions_pending": [
-    {
-      "action": "Optional: push tag v2.0 and branch commits to remote (branch ahead 19)",
-      "context": "Tag exists locally only; user was not asked to push during close",
-      "blocking": false
+      "name": "Phase 14 discuss/plan/execute: PROMPT-01 + VAL-01/02 + DEMO-01",
+      "status": "not_started"
     },
     {
-      "action": "Optional: decide whether to delete demo/ (anti-accretion) or keep until host team is done",
-      "context": "DEMO-02 documented delete-at-close; left in tree at operator discretion",
-      "blocking": false
+      "id": 2,
+      "name": "Phase 15 CLI/wizard UX-01/UX-02",
+      "status": "not_started"
     }
   ],
+  "blockers": [],
+  "async_jobs": [],
+  "human_actions_pending": [],
   "decisions": [
     {
-      "decision": "Keep generate_batch(...) -> ExerciseBatch (do not widen return)",
-      "rationale": "OBS-01 deferred; host maps errors via kind/subclasses",
-      "phase": "11"
+      "decision": "Phase 13 = schema contract only (plano XOR itens, equal-split, echo fields, verify_plan_echo unused until 14)",
+      "rationale": "Tracer-first; prompt/validator/CLI deferred",
+      "phase": "13"
     },
     {
-      "decision": "PKG-01 parked as lead of next milestone",
-      "rationale": "Host stack unknown; rename is pre-condition for real embed",
-      "phase": "v2.0"
+      "decision": "DEMO-01 moved into Phase 14 (not deferred / not Phase 15-only)",
+      "rationale": "User rejected dead schema: demo must enable mixed batches in same vertical slice as prompt+VAL — option 2",
+      "phase": "14"
     },
     {
-      "decision": "Demo = stdlib ThreadingHTTPServer + Lock→409 on [::1]:8642",
-      "rationale": "Throwaway accept of embed contract; outside package/CI",
-      "phase": "12"
-    },
-    {
-      "decision": "Milestone closeout override_closeout for dormant SEED-005/006",
-      "rationale": "Audit status passed; seeds acknowledged so audit-open clears",
-      "phase": "v2.0-close"
+      "decision": "Phase 15 remains CLI/wizard only (UX-01, UX-02)",
+      "rationale": "Same GenerationRequest already exercised by demo in 14",
+      "phase": "15"
     }
   ],
   "uncommitted_files": [
     ".planning/.gsd-allow-shrink",
-    ".planning/HANDOFF.json (deleted then recreated by pause)",
     ".planning/config.json",
-    ".cursor/ (untracked)",
-    ".serena/ (untracked)",
-    "exercise-ai/token-usage-logs/ (untracked)",
-    "skills/ (untracked)"
+    ".planning/seeds/SEED-007-exercise-ai-persona-rules.md (untracked)",
+    ".cursor/ .serena/ skills/ exercise-ai/token-usage-logs/ (local — do not ship)"
   ],
-  "next_action": "Monday: run $gsd-resume-work then $gsd-new-milestone — define next version around PKG-01 (pyproject + rename exercise_ai/), optionally OBS-01/LOG-01",
-  "context_notes": "Paused Friday 2026-09-18 after shipping v2.0 Embed em Produção. No active phase — phases 11–12 archived under .planning/milestones/v2.0-phases/. REQUIREMENTS.md deleted (fresh for next milestone). Tag v2.0 local. Resume Monday with new-milestone, not execute-phase."
+  "next_action": "$gsd-discuss-phase 14 (or $gsd-plan-phase 14 --auto if skipping discuss) — must include DEMO-01: demo UI band counts → POST /gerar with plano",
+  "context_notes": "Phase 13 code shipped (172 tests). gerar/CLI/demo still uniform-only. Echo fields already tax LLM schema tokens. User insisted demo enablement in Phase 14 so mixed lotes are not dead code. verify_plan_echo exists but is not wired into RELY yet."
 }
