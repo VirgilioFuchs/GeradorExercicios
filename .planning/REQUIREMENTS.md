@@ -24,6 +24,10 @@ Requirements for this milestone. Each maps to roadmap phases.
 - [ ] **VAL-01**: Validator checa count + adesão por slot ao plano
 - [ ] **VAL-02**: RELY + math_check atuais permanecem (sem redesign)
 
+### DEMO — Habilitação na demo local
+
+- [ ] **DEMO-01**: Demo (`demo/`) permite montar plano misto (contagens por banda) e envia `plano` (ou equivalente) em `POST /gerar` → `GenerationRequest` enriquecido — sem função morta só no schema
+
 ### UX — CLI / wizard
 
 - [ ] **UX-01**: Wizard com plano compacto (contagens por banda de dificuldade)
@@ -59,7 +63,6 @@ Deferred; tracked but not in current roadmap.
 | Overhaul math_check / validação semântica | Fora do foco de lotes mistos |
 | BNCC (SEED-001) | Dormant |
 | Imagens / storytelling (SEED-003 B/C) | Dormant |
-| Demo UX nova para lotes | Host/demo usam `GenerationRequest` enriquecido; UX de plano é CLI/wizard |
 | Per-item API `reasoning_effort` | Anti-feature; effort permanece run-level |
 
 ## Traceability
@@ -74,14 +77,15 @@ Deferred; tracked but not in current roadmap.
 | PROMPT-01 | Phase 14 | Pending |
 | VAL-01 | Phase 14 | Pending |
 | VAL-02 | Phase 14 | Pending |
+| DEMO-01 | Phase 14 | Pending |
 | UX-01 | Phase 15 | Pending |
 | UX-02 | Phase 15 | Pending |
 
 **Coverage:**
-- v2.1 requirements: 10 total
-- Mapped to phases: 10
+- v2.1 requirements: 11 total
+- Mapped to phases: 11
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-09-21*  
-*Last updated: 2026-09-21 after roadmap v2.1 (phases 13–15)*
+*Last updated: 2026-09-21 — DEMO-01 pulled into Phase 14 (vertical slice; no dead schema)*

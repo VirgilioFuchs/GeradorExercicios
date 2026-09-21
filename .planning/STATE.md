@@ -5,11 +5,11 @@ milestone_name: Lotes dinâmicos
 current_phase: 13
 current_phase_name: Request schema & plan contract
 status: planning
-stopped_at: Phase 13 plan 01 executed
-last_updated: "2026-09-21T14:38:01.846Z"
+stopped_at: "Scope fix: DEMO-01 into Phase 14"
+last_updated: "2026-09-21T14:57:26.055Z"
 last_activity: 2026-09-21
 last_activity_desc: Roadmap v2.1 approved (phases 13-15)
-state_head: c5a4627b9c47922a2d573eb2370718bd98cce685
+state_head: 38a824917b6bb5ea70b092f294a5d1c324551d0a
 progress:
   total_phases: 3
   completed_phases: 0
@@ -115,8 +115,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-21T14:38:01.805Z
-Stopped at: Phase 13 plan 01 executed
+Last session: 2026-09-21T14:57:26.013Z
+Stopped at: Scope fix: DEMO-01 into Phase 14
 Resume file: .planning/.continue-here.md
 
 ## Operator Next Steps

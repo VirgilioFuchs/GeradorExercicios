@@ -10,9 +10,9 @@
 
 ## Current Milestone: v2.1 Lotes dinâmicos
 
-**Goal:** O operador monta um lote com controle por exercício (dificuldade mista), em vez de N cópias do mesmo nível — schema → prompt/validator → CLI/wizard.
+**Goal:** O operador monta um lote com controle por exercício (dificuldade mista), em vez de N cópias do mesmo nível — schema → prompt/validator+demo → CLI/wizard.
 
-**Requirements:** 10 v2.1 · see [REQUIREMENTS.md](./REQUIREMENTS.md)
+**Requirements:** 11 v2.1 · see [REQUIREMENTS.md](./REQUIREMENTS.md)
 
 ### Phase 13: Request schema & plan contract
 **Goal:** O domínio expressa um plano misto (ou uniforme) de forma tipada, com invariantes, sem quebrar o embed `generate_batch → ExerciseBatch`.
@@ -24,23 +24,24 @@
 4. Cap de quantidade permanece **40** (domínio + superfícies alinhadas)
 5. Suite offline existente continua verde no caminho uniforme
 
-### Phase 14: Mixed prompt + plan-adherence validation
-**Goal:** Lotes mistos são instruídos no prompt e verificados no validator; RELY/math_check não são redesenhados.
-**Requirements:** PROMPT-01, VAL-01, VAL-02
+### Phase 14: Mixed prompt + plan-adherence + demo enablement
+**Goal:** Lotes mistos são instruídos no prompt, verificados no validator, e **habilitados na demo** (mesmo `GenerationRequest`); RELY/math_check não são redesenhados.
+**Requirements:** PROMPT-01, VAL-01, VAL-02, DEMO-01
 **Success criteria:**
 1. Com plano misto, o prompt enumera cada slot → dificuldade esperada
 2. Validator falha se count ou dificuldade por slot não aderir ao plano
 3. Falhas de adesão/validação ainda entram no loop RELY existente (bounded)
 4. math_check continua sem overhaul; fixtures offline cobrem mismatch de plano
+5. Demo UI permite contagens por banda e `POST /gerar` monta `plano` (caminho misto exercitável sem CLI)
 
 ### Phase 15: CLI / wizard batch-plan UX
-**Goal:** Operador define o plano com UX compacta (wizard + argparse), sem N flags manuais; host usa o mesmo `GenerationRequest`.
+**Goal:** Operador define o plano com UX compacta (wizard + argparse), sem N flags manuais; mesmo contrato já usado pela demo na Phase 14.
 **Requirements:** UX-01, UX-02
 **Success criteria:**
 1. Wizard `gerar` permite contagens por banda (ex. fáceis/médios/difíceis) e monta o request
 2. Argparse aceita plano compacto (ex. `--plano`) e deriva `itens`/`quantidade`
-3. Documentação curta: embed usa request enriquecido; demo não exige UX nova de plano
-4. Caller matrix (CLI, wizard, service) verde offline
+3. Documentação curta: embed/demo/CLI compartilham `GenerationRequest` enriquecido
+4. Caller matrix (CLI, wizard, service, demo) verde offline
 
 ## Phases (shipped)
 
@@ -87,4 +88,4 @@
 - PKG-01, OBS-01, LOG-01, SEED-001/003/005/007
 
 ---
-*Roadmap updated: 2026-09-21 — start v2.1 Lotes dinâmicos (phases 13–15)*
+*Roadmap updated: 2026-09-21 — DEMO-01 into Phase 14 (prompt+VAL+demo vertical slice)*
