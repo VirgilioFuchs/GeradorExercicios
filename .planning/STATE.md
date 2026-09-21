@@ -1,21 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: Embed em Produção
-status: Awaiting next milestone
-stopped_at: Phase 12 complete — all phases complete
-last_updated: "2026-09-18T14:52:01.918Z"
-last_activity: 2026-09-18
-last_activity_desc: Milestone v2.0 completed and archived
-state_head: b50e1e43f36071d49ba30ee10d3c991c4f8f7a99
+milestone: v2.1
+milestone_name: Lotes dinâmicos
+status: planning
+last_updated: "2026-09-21T12:15:14.786Z"
+last_activity: 2026-09-21
 progress:
-  total_phases: 2
-  completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
-  percent: 100
-current_phase: 12
-current_phase_name: Local Embed Demo
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -29,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-09-18)
 
 ## Current Position
 
-Phase: Milestone v2.0 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-09-18 — Milestone v2.0 completed and archived
+Status: Defining requirements
+Last activity: 2026-09-21 — Milestone v2.1 started
 
 ## Performance Metrics
 
@@ -112,10 +107,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-18T14:15:52.703Z
-Stopped at: Phase 12 complete — all phases complete
-Resume file: .planning/phases/12-local-embed-demo/12-VERIFICATION.md
+Last session: 2026-09-21T11:49:00.000Z
+Stopped at: Session resumed, proceeding to choose next action (primary: $gsd-new-milestone)
+Resume file: .planning/.continue-here.md
 
 ## Operator Next Steps
 
-- Start the next milestone with $gsd-new-milestone
+- Start the next milestone with $gsd-new-milestone (lead: PKG-01)

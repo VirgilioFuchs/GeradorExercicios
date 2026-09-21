@@ -18,13 +18,20 @@ O usuário consegue gerar exercícios de matemática confiáveis e estruturados 
 
 **Stack:** Python 3.11+, openai, pydantic v2, python-dotenv, google-genai, pytest. Code under `exercise-ai/`. Suite: 155 package tests + 17 demo tests (no live LLM).
 
-**Known debt (accepted at v2.0 close):** PKG-01 packaging/rename (lead of next milestone); OBS-01 usage alongside batch; LOG-01 print→logging; Nyquist VALIDATION draft/gaps (phases 8–12); dormant seeds SEED-001/005/006; SEED-003 B/C.
+**Known debt (parked):** PKG-01 packaging/rename; OBS-01 usage alongside batch; LOG-01 print→logging; Nyquist VALIDATION draft/gaps (phases 8–12); dormant seeds SEED-001/005; SEED-003 B/C.
 
-## Next Milestone Goals
+## Current Milestone: v2.1 Lotes dinâmicos
 
-**Lead:** **PKG-01** — Packaging `pyproject.toml` + rename `exercise_ai/` (pré-condição do embed in-process real).
+**Goal:** O operador monta um lote com controle por exercício (dificuldade e tipo de raciocínio), em vez de N cópias do mesmo nível.
 
-Other candidates: OBS-01 (usage/cost with batch), LOG-01 (print→logging), SEED-003 B/C (imagens/storytelling).
+**Target features:**
+- Spec por item: dificuldade (e tipo de raciocínio) por exercício no request
+- Prompt + validação do lote misto (quantidade e campos por item)
+- Revisar cap de quantidade (hoje 40) se fizer sentido para lotes maiores
+- UX CLI/wizard: plano de lote (ex. 2 fáceis + 3 médios) sem N flags manuais
+- Esclarecer na discuss: “tipo de raciocínio” pedagógico vs `reasoning_effort` da API
+
+**Promoted seed:** SEED-006
 
 ## Requirements
 
@@ -50,18 +57,19 @@ Other candidates: OBS-01 (usage/cost with batch), LOG-01 (print→logging), SEED
 
 ### Active
 
-- Packaging `pyproject.toml` + rename `exercise_ai/` — próximo milestone / PKG-01
-- Usage/cost/`run_id`/provider efetivo junto com o lote — OBS-01 (não alargar `-> ExerciseBatch` em v2.0)
-- Conversão print→logging (~33 sites) — LOG-01
+- Lotes dinâmicos — spec por exercício, validação mista, UX de plano de lote, revisão de cap — v2.1 / SEED-006
 
 ### Out of Scope
 
 - LangChain, CrewAI, AutoGen — YAGNI no lab
 - RAG, filas, microsserviços — YAGNI
 - MySQL / analytics / personalização / agente — v2+ themes
+- Packaging `pyproject.toml` + rename — PKG-01 (parked; pós-v2.1)
+- Usage/cost no retorno do lote — OBS-01 (parked)
+- print→logging — LOG-01 (parked)
 - BNCC — SEED-001 dormant
 - Imagens / storytelling — SEED-003 Slices B e C
-- Lotes dinâmicos — SEED-006 dormant
+- Overhaul de validação matemática/semântica além do necessário para lotes mistos
 - HTTP produto / FastAPI / Flask / Streamlit — demo foi throwaway stdlib
 - Concorrência / async / thread pool — contrato sequencial
 
@@ -100,8 +108,9 @@ CLI (argparse | gerar wizard) → main.run → generate_batch (+ stdout/--out / 
 | `gerar` coexists with argparse | CI/scripts stay non-interactive | ✓ Good |
 | Reasoning default medium | Wizard + flags aligned (D-08) | ✓ Good |
 | Keep `generate_batch(...) -> ExerciseBatch` | Do not widen return in v2.0 | ✓ Good |
-| Packaging PKG-01 parked | Lead of next milestone | — Pending |
+| Packaging PKG-01 parked | Real embed install later; v2.1 = product batches | — Pending |
 | Print→logging deferred; host `redirect_stderr` | Known debt LOG-01 | — Pending |
+| v2.1 = SEED-006 lotes dinâmicos only | Product focus; PKG/OBS/LOG/imagens/BNCC deferred | — Active |
 | Demo = ThreadingHTTPServer + Lock→409, `[::1]:8642`, stdlib | Throwaway accept of embed contract | ✓ Good |
 | Error classes in service.py; leaf lazy-import | Avoid cycles | ✓ Good |
 | Gemini HttpOptions.timeout=30000 ms | Align magnitude to OpenAI 30s | ✓ Good |
@@ -124,4 +133,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-18 after v2.0 milestone*
+*Last updated: 2026-09-21 — start milestone v2.1 Lotes dinâmicos*
