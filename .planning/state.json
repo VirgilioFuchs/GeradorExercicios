@@ -1,23 +1,12 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v2.0 — Embed em Produção",
-  "phases": [
-    {
-      "number": "11",
-      "name": "Service Layer Extraction",
-      "status": "complete"
-    },
-    {
-      "number": "12",
-      "name": "Local Embed Demo",
-      "status": "complete"
-    }
-  ],
+  "milestone": "v2.1",
+  "phases": [],
   "next": {
-    "command": "/gsd:progress",
-    "label": "Show progress",
-    "reason": "Unsure of state — showing progress"
+    "command": "/gsd-discuss-phase",
+    "label": "Discuss the first phase",
+    "reason": "Project initialized — plan your first phase"
   },
-  "updated_at": "2026-09-18T14:52:02.044Z"
+  "updated_at": "2026-09-21T12:15:14.796Z"
 }
