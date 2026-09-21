@@ -15,6 +15,13 @@ from openai import (
     RateLimitError,
 )
 
+from model_catalog import (
+    DEFAULT_GROK_MODEL,
+    DEFAULT_OPENAI_MODEL,
+    GROK_MODEL_FALLBACKS,
+    OPENAI_MODEL_FALLBACKS,
+    model_candidates,
+)
 from models import ExerciseBatch, GenerationRequest
 import prompts
 from reasoning import openai_compatible_effort_kwargs
@@ -30,7 +37,19 @@ _MISSING_KEY_MSG = (
 )
 
 _GROK_BASE_URL = "https://api.x.ai/v1"
-DEFAULT_GROK_MODEL = "grok-4.6"
+
+_USAGE_BODY_HINTS = (
+    "resource_exhausted",
+    "quota",
+    "rate limit",
+    "rate_limit",
+    "too many requests",
+    "overloaded",
+    "unavailable",
+    "no longer available",
+    "high demand",
+    "model_not_found",
+)
 
 
 def _resolve_provider() -> str:
@@ -195,6 +214,23 @@ def _record_openai_compatible_usage(
         )
 
 
+def _is_openai_usage_capacity_error(exc: BaseException) -> bool:
+    """True when another model in the fallback list may still succeed."""
+    if isinstance(exc, RateLimitError):
+        return True
+    status = getattr(exc, "status_code", None)
+    if status is None:
+        status = getattr(exc, "code", None)
+    try:
+        code = int(status) if status is not None else None
+    except (TypeError, ValueError):
+        code = None
+    if code in {429, 500, 502, 503, 404}:
+        return True
+    body = f"{exc}".lower()
+    return any(hint in body for hint in _USAGE_BODY_HINTS)
+
+
 def _generate_with_openai_compatible(
     request: GenerationRequest,
     *,
@@ -203,107 +239,136 @@ def _generate_with_openai_compatible(
     api_tag: str,
     of_label: str,
     auth_key_name: str,
+    fallbacks: tuple[str, ...],
 ) -> ExerciseBatch:
-    """Gera exercícios via Structured Outputs (OpenAI SDK / compatible endpoints)."""
+    """Gera exercícios via Structured Outputs; fallback em erros de uso/capacidade."""
     system_prompt, user_prompt = prompts.build_prompts(request)
-    t0 = time.perf_counter()
-    completion = None
-    effort_kwargs = openai_compatible_effort_kwargs(api_tag=api_tag, model=model)
+    candidates = model_candidates(model, fallbacks)
+    last_exc: BaseException | None = None
 
-    try:
-        completion = client.beta.chat.completions.parse(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            response_format=ExerciseBatch,
-            **effort_kwargs,
-        )
-        duration_ms = int((time.perf_counter() - t0) * 1000)
+    for idx, candidate in enumerate(candidates):
+        t0 = time.perf_counter()
+        completion = None
+        effort_kwargs = openai_compatible_effort_kwargs(api_tag=api_tag, model=candidate)
 
-        if not getattr(completion, "choices", None):
-            print(f"[API:{api_tag}] empty choices", file=sys.stderr)
+        try:
+            completion = client.beta.chat.completions.parse(
+                model=candidate,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                response_format=ExerciseBatch,
+                **effort_kwargs,
+            )
+            duration_ms = int((time.perf_counter() - t0) * 1000)
+
+            if not getattr(completion, "choices", None):
+                print(f"[API:{api_tag}] empty choices", file=sys.stderr)
+                _record_openai_compatible_usage(
+                    completion=completion,
+                    provider=api_tag,
+                    model=candidate,
+                    status="error",
+                    duration_ms=duration_ms,
+                    error_kind="empty_choices",
+                )
+                raise invalid_llm_response(
+                    "Não foi possível obter a estrutura de exercícios da resposta do modelo."
+                )
+
+            message = completion.choices[0].message
+
+            if message.refusal:
+                safe_refusal = _redact_env_secrets(str(message.refusal))
+                print(
+                    f"[API:{api_tag}] refusal: {safe_refusal}",
+                    file=sys.stderr,
+                )
+                _record_openai_compatible_usage(
+                    completion=completion,
+                    provider=api_tag,
+                    model=candidate,
+                    status="error",
+                    duration_ms=duration_ms,
+                    error_kind="refusal",
+                )
+                raise _permanent_api_error(
+                    f"O modelo recusou a geração: {safe_refusal}",
+                    api_error_kind="refusal",
+                )
+
+            if message.parsed is None:
+                print(
+                    f"[API:{api_tag}] parsed is None — estrutura ausente na resposta",
+                    file=sys.stderr,
+                )
+                _record_openai_compatible_usage(
+                    completion=completion,
+                    provider=api_tag,
+                    model=candidate,
+                    status="error",
+                    duration_ms=duration_ms,
+                    error_kind="parsed_none",
+                )
+                raise invalid_llm_response(
+                    "Não foi possível obter a estrutura de exercícios da resposta do modelo."
+                )
+
             _record_openai_compatible_usage(
                 completion=completion,
                 provider=api_tag,
-                model=model,
-                status="error",
+                model=candidate,
+                status="success",
                 duration_ms=duration_ms,
-                error_kind="empty_choices",
             )
-            raise invalid_llm_response(
-                "Não foi possível obter a estrutura de exercícios da resposta do modelo."
-            )
+            return message.parsed
 
-        message = completion.choices[0].message
-
-        if message.refusal:
-            safe_refusal = _redact_env_secrets(str(message.refusal))
-            print(
-                f"[API:{api_tag}] refusal: {safe_refusal}",
-                file=sys.stderr,
-            )
+        except OpenAIError as exc:
+            duration_ms = int((time.perf_counter() - t0) * 1000)
+            last_exc = exc
+            if _is_openai_usage_capacity_error(exc) and idx < len(candidates) - 1:
+                _record_openai_compatible_usage(
+                    completion=completion,
+                    provider=api_tag,
+                    model=candidate,
+                    status="attempt",
+                    duration_ms=duration_ms,
+                    error_kind=type(exc).__name__,
+                )
+                print(
+                    f"[API:{api_tag}] uso/capacidade em {candidate}; "
+                    f"tentando {candidates[idx + 1]}",
+                    file=sys.stderr,
+                )
+                continue
             _record_openai_compatible_usage(
                 completion=completion,
                 provider=api_tag,
-                model=model,
+                model=candidate,
                 status="error",
                 duration_ms=duration_ms,
-                error_kind="refusal",
+                error_kind=type(exc).__name__,
             )
-            raise _permanent_api_error(
-                f"O modelo recusou a geração: {safe_refusal}",
-                api_error_kind="refusal",
-            )
+            raise map_openai_compatible_error(
+                exc,
+                api_tag=api_tag,
+                of_label=of_label,
+                auth_key_name=auth_key_name,
+            ) from exc
 
-        if message.parsed is None:
-            print(
-                f"[API:{api_tag}] parsed is None — estrutura ausente na resposta",
-                file=sys.stderr,
-            )
-            _record_openai_compatible_usage(
-                completion=completion,
-                provider=api_tag,
-                model=model,
-                status="error",
-                duration_ms=duration_ms,
-                error_kind="parsed_none",
-            )
-            raise invalid_llm_response(
-                "Não foi possível obter a estrutura de exercícios da resposta do modelo."
-            )
-
-        _record_openai_compatible_usage(
-            completion=completion,
-            provider=api_tag,
-            model=model,
-            status="success",
-            duration_ms=duration_ms,
-        )
-        return message.parsed
-
-    except OpenAIError as exc:
-        duration_ms = int((time.perf_counter() - t0) * 1000)
-        _record_openai_compatible_usage(
-            completion=completion,
-            provider=api_tag,
-            model=model,
-            status="error",
-            duration_ms=duration_ms,
-            error_kind=type(exc).__name__,
-        )
-        raise map_openai_compatible_error(
-            exc,
-            api_tag=api_tag,
-            of_label=of_label,
-            auth_key_name=auth_key_name,
-        ) from exc
+    assert last_exc is not None
+    raise map_openai_compatible_error(
+        last_exc,
+        api_tag=api_tag,
+        of_label=of_label,
+        auth_key_name=auth_key_name,
+    ) from last_exc
 
 
 def _generate_with_openai(
     request: GenerationRequest,
-    model: str = "gpt-4o-mini",
+    model: str = DEFAULT_OPENAI_MODEL,
 ) -> ExerciseBatch:
     """Gera exercícios usando OpenAI Structured Outputs."""
     return _generate_with_openai_compatible(
@@ -313,6 +378,7 @@ def _generate_with_openai(
         api_tag="openai",
         of_label="da OpenAI",
         auth_key_name="LLM_API_KEY",
+        fallbacks=OPENAI_MODEL_FALLBACKS,
     )
 
 
@@ -328,6 +394,7 @@ def _generate_with_grok(
         api_tag="grok",
         of_label="do Grok",
         auth_key_name="GROK_API_KEY",
+        fallbacks=GROK_MODEL_FALLBACKS,
     )
 
 
@@ -346,4 +413,4 @@ def generate_exercises(
     if provider == "grok":
         return _generate_with_grok(request, model=model or DEFAULT_GROK_MODEL)
 
-    return _generate_with_openai(request, model=model or "gpt-4o-mini")
+    return _generate_with_openai(request, model=model or DEFAULT_OPENAI_MODEL)

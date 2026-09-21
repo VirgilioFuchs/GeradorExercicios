@@ -25,20 +25,24 @@ from google import genai
 from google.genai import errors as genai_errors
 from google.genai import types
 
+from model_catalog import (
+    DEFAULT_GEMINI_MODEL,
+    GEMINI_MODEL_FALLBACKS,
+    model_candidates,
+)
 from models import ExerciseBatch, GenerationRequest
 import prompts
 from reasoning import resolve_reasoning_effort, to_gemini_thinking_level
 from token_usage import extract_gemini_usage, get_collector
 
-# Prefer lite; on usage/capacity errors walk the list.
-GEMINI_MODEL_FALLBACKS: tuple[str, ...] = (
-    "gemini-3.1-flash-lite",
-    "gemini-3.5-flash",
-    "gemini-3.6-flash",
-    "gemini-3.7-flash",
-    "gemini-3.8-flash",
+# Re-export for tests / callers that imported these from this module.
+__all__ = (
+    "DEFAULT_GEMINI_MODEL",
+    "GEMINI_MODEL_FALLBACKS",
+    "generate_exercises",
+    "get_client",
+    "map_gemini_error",
 )
-DEFAULT_GEMINI_MODEL = GEMINI_MODEL_FALLBACKS[0]
 
 _MISSING_KEY_MSG = (
     "Nenhuma chave de API configurada. "
@@ -153,15 +157,6 @@ def _is_usage_capacity_error(exc: BaseException) -> bool:
     return any(hint in body for hint in _USAGE_BODY_HINTS)
 
 
-def _model_candidates(preferred: str) -> list[str]:
-    """Preferred first, then remaining GEMINI_MODEL_FALLBACKS (deduped)."""
-    ordered: list[str] = [preferred]
-    for name in GEMINI_MODEL_FALLBACKS:
-        if name not in ordered:
-            ordered.append(name)
-    return ordered
-
-
 def map_gemini_error(exc: BaseException) -> GenerationFailedError:
     """Map Gemini API/transport errors via status_code table; log [API:gemini] detail."""
     print(f"[API:gemini] {_gemini_error_detail(exc)}", file=sys.stderr)
@@ -244,7 +239,7 @@ def generate_exercises(
     client = get_client()
     system_prompt, user_prompt = prompts.build_prompts(request)
     prompt = f"{system_prompt}\n\n{user_prompt}"
-    candidates = _model_candidates(model)
+    candidates = model_candidates(model, GEMINI_MODEL_FALLBACKS)
     last_exc: BaseException | None = None
 
     for idx, candidate in enumerate(candidates):
