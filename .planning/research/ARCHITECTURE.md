@@ -1,548 +1,337 @@
 # Architecture Research
 
-**Domain:** Python LLM pipeline — extracting an embeddable library boundary from a CLI-first codebase
-**Researched:** 2026-09-16
+**Domain:** Python LLM pipeline — per-item dynamic batch specs on an existing embed seam
+**Researched:** 2026-09-21
 **Confidence:** HIGH
 
-> Scope note: this is v2.0 integration research for an **existing** architecture (v1.2 shipped).
-> Nothing here proposes redesigning the pipeline. The recommendation is one new module,
-> a delegating `run()`, and four small edits at named call sites.
+> Scope note: subsequent milestone (v2.1 / SEED-006). Integrate lotes dinâmicos into the
+> **shipped** v2.0 architecture. Do not redesign the pipeline or widen the embed return type.
+> Preserve `service.generate_batch(GenerationRequest) → ExerciseBatch` and the existing error
+> kinds. Prefer extending models / prompts / validator / CLI over new services.
 
 ## Standard Architecture
 
 ### System Overview
 
-The conventional shape for this problem is **library core + thin CLI adapter**: one callable
-boundary that returns data and raises exceptions, with every presentation concern (stdout
-rendering, file output, process exit) pushed to the outermost layer. The three consumers —
-argparse CLI, `gerar` wizard, demo — are peers of each other but **not** peers at the same
-depth: the CLI and wizard share one adapter (`main.run`), while the demo talks to the service
-directly.
+v2.0 already established **library core + thin adapters**. v2.1 only deepens the **request
+schema and the prompt/validator pair** so one call can describe a mixed batch. The seam,
+failover envelope, RELY loop, and provider SDKs stay where they are.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
 │                      PRESENTATION / ADAPTERS                          │
-│   (owns: stdout, stderr, files, sys.exit, .env loading, argparse)     │
 │                                                                       │
 │  ┌──────────────┐   ┌──────────────┐          ┌───────────────────┐  │
-│  │ main.main()  │   │  wizard.py   │          │ demo/server.py    │  │
-│  │  argparse    │   │  gerar       │          │ stdlib HTTP       │  │
-│  └──────┬───────┘   └──────┬───────┘          └─────────┬─────────┘  │
-│         │                  │                            │            │
-│         │   both funnel    │                            │            │
+│  │ main.main()  │   │  wizard.py   │          │ demo/ (optional)  │  │
+│  │ + plan UX    │   │ + plan UX    │          │ form may stay     │  │
+│  └──────┬───────┘   └──────┬───────┘          │ uniform in v2.1   │  │
+│         │                  │                  └─────────┬─────────┘  │
 │         └────────┬─────────┘                            │            │
 │                  ▼                                      │            │
 │         ┌──────────────────┐                            │            │
-│         │   main.run()     │  CLI adapter:              │            │
-│         │  print / --out   │  text + JSON + exit 1      │            │
-│         │  sys.exit(1)     │                            │            │
+│         │   main.run()     │                            │            │
 │         └────────┬─────────┘                            │            │
 └──────────────────┼──────────────────────────────────────┼────────────┘
                    │                                      │
-═══════════════════▼══════════════════════════════════════▼════════════  ← THE SEAM
+═══════════════════▼══════════════════════════════════════▼════════════  ← UNCHANGED SEAM
 ┌──────────────────────────────────────────────────────────────────────┐
-│                    SERVICE BOUNDARY  (service.py — NEW)               │
-│   generate_batch(request, *, max_retries, provider, reasoning)        │
-│      → ExerciseBatch        raises ConfigError / ValueError / RuntimeError │
-│   owns: run lifecycle (begin_run/flush), scoped env overrides         │
-│   forbidden: print to stdout, write exercise files, sys.exit          │
+│  service.generate_batch(GenerationRequest) → ExerciseBatch            │
+│  ConfigError | InvalidRequestError | GenerationFailedError            │
+│  owns: scoped env, begin_run/flush — signature unchanged              │
 └──────────────────────────────┬───────────────────────────────────────┘
                                │
 ┌──────────────────────────────▼───────────────────────────────────────┐
-│                      EXISTING PIPELINE (unchanged)                    │
-│   failover.generate_with_failover                                     │
-│        └─ reliability.generate_validated_batch   (bounded RELY loop)  │
-│              ├─ generator.generate_exercises → OpenAI | Gemini | Grok │
-│              └─ validator.validate_exercise_batch → math_check        │
-│   cross-cutting: token_usage (singleton), reasoning, prompts, models  │
+│  PIPELINE (same call graph; richer GenerationRequest payload)         │
+│                                                                       │
+│  failover.generate_with_failover                                      │
+│       └─ reliability.generate_validated_batch  (RELY; same request)   │
+│             ├─ generator / generator_gemini  (Structured Outputs)     │
+│             │     └─ prompts.build_prompts(request)  ← MODIFIED       │
+│             └─ validator.validate_exercise_batch     ← MODIFIED       │
+│                   └─ math_check (unchanged semantics)                 │
+│                                                                       │
+│  models: GenerationRequest + optional per-item specs  ← MODIFIED      │
+│  reasoning_effort: still run-level (env / --reasoning)                │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-**Import direction rule (the one invariant that keeps this honest):**
+**Invariant (do not break):**
 
 ```
-demo/server.py ──┐
-                 ├──> service.py ──> failover ──> reliability ──> generator / validator
-main.py ─────────┘                                                      └──> models
-wizard.py ──> main.py   (CLI surface reusing the CLI adapter — allowed)
+demo | main.run ──► service.generate_batch(request) ──► ExerciseBatch
+Anything at/below service must not import main or wizard.
 ```
 
-Nothing at or below `service.py` may import `main` or `wizard`. This is the whole boundary,
-and it is mechanically checkable with one grep.
+Hosts that build a uniform `GenerationRequest(dificuldade=…, quantidade=N)` keep working.
+Hosts that pass an itemized plan use the same function and still receive `ExerciseBatch`.
 
 ### Component Responsibilities
 
-| Component | Responsibility | Status in v2.0 |
-|-----------|----------------|----------------|
-| `service.py` | The embed boundary. Resolve retries, scope env overrides, own the token-usage run lifecycle, call the pipeline, return `ExerciseBatch` or raise. | **NEW** |
-| `main.run()` | CLI adapter. Render text to stdout, write `--out` JSON, log, write fail logs, `sys.exit(1)`. | **MODIFIED** (body delegates; behaviour identical) |
-| `main.main()` | argparse parsing, CLI-level env set, build `GenerationRequest`. | **UNCHANGED** |
-| `wizard.py` | Interactive prompt collection; delegates to `main.run`. | **UNCHANGED** |
-| `failover.py` | Single OpenAI↔Gemini switch on eligible permanent errors. | **UNCHANGED** (env restore handled above it) |
-| `reliability.py` | Bounded regeneration loop; `resolve_max_retries`. | **MODIFIED** (config errors gain `kind`) |
-| `generator.py` | Provider dispatch, client construction, API error mapping. | **MODIFIED** (config errors gain `kind`) |
-| `models.py` | Pydantic schemas. | **MODIFIED** (quantity upper bound moves here) |
-| `demo/server.py` | Throwaway stdlib HTTP page consuming the service. | **NEW** |
+| Component | Responsibility | v2.1 change |
+|-----------|----------------|-------------|
+| `models.py` | Request + response schemas; quantity bound | **MODIFIED** — add per-item spec; keep uniform path |
+| `prompts.py` | System/user prompt from request | **MODIFIED** — mixed-plan branch |
+| `validator.py` | Count + non-empty fields + math gate | **MODIFIED** — enforce plan length / per-item fields |
+| `service.py` | Embed seam | **UNCHANGED** signature |
+| `failover.py` / `reliability.py` | Failover + RELY | **UNCHANGED** (same `request` object) |
+| `generator*.py` | Structured Outputs → `ExerciseBatch` | **UNCHANGED** call shape; may pick up new Exercise fields via schema |
+| `reasoning.py` | API `reasoning_effort` (run-level) | **UNCHANGED** — not per exercise |
+| `main.py` / `wizard.py` | Build `GenerationRequest`; present results | **MODIFIED** — plan UX → item list |
+| `demo/` | Throwaway host | **OPTIONAL** — uniform form still valid; extend only if discuss asks |
 
 ## Recommended Project Structure
 
+No new packages or services. Flat `exercise-ai/` stays.
+
 ```
-GeradorExercicios/
-├── exercise-ai/
-│   ├── service.py          # NEW — the embed boundary + ConfigError
-│   ├── main.py             # MODIFIED — argparse + run() adapter
-│   ├── wizard.py           # unchanged
-│   ├── failover.py         # unchanged
-│   ├── reliability.py      # MODIFIED — ConfigError kind
-│   ├── generator.py        # MODIFIED — ConfigError kind
-│   ├── generator_gemini.py # unchanged
-│   ├── validator.py        # unchanged
-│   ├── math_check.py       # unchanged
-│   ├── models.py           # MODIFIED — MAX_QUANTIDADE + le=40
-│   ├── reasoning.py        # MODIFIED — ConfigError kind
-│   ├── output_paths.py     # unchanged (CLI-only concern)
-│   ├── prompts.py          # unchanged
-│   ├── token_usage/        # unchanged
-│   └── tests/              # MODIFIED — 3 tests pinned to main's internals
-└── demo/
-    └── server.py           # NEW — stdlib http.server, outside CI
+exercise-ai/
+├── models.py           # MODIFIED — ExerciseSpec (+ optional Exercise metadata)
+├── prompts.py          # MODIFIED — uniform vs itemized user prompt
+├── validator.py        # MODIFIED — plan-aware checks
+├── service.py          # UNCHANGED public API
+├── failover.py         # UNCHANGED
+├── reliability.py      # UNCHANGED
+├── generator.py        # UNCHANGED (schema-driven)
+├── generator_gemini.py # UNCHANGED
+├── reasoning.py        # UNCHANGED (API effort stays run-level)
+├── main.py             # MODIFIED — plan / cap UX
+├── wizard.py           # MODIFIED — batch plan step
+└── tests/              # MODIFIED — models, prompts, validator, CLI/wizard
 ```
 
 ### Structure Rationale
 
-- **`service.py` sits beside the modules it calls, not above them.** Packaging and the
-  `exercise_ai/` rename are parked, so flat modules stay. A host puts `exercise-ai/` on
-  `sys.path` and does `import service`. Because the other modules import each other by bare
-  name (`from models import ...`), that same `sys.path` entry makes the whole tree resolve —
-  so **`service.py` needs no `sys.path` bootstrap of its own**. The one in `main.py:15-17`
-  exists because `main.py` is run as a script, which is a different situation.
-- **`demo/` lives outside `exercise-ai/`** precisely so it must go through the public seam.
-  A demo living inside the package could reach for internals by accident; one living outside
-  has to do what a real host does. It is excluded from CI, so it may not import pytest
-  fixtures or test helpers.
-- **No `errors.py`.** The error contract is part of the boundary, so `ConfigError` is defined
-  in `service.py` and re-exported nowhere else. One new file, not two. If the hierarchy ever
-  grows past two classes, split then — not now.
+- **Extend at the schema boundary.** Per-item control is request data. Putting it in
+  `GenerationRequest` keeps `generate_batch` stable and avoids a second entry point
+  (`generate_dynamic_batch`, planner service, etc.).
+- **Prompt and validator are the only pipeline leaves that must “understand” the plan.**
+  Generators already pass `request` into `build_prompts` and `response_format=ExerciseBatch`;
+  RELY already retries with the **same** request. Mixed batches inherit failover/RELY for free.
+- **CLI/wizard stay adapters.** They expand a human plan (“2 fáceis + 3 médios”) into
+  `itens` / derived `quantidade`, then call the same seam.
+- **No chunking module in v2.1.** Cap review may raise `MAX_QUANTIDADE`; multi-call chunking is
+  YAGNI until context/cost forces it (SEED-006 Slice D as discuss, not a new service by default).
 
 ## Architectural Patterns
 
-### Pattern 1: Service facade with a thin CLI adapter
+### Pattern 1: Optional itemized plan on the same request (backward-compatible)
 
-**What:** The library exposes one function that takes a request object and returns data.
-The CLI is a wrapper that converts the returned data to text and the raised exceptions to
-exit codes. This is the dominant Python convention, and there is a well-known reference
-implementation: **`mypy.api.run()`** exists solely so another Python application can run mypy
-in-process, and it returns `(normal_report, error_report, exit_status)` instead of writing to
-the real streams and exiting. Click institutionalises the same split with `standalone_mode`:
-by default `Command.main()` catches exceptions, prints, and calls `sys.exit()`; setting
-`standalone_mode=False` disables exactly those two behaviours so a programmatic caller gets
-the return value and the exception instead. **[HIGH — official mypy docs; official Click docs]**
+**What:** Keep the uniform fields (`dificuldade`, `quantidade`) and add an optional list of
+per-exercise specs. When the list is absent/empty, behaviour equals v2.0. When present, the
+list is the source of truth for length and per-item difficulty (and optional pedagogical
+reasoning type).
 
-The PyPA `console_scripts` specification pushes the same discipline at the process edge: the
-entry-point function "may return an integer to be used as a process exit code", and the
-generated wrapper is literally `sys.exit(main())`. Exit is the wrapper's job, not the
-function's. **[HIGH — PyPA interoperability specification]**
+**When to use:** product needs mixed batches without breaking existing hosts/tests.
 
-**When to use:** whenever a second consumer appears. That is now.
+**Trade-offs:** one model carries two modes — must enforce mutual consistency with a Pydantic
+model validator. Cleaner than a parallel request type that would force hosts to branch on
+function choice.
 
-**Trade-offs:** one extra indirection and one extra file. In exchange the pipeline becomes
-callable, the CLI keeps its exact behaviour, and the presentation logic stops being load-bearing.
-The cost is real but small; the alternative (host shells out to the CLI and parses stdout) is
-strictly worse and was already rejected by the milestone goal.
-
-**Example — the seam:**
+**Example (sketch — names finalize in discuss/plan):**
 
 ```python
-# exercise-ai/service.py  (NEW)
-"""Embed boundary: GenerationRequest → ExerciseBatch. No print, no files, no sys.exit."""
+# models.py — extend, do not replace GenerationRequest
 
-from __future__ import annotations
+class ExerciseSpec(BaseModel):
+    dificuldade: DificuldadeEnum
+    tipo_raciocinio: str | None = None  # pedagogical; optional until taxonomy locked
 
-import os
-from collections.abc import Iterator
-from contextlib import contextmanager
+class GenerationRequest(BaseModel):
+    materia: str = "Matemática"
+    topico: str
+    dificuldade: DificuldadeEnum          # required for uniform; default/fill when itens set
+    quantidade: int = Field(..., ge=1, le=MAX_QUANTIDADE)
+    itens: list[ExerciseSpec] | None = None
 
-from failover import generate_with_failover
-from models import ExerciseBatch, GenerationRequest
-from reliability import resolve_max_retries
-from token_usage import begin_run, flush_token_usage
-
-
-class ConfigError(ValueError):
-    """Configuração inválida ou ausente. ``kind`` distingue o motivo para o host."""
-
-    def __init__(self, message: str, *, kind: str) -> None:
-        super().__init__(message)
-        self.kind = kind
-
-
-def generate_batch(
-    request: GenerationRequest,
-    *,
-    max_retries: int | None = None,
-    provider: str | None = None,
-    reasoning: str | None = None,
-) -> ExerciseBatch:
-    """Gera e valida um lote. Levanta ConfigError/ValueError/RuntimeError; nunca encerra o processo."""
-    with _scoped_env(provider=provider, reasoning=reasoning):
-        begin_run()
-        try:
-            n = resolve_max_retries(max_retries)
-            return generate_with_failover(request, max_retries=n)
-        finally:
-            flush_token_usage()
+    @model_validator(mode="after")
+    def _align_plan(self) -> Self:
+        if self.itens:
+            if len(self.itens) != self.quantidade:
+                raise ValueError("quantidade deve igualar len(itens)")
+            if len(self.itens) > MAX_QUANTIDADE:
+                raise ValueError(...)
+        return self
 ```
 
-**Example — `run()` becomes the adapter.** Everything that stays is a presentation concern:
+Uniform callers omit `itens`. Wizard/CLI set `itens` and set `quantidade = len(itens)`.
+
+### Pattern 2: Dual-mode prompt builder (same function)
+
+**What:** `build_prompts(request)` already is the single prompt gate. Branch inside it:
+uniform template (today) vs an itemized plan that enumerates expected difficulty (and optional
+tipo) per index.
+
+**When to use:** LLM must emit N exercises matching a heterogeneous plan in one Structured
+Outputs call.
+
+**Trade-offs:** longer prompts and harder validation when N grows; still one API call and one
+RELY loop — matches “IA poder trabalhar com mais quantidade” without a planner agent.
+
+**Example:**
 
 ```python
-# exercise-ai/main.py  (MODIFIED — only the try block changes)
-def run(request, out_path, max_retries=None) -> None:
-    _configure_logging()                       # stays: handler config is the app's job
-    logger.info("Início da geração de exercícios")
-    logger.info("Parâmetros: ...", ...)        # stays: pinned by tests on run()
-
-    try:
-        validated_batch = service.generate_batch(request, max_retries=max_retries)
-
-        print(format_batch_text(validated_batch))          # stays: stdout rendering
-        out = resolve_success_out_path(out_path)           # stays: file output
-        out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(json.dumps(validated_batch.model_dump(), indent=2,
-                                  ensure_ascii=False), encoding="utf-8")
-        logger.info("Geração concluída com sucesso → %s", out)
-
-    except ValueError as val_err:              # stays: ConfigError subclasses ValueError,
-        ...                                    #        so this branch is unchanged
-        sys.exit(1)                            # stays: exit is the adapter's job
+def build_prompts(request: GenerationRequest) -> tuple[str, str]:
+    if request.itens:
+        plan_lines = "\n".join(
+            f"  {i+1}. dificuldade={s.dificuldade.value}"
+            + (f"; tipo_raciocinio={s.tipo_raciocinio}" if s.tipo_raciocinio else "")
+            for i, s in enumerate(request.itens)
+        )
+        user = MIXED_USER_TEMPLATE.format(
+            materia=request.materia,
+            topico=request.topico,
+            quantidade=request.quantidade,
+            plan=plan_lines,
+        )
+        return SYSTEM_PROMPT_MIXED, user
+    # existing uniform path
     ...
-    finally:
-        flush_token_usage()                    # stays: idempotent safety net (D-04)
 ```
 
-Exactly four things move out of `run()`: `begin_run()` (main.py:203),
-`resolve_max_retries(...)` (main.py:215), `generate_with_failover(...)` (main.py:216), and the
-`finally: flush_token_usage()` ownership (main.py:258 — the call itself stays as a no-op net).
+### Pattern 3: Validate against the request plan (not a second schema path)
 
-### Pattern 2: Scoped environment override (the env-restore fix)
+**What:** After Structured Outputs parse, `validate_exercise_batch(batch, request)` already
+compares `len(exercicios)` to `request.quantidade`. Extend that comparison: when `itens` is
+set, also check per-index fields the model is required to echo (recommended: optional
+`dificuldade` on `Exercise` so the schema forces alignment).
 
-**What:** A `contextlib.contextmanager` that snapshots the environment keys it will disturb and
-restores them in `finally`. This is the standard answer to "per-call override of process-wide
-config" and appears in essentially identical form in `unittest.mock.patch.dict(os.environ, ...)`
-(official stdlib), in `snakeoil.contexts.os_environ`, and in the `pollute` package. All of them
-mutate `os.environ` **in place** rather than rebinding it, so that references held elsewhere
-(and the child-process environment) stay correct. **[HIGH — stdlib `unittest.mock` docs;
-corroborated by two independent third-party implementations]**
+**When to use:** mixed batches where count-only checks would accept “5 mediums” for a
+2+3 plan.
 
-The `snakeoil` implementation carries the note "this is explicitly not thread safe", which
-matches this milestone's constraint exactly: one generation at a time, sequential.
+**Trade-offs:** adding fields to `Exercise` changes the Structured Outputs schema (providers
+must accept the new properties). Prefer **additive optional/required fields on `Exercise`**
+over a separate response type — keeps `response_format=ExerciseBatch` and the embed return
+identical. If discuss rejects output metadata, validate only length + non-empty text and rely
+on the prompt (weaker; document as risk).
 
-**When to use:** when config is read deep in the stack from a process-global source and you
-cannot thread a parameter down without a large refactor. That is precisely this codebase —
-`generator._resolve_provider()` (generator.py:36-50) and
-`reasoning.resolve_reasoning_effort()` (reasoning.py:28-38) read `os.environ` far below the
-boundary, so an env-scoped override is the smallest correct mechanism.
-
-**Trade-offs:** still global mutation, just balanced. It is not thread-safe and does not
-compose with concurrent callers — acceptable and explicitly in-contract here. It is strictly
-better than the status quo, which mutates and never restores.
-
-**The non-obvious requirement:** `LLM_PROVIDER` must be guarded on **every** call, not only
-when the caller passes `provider=`. `failover._default_switch_provider` (failover.py:54-55)
-writes `os.environ["LLM_PROVIDER"]` during a failover and never restores it, so a host that
-suffers one OpenAI timeout has its environment silently switched to Gemini **for the rest of
-the process**. Guarding only caller-supplied keys would miss this entirely.
+**Example:**
 
 ```python
-_GUARDED = ("LLM_PROVIDER", "LLM_REASONING_EFFORT")
-
-@contextmanager
-def _scoped_env(*, provider: str | None, reasoning: str | None) -> Iterator[None]:
-    """Restore guarded keys on exit — failover mutates LLM_PROVIDER even if we don't."""
-    originals = {k: os.environ.get(k) for k in _GUARDED}
-    if provider is not None:
-        os.environ["LLM_PROVIDER"] = provider
-    if reasoning is not None:
-        os.environ["LLM_REASONING_EFFORT"] = reasoning
-    try:
-        yield
-    finally:
-        for key, value in originals.items():
-            if value is None:
-                os.environ.pop(key, None)
-            else:
-                os.environ[key] = value
+# validator — additive checks when request.itens is set
+if request.itens:
+    for i, (ex, spec) in enumerate(zip(batch.exercicios, request.itens, strict=True)):
+        if getattr(ex, "dificuldade", None) != spec.dificuldade:
+            errors.append(f"exercicios[{i}].dificuldade != plano")
 ```
 
-**Why this does not regress the CLI:** `main.main()` sets `os.environ["LLM_PROVIDER"]` at
-main.py:282 **before** calling `run()`, so the service snapshots the already-set value and
-restores it to the same value. `test_main.py::test_cli_provider_override_sets_env` (line 191)
-and `test_cli_provider_grok_sets_env` (line 233) both assert the variable is still set after
-`main.main()` returns — and both still pass. The CLI keeps owning process-level config;
-the service's `provider=`/`reasoning=` kwargs exist for hosts and the demo. Do **not** move the
-CLI's env assignment into the service call: that would restore the variable and break both tests.
+Math check stays batch-wide; no per-item math policy in v2.1.
 
-I verified no test asserts that `LLM_PROVIDER` remains switched to the peer after a failover
-(`test_run_failover_writes_out_and_redacts` passes `switch_provider=lambda name: None`), so
-restoring it is regression-free. **[HIGH — read the test suite directly]**
+### Pattern 4: Separate pedagogical “tipo de raciocínio” from API `reasoning_effort`
 
-### Pattern 3: Error contract by subclassing the built-in the caller already catches
+**What:** SEED-006 Slice C. Operator “tipo de raciocínio” is a **content/pedagogy** hint in
+the plan/prompt (and optionally on `Exercise`). Provider `reasoning_effort` / Gemini thinking
+level remains **run-scoped** via `LLM_REASONING_EFFORT` / `--reasoning` / service env scope —
+providers do not expose per-item effort in this stack.
 
-**What:** Give the library a distinguishable exception type, but subclass the built-in whose
-semantics already fit. Standard guidance is to define a root exception per library so callers
-can catch everything with one clause; the refinement that matters here is that inheriting from
-a *specific* built-in is better when the semantics fit, because "callers who catch `ValueError`
-will automatically catch yours too, which is the correct behaviour in most library code."
-**[MEDIUM — practitioner consensus across several independent sources, not an official spec]**
+**When to use:** always in v2.1 design discussions; do not invent per-item API effort.
 
-This reconciles the locked decision (a `kind` attribute on config `ValueError`s) with the
-conventional pattern, at zero regression cost: `ConfigError(ValueError)` is caught unchanged by
-`run()`'s existing `except ValueError` branch (main.py:231), prints the same message, and exits
-1 — while a host can write `except ConfigError as e: e.kind`.
-
-It is also consistent with how this codebase already tags errors: `generator.py:93-105` attaches
-`retriable` and `api_error_kind` to `RuntimeError`. Attribute tagging is the established local
-idiom; `ConfigError` adds a type only where the host needs to branch.
-
-**Resulting host-facing contract — built entirely from types that already exist:**
-
-| Raised | Meaning for the host | Attributes | Raise sites |
-|--------|---------------------|------------|-------------|
-| `ConfigError` (a `ValueError`) | Environment/config is wrong; the host must fix it. Not retryable. | `.kind` | generator.py:50, 57, 65; failover.py:47, 49-51; reliability.py:46-48, 50-52; reasoning.py:35-37; main.py:82-94 |
-| `ValueError` (bare) | Batch failed validation after the bounded regenerations. | — | validator.py:34, 66; reliability.py:133-136 |
-| `RuntimeError` | Provider/API failure. | `.retriable`, `.api_error_kind` | generator.py:93-141 |
-
-Suggested `kind` values, drawn from the existing messages rather than invented:
-`missing_key`, `unknown_provider`, `invalid_max_retries`, `invalid_reasoning`.
-
-```python
-# exercise-ai/generator.py:50 — before
-raise ValueError(_MISSING_KEY_MSG)
-# after
-raise ConfigError(_MISSING_KEY_MSG, kind="missing_key")
-```
-
-The message strings must not change: `test_main.py:90` and the `test_logging_security.py`
-assertions match on message text.
-
-### Pattern 4: The boundary owns the run lifecycle
-
-**What:** Whoever owns "one call" owns the setup and teardown of per-call state. The token
-collector is a module-level singleton (`collector.py:125`) whose `begin_run()` clears the buffer
-(`collector.py:47-50`). Today `main.run()` brackets it. If the service did not, a host calling
-the boundary in a loop would accumulate `UsageEvent` objects forever and attribute run N's
-tokens to run N+1 — an unbounded memory leak plus corrupted observability.
-
-So `service.generate_batch()` calls `begin_run()` on entry and `flush_token_usage()` in
-`finally`. `run()` keeps its own `finally: flush_token_usage()` as a documented-idempotent
-safety net (the buffer is already cleared, so it returns immediately at collector.py:104), which
-keeps `test_token_usage.py::test_main_run_flush_in_finally` passing.
-
-**Trade-off worth stating plainly:** flushing writes NDJSON under
-`exercise-ai/token-usage/<day>/<provider>.ndjson` and prints `[USAGE] resumo` lines to stderr.
-That is a file side effect the host inherits from a "library" call. Two mitigations already
-exist and need no new code: `TOKEN_USAGE_DIR` is injectable (collector.py:16), and the summary
-goes to stderr which a host can capture. Do not build an opt-out flag for this now — YAGNI
-until a host actually objects.
-
-**One ordering shift to verify:** flushing inside the service means `[USAGE] resumo` lands on
-stderr slightly earlier than today (before `logger.info("Geração concluída...")`). No test
-asserts relative ordering within stderr — they all assert membership, and stdout/stderr are
-captured into separate buffers — so this is safe, but it is the single behavioural difference
-worth an explicit check during verification.
+**Trade-offs:** one API cost knob for the whole mixed batch (harder items get the same effort
+as easy ones). Acceptable for MVP; revisit only if cost/quality data demands chunking by
+difficulty (out of scope unless discuss promotes it).
 
 ## Data Flow
 
-### Request flow (host / demo)
+### Request flow (uniform — unchanged)
 
 ```
-host code
-   │  GenerationRequest(materia, topico, dificuldade, quantidade)
-   ▼
-service.generate_batch(request, provider=?, reasoning=?, max_retries=?)
-   │  _scoped_env snapshots LLM_PROVIDER + LLM_REASONING_EFFORT
-   │  begin_run()                       ← clears the singleton buffer
-   ▼
-resolve_max_retries  →  generate_with_failover
-   │                        └─ generate_validated_batch (RELY loop)
-   │                              ├─ generate_exercises  → provider SDK
-   │                              └─ validate_exercise_batch → math_check
-   ▼
-ExerciseBatch returned  ──────────────────────────────────┐
-   │  finally: flush_token_usage()                        │
-   │  finally: env restored (incl. any failover switch)   │
-   ▼                                                      ▼
-host serialises / renders as it wishes        or  ConfigError / ValueError / RuntimeError
-                                                   propagates — host process survives
+Host/CLI
+  → GenerationRequest(dificuldade, quantidade, itens=None)
+  → service.generate_batch
+  → Prompt (uniform) → LLM → Failover → Validate(count) → math → RELY
+  → ExerciseBatch
 ```
 
-### Request flow (CLI — unchanged externally)
+### Request flow (mixed — v2.1)
 
 ```
-argv → main.main() → argparse validation (exit 2 on bad input, before any LLM call)
-                   → os.environ["LLM_PROVIDER"] / ["LLM_REASONING_EFFORT"]
-                   → GenerationRequest
-                   → main.run()
-                        → service.generate_batch()
-                        → print(format_batch_text(...))        [stdout]
-                        → write exercicios-gerados/success/…   [file]
-                        → on error: stderr + fail log + sys.exit(1)
+Operator plan UX ("2 facil + 3 medio" [+ tipos])
+  → list[ExerciseSpec] + quantidade=len(itens)
+  → GenerationRequest(..., itens=[...])
+  → service.generate_batch          ← SAME SEAM
+  → Prompt (itemized plan) → LLM Structured Outputs → ExerciseBatch
+  → validate: len + per-item alignment (+ math)
+  → RELY regenerates with SAME request/plan
+  → ExerciseBatch | InvalidRequestError | …
 ```
 
-`wizard.run_wizard()` enters this same flow at `main.run()` (wizard.py:248), which is why the
-wizard needs **zero changes**.
+### Key data flows
+
+1. **Plan expansion (adapter-only):** wizard/CLI parse a compact plan into `itens`; domain
+   rules (bounds, enum values) live in Pydantic, not argparse alone.
+2. **Single-shot mixed generation:** one Structured Outputs call returns the full list; no
+   N×`generate_batch` fan-out (would multiply failover/RELY and break “one batch” semantics).
+3. **RELY identity:** regeneration must not drop or reshuffle the plan — pass the same
+   `GenerationRequest` object (already true in `generate_validated_batch`).
 
 ### State management
 
-There is no application state store. The three pieces of mutable process state, and who owns
-each after this change:
-
-| State | Location | Owner after v2.0 |
-|-------|----------|------------------|
-| Token event buffer | `collector._collector` singleton (collector.py:125) | `service.generate_batch` (begin/flush bracket) |
-| `LLM_PROVIDER`, `LLM_REASONING_EFFORT` | `os.environ` | CLI sets process-wide; service scopes and restores per call |
-| Math postmortem buffers | `math_check` drain functions (reliability.py:19-23, 66-71) | unchanged — drained inside the RELY loop |
+No new process state. Token buffer, scoped env, and math postmortem ownership remain as in
+v2.0 (`service` brackets begin/flush; adapters may flush again).
 
 ## Scaling Considerations
 
-**The template's user-scale table does not apply here** and inventing one would be noise. This
-is an in-process library called sequentially by a single host, with an explicit one-generation-
-at-a-time contract. There are no users, requests/sec, or datastores to scale.
+Not multi-tenant. Honest limits for larger/mixed lots:
 
-The honest limits, in the order they will actually bite:
+| Pressure | What breaks | v2.1 stance |
+|----------|-------------|-------------|
+| Batch size / context | Truncation, weaker schema adherence | Review `MAX_QUANTIDADE` (40); raise modestly or keep; **no** chunking service by default |
+| Cost / latency | Tokens scale with N and prompt plan length | Keep run-level reasoning; OBS-01 still parked |
+| Validation strictness | More fields → more RELY exhaustions | Bounded retries unchanged (0–3); fail with `InvalidRequestError` |
+| Concurrency | Still sequential at the seam | Unchanged |
 
-1. **Provider rate limits and latency** — already handled: 30s timeouts (generator.py:58, 69),
-   bounded regeneration (max 3), single failover switch. Nothing to add.
-2. **Concurrency** — the first thing that breaks if the contract is violated. The token
-   collector singleton and the `os.environ` provider switch are both process-global; two
-   simultaneous `generate_batch` calls would interleave usage events and race on `LLM_PROVIDER`.
-   This is why the demo must serialise (see Integration Points). Out of scope to fix; in scope
-   to **document at the boundary** so the host team knows the rule.
-3. **Batch size** — capped at 40 by the domain bound. Fine.
+### Scaling Priorities
+
+1. **First bottleneck:** LLM context + schema adherence on large mixed plans → tighten prompt
+   + validator; consider cap, not a new orchestrator.
+2. **Second bottleneck:** cost of high run-level reasoning on mostly-easy batches → document;
+   do not add per-item API effort in v2.1.
 
 ## Anti-Patterns
 
-### Anti-Pattern 1: `sys.exit()` in library code
+### Anti-Pattern 1: New `generate_dynamic_batch` / planner service
 
-**What people do:** call `sys.exit(1)` on failure deep in the call stack. Here:
-`main.run()` at main.py:238, 246, 254, plus `wizard.py:180, 238`.
+**What people do:** add a second public function or a “BatchPlanner” microservice.
 
-**Why it's wrong:** `sys.exit` raises `SystemExit`, which inherits from `BaseException`, not
-`Exception` — so a host's `except Exception` will not catch it and the host process dies.
-This is the exact failure the milestone requirement "falha no gerador não derruba o processo do
-host" names. PEP 348 documents the rationale for that inheritance split. **[HIGH]**
+**Why it's wrong:** splits the embed contract; hosts and demo must learn two paths; duplicates
+failover/RELY ownership.
 
-**Do this instead:** raise; let the outermost adapter exit. Keep all three `sys.exit(1)` calls
-exactly where they are in `run()` — that function *is* the adapter, and ~25 tests across five
-files assert `SystemExit` from it. The fix is not to remove them but to put the seam *below*
-them, which `service.py` does.
+**Do this instead:** extend `GenerationRequest` + keep `generate_batch`.
 
-### Anti-Pattern 2: Printing to the caller's streams
+### Anti-Pattern 2: N sequential LLM calls (one per difficulty)
 
-**What people do:** `print(..., file=sys.stderr)` scattered through pipeline modules:
-`reliability.py:92-95, 112, 142-145` (stage/progress), `failover.py:80, 89` (`[FAILOVER]`),
-`generator.py:116, 219, 237, 255` (`[API:*]`), `collector.py:165, 181, 189` (`[USAGE]`),
-`reasoning.py:71-74`, and `validator.py:19-24`, which dumps the **entire batch JSON** to stderr
-on any validation failure.
+**What people do:** loop `generate_batch` per group and concatenate.
 
-**Why it's wrong:** the official Python logging guidance is explicit — libraries should log to a
-named logger and add only `NullHandler`, because "the configuration of handlers is the
-prerogative of the application developer"; adding handlers or writing streams under the hood
-"might well interfere with their ability to carry out unit tests and deliver logs which suit
-their requirements." The same doc maps the decision directly: `print()` is for "ordinary usage
-of a command line script", a logger is for "events that occur during normal operation", and an
-exception is for reporting an error. **[HIGH — official Python logging HOWTO]**
+**Why it's wrong:** multiplies RELY/failover, breaks atomic batch validation, complicates
+usage attribution, and is not needed for Structured Outputs list schemas.
 
-**Do this instead — and deliberately not yet.** The correct end state is a dedicated logger
-(`exercise_ai.progress`) with `NullHandler` in the library and a bare `%(message)s` stderr
-handler attached by the CLI. But converting ~15 print sites is a behaviour-visible change across
-modules whose output is asserted by name in many tests, for a benefit the host has not yet asked
-for. That fails the smallest-correct-change and YAGNI tests.
+**Do this instead:** one call with an itemized prompt and list response.
 
-**For this milestone:** leave the prints, and *document* that the library writes progress and
-diagnostics to `sys.stderr`. A host silences them with `contextlib.redirect_stderr(io.StringIO())`
-— which works because `print(file=sys.stderr)` resolves `sys.stderr` at call time, and because
-`main._StderrStream` (main.py:40-48) was already written to honour redirection. The existing
-tests prove the mechanism: they capture the whole pipeline's stderr with exactly this technique
-(test_main.py:39). Flag the logging conversion as a **candidate follow-up phase**, not v2.0 work.
+### Anti-Pattern 3: Per-item `reasoning_effort` in the request
 
-### Anti-Pattern 3: Mutating `os.environ` and not restoring it
+**What people do:** put API effort on `ExerciseSpec` and try to vary SDK kwargs mid-batch.
 
-**What people do:** `failover._default_switch_provider` (failover.py:54-55) and
-`main.main()` (main.py:282, 290) and `wizard.run_wizard()` (wizard.py:233, 240) all assign to
-`os.environ` with no restore.
+**Why it's wrong:** one completion = one effort parameter; fake per-item effort misleads
+operators and requires chunking.
 
-**Why it's wrong:** in a CLI this is invisible because the process exits immediately. In a host
-it is a permanent, action-at-a-distance mutation of global state — and for the failover case the
-host did not even ask for it. The project's own Python rule lists "global mutable state" under
-*Avoid*.
+**Do this instead:** pedagogical `tipo_raciocinio` in the plan/prompt; keep API effort run-level.
 
-**Do this instead:** the scoped context manager of Pattern 2, always guarding `LLM_PROVIDER`.
-Leave the CLI's assignments alone (pinned by tests, harmless pre-exit).
+### Anti-Pattern 4: Enforcing the plan only in the CLI
 
-### Anti-Pattern 4: Module-level singleton holding per-call state
+**What people do:** wizard builds mixed prompts as free text but `GenerationRequest` stays
+uniform; library hosts cannot express the plan.
 
-**What people do:** `_collector = TokenUsageCollector()` at collector.py:125, reached via
-`get_collector()` from generator.py and reliability.py.
+**Why it's wrong:** repeats the pre-v2.0 quantity-bound mistake (domain rule only on one path).
 
-**Why it's wrong:** it silently assumes one run per process. `begin_run()` *clears* the buffer
-(collector.py:49), so in a host the first call of run N+1 wipes anything unflushed from run N,
-and skipping `begin_run()` leaks events across runs forever.
+**Do this instead:** plan is first-class on `GenerationRequest`; CLI is just a builder.
 
-**Do this instead — scoped, not rearchitected.** Do **not** convert the collector to an injected
-instance this milestone: it is reached from two modules via a module-level accessor, and
-threading an instance through `failover → reliability → generator` would touch every signature
-for no behaviour change. Instead, make the *boundary* own the lifecycle (Pattern 4 above) and
-document the one-at-a-time contract. Revisit only if a host needs concurrent or nested runs.
+### Anti-Pattern 5: Widening the embed return (`tuple[Batch, Plan, Usage]`)
 
-### Anti-Pattern 5: Import-time side effects (`load_dotenv`)
+**What people do:** change `generate_batch` return for observability or echoed specs.
 
-**What people do:** `main.py:20-23` resolves a `.env` path and calls `load_dotenv()` at module
-import time. Merely importing `main` mutates the importing process's environment.
+**Why it's wrong:** breaks v2.0 hosts (EMBED-01). OBS-01 is parked.
 
-**Why it's wrong:** a host that imports the pipeline gets its own environment rewritten from a
-file it may not know exists, before it has executed a line of its own code. Config ownership
-silently transfers to the library.
-
-**Do this instead:** nothing — and that is the point. Because the seam sits *below* `main.py`
-and `service.py` does not import `main`, a host importing `service` never triggers `load_dotenv`.
-The anti-pattern is neutralised by the import direction rather than by editing main.py, which
-keeps CLI behaviour bit-identical. The demo then has to load config explicitly, which is a
-feature: it shows the host team exactly where config ownership sits.
-
-### Anti-Pattern 6: Business rules in the argparse layer
-
-**What people do:** the 1–40 quantity cap lives in `main._positive_quantidade`
-(main.py:97-109, constant at main.py:37), while `GenerationRequest.quantidade` only enforces
-`gt=0` (models.py:19). A library caller can request 10,000 exercises.
-
-**Why it's wrong:** it is a domain invariant enforced only on the path that happens to have a
-CLI in front of it. Any second consumer bypasses it. The project's rules call for Fail Fast and
-for keeping configuration and business rules out of presentation code.
-
-**Do this instead:** move the bound into the model and keep the argparse check as a UX layer.
-
-```python
-# exercise-ai/models.py
-MAX_QUANTIDADE = 40
-
-class GenerationRequest(BaseModel):
-    ...
-    quantidade: int = Field(..., gt=0, le=MAX_QUANTIDADE,
-                            description="Quantidade exata de exercícios a gerar")
-```
-
-```python
-# exercise-ai/main.py — keep the argparse check, source the constant
-from models import MAX_QUANTIDADE
-_MAX_QUANTIDADE = MAX_QUANTIDADE   # wizard reads main_mod._MAX_QUANTIDADE (wizard.py:202)
-```
-
-This is **not** duplicated business knowledge: the number lives in exactly one place. The
-argparse check remains because it produces the CLI's exit code 2 and its Portuguese message
-(`test_main.py:151-163` asserts "máximo 40"), which a Pydantic `ValidationError` would not.
-Pydantic v2's `ValidationError` subclasses `ValueError`, so the library path stays inside the
-error contract in Pattern 3 without extra handling.
+**Do this instead:** keep `→ ExerciseBatch`; put echoed difficulty on `Exercise` fields if
+needed for validation/UX.
 
 ## Integration Points
 
@@ -550,133 +339,94 @@ error contract in Pattern 3 without extra handling.
 
 | Service | Integration Pattern | Notes |
 |---------|---------------------|-------|
-| OpenAI / Grok | `openai` SDK, Structured Outputs via `client.beta.chat.completions.parse` (generator.py:207) | Unchanged. Grok reuses the OpenAI client against `api.x.ai/v1`. |
-| Gemini | `google-genai` via `generator_gemini` (generator.py:334-337) | Unchanged. |
-| Host application | **in-process function call** to `service.generate_batch` | New. No HTTP, no serialisation, no subprocess. Host must put `exercise-ai/` on `sys.path` and owns its own `.env`/env loading. |
+| OpenAI / Grok / Gemini | Existing Structured Outputs / JSON schema via `ExerciseBatch` | Additive `Exercise` fields regenerate provider schemas automatically; pin models that support strict schema |
+| Host embed | `generate_batch(GenerationRequest)` | Contract preserved; optional `itens` is additive |
 
 ### Internal Boundaries
 
 | Boundary | Communication | Notes |
 |----------|---------------|-------|
-| `main.run` → `service` | direct call, returns `ExerciseBatch` | The seam. `run()` keeps 100% of presentation. |
-| `wizard` → `main.run` | direct call (wizard.py:248) | Unchanged. The wizard is a CLI surface, so reusing the CLI adapter is correct — routing it to `service` directly would force it to duplicate stdout rendering, file writing and exit handling. |
-| `demo/server.py` → `service` | direct call | Must not import `main` or `wizard`. |
-| `service` → `failover` | direct call (failover.py:58) | Unchanged signature. |
-| anything → `main` | **forbidden below the seam** | The one invariant. Greppable. |
+| Adapters → `service` | `GenerationRequest` in / `ExerciseBatch` out | Unchanged types at the seam |
+| `service` → failover → RELY | same `request` | No signature change |
+| RELY → generators | `build_prompts(request)` | Prompt must reflect `itens` |
+| RELY → validator | `(batch, request)` | Validator must read `itens` when set |
+| `reasoning.py` ↔ plan | none | Deliberate separation (API vs pedagogy) |
 
-### Demo-specific integration notes
+### New vs modified (explicit)
 
-The demo is the only new consumer that introduces a runtime concern of its own:
+| Kind | Component | Role |
+|------|-----------|------|
+| **New type (in `models.py`)** | `ExerciseSpec` (name TBD) | Per-item dificuldade + optional tipo pedagógico |
+| **Modified** | `GenerationRequest` | Optional `itens`; validators align `quantidade` |
+| **Modified (recommended)** | `Exercise` | Echo `dificuldade` (and optional tipo) for schema+validator |
+| **Modified** | `prompts.py` | Mixed-plan templates + branch in `build_prompts` |
+| **Modified** | `validator.py` | Plan-aware checks |
+| **Modified** | `main.py`, `wizard.py` | Plan UX; shared cap constant |
+| **Modified** | tests for the above | Offline unit tests; no live LLM |
+| **Unchanged** | `service.py` public signature, failover, RELY loop, generators’ call shape, `reasoning.py` | Preserve embed + ops contracts |
+| **Optional** | `demo/` form | Uniform still valid; extend only if needed for acceptance |
+| **Avoid** | New service modules, chunk orchestrator, second public generate API | YAGNI |
 
-- **Bind address.** `http.server.HTTPServer.address_family` defaults to `AF_INET` (verified: `2`
-  on this machine), so serving on `http://[::1]:8642/` requires a subclass setting
-  `address_family = socket.AF_INET6` (`23`). Without it the bind silently lands on IPv4.
-  **[HIGH — empirically verified locally + stdlib docs]**
-- **Threading vs. the one-at-a-time contract.** `ThreadingHTTPServer` handles each request in a
-  thread; plain `HTTPServer` is a `socketserver.TCPServer` and serialises. Plain `HTTPServer`
-  therefore satisfies the sequential contract for free, but the stdlib docs warn that browsers
-  pre-open sockets "on which `HTTPServer` would wait indefinitely" — a demo that hangs in front
-  of the host team is a bad demo. **[HIGH — official `http.server` docs]**
+### Suggested build order
 
-  **Recommendation, flagged for operator confirmation:** use `ThreadingHTTPServer` and wrap the
-  single `service.generate_batch` call in one module-level `threading.Lock`. This is ~3 lines and
-  it does **not** contradict the "no thread safety" constraint — the lock exists precisely
-  *because* the library is not thread-safe, and it keeps generation strictly sequential while the
-  socket layer stays responsive. If the operator prefers the letter of the constraint over its
-  intent, plain `HTTPServer` is acceptable and simpler; the pre-open stall is a cosmetic
-  annoyance, not a correctness bug.
-- **Config.** The demo must load env itself (`dotenv.load_dotenv()` — already a project
-  dependency — or rely on exported variables), because `service` deliberately does not.
-
-### Test integration points — three tests are pinned to `main`'s internals
-
-These will fail the moment `run()` delegates. All three are **modified**, not new, and each
-fails loudly rather than silently:
-
-| Test | Line | Why it breaks | Fix |
-|------|------|---------------|-----|
-| `test_main.py::test_main_source_keeps_plain_stderr_contract` | 98-108 | Asserts the string `"generate_with_failover"` appears in `main.py` **source text**; it moves to `service.py`. | Re-point that assertion at the new delegation (e.g. `"service.generate_batch" in msrc`); keep the `sys.exit(1)` and plain-stderr assertions as-is. |
-| `test_main.py::test_cli_max_retries_passes_to_run` | 251-259 | `patch.object(main, "resolve_max_retries", ...)` — `run()` no longer calls it, so `resolv.call_args` is `None`. | Patch `service.resolve_max_retries` instead. |
-| `test_failover.py::test_run_failover_writes_out_and_redacts` | 350-388 | `patch.object(main, "generate_with_failover", ...)` — the name no longer lives in `main`'s namespace. | Patch `service.generate_with_failover` instead. |
-
-Everything else in the suite patches `reliability.generate_exercises`, which sits well below the
-seam and is untouched. That is a large, free regression net for the extraction.
-
-### Build order
-
-Dependency-respecting sequence. Step 1 is the hinge; 2 and 3 are independent siblings; 0 is
-detachable and can run first or in parallel.
+Dependency order (schema → prompt → validate → UX → cap):
 
 ```
-0. Domain bound (independent, tiny)
+1. models (ExerciseSpec + GenerationRequest.itens [+ Exercise echo fields])
         │
-1. Seam extraction  ◄── everything else depends on this
-        ├──► 2. Env hygiene
-        ├──► 3. Error contract
+        ├─► 2. prompts.build_prompts mixed branch
         │         │
-        └─────────┴──► 4. Demo
+        │         └─► 3. validator plan checks (+ existing math)
+        │                   │
+        └───────────────────┴─► 4. CLI/wizard plan UX (builders only)
+                                      │
+                                      └─► 5. Cap review (MAX_QUANTIDADE) + regression suite
+                                            (+ optional demo)
 ```
 
-| # | Step | New / Modified | Depends on | Rationale |
-|---|------|----------------|------------|-----------|
-| 0 | Move the 1–40 bound into `models.py`; `main` imports the constant | MOD `models.py`, `main.py` | — | Self-contained and independent of the seam. Doing it first means the boundary is bound-safe from its first commit. |
-| 1 | Create `service.py` with `generate_batch`; `run()` delegates; fix the 3 pinned tests | **NEW `service.py`**; MOD `main.py`, 2 test files | 0 (optional) | Pure move, no behaviour change. Must be first — every later step edits or consumes this module. Verification is simply "the existing suite is green". |
-| 2 | Add `_scoped_env` + `provider`/`reasoning` kwargs; always guard `LLM_PROVIDER` | MOD `service.py` | 1 | Needs the boundary to exist. Independent of step 3. Verify the two CLI env-assertion tests still pass. |
-| 3 | `ConfigError(ValueError)` + `kind` at the 9 raise sites; document the 3-way contract | MOD `service.py`, `generator.py`, `failover.py`, `reliability.py`, `reasoning.py`, `main.py` | 1 | Touches many files but each edit is one line. Independent of step 2 — can run in parallel. Message strings must not change. |
-| 4 | `demo/server.py` — stdlib HTTP, IPv6 bind, serialised call, renders exercises + contract JSON | **NEW `demo/server.py`** | 1, 2, 3 | Last by necessity: it is the acceptance test for the boundary, and it needs the error contract to render failures meaningfully. Outside CI. |
+| # | Step | New / Modified | Depends on | Why this order |
+|---|------|----------------|------------|----------------|
+| 1 | Schema: `ExerciseSpec`, optional `itens`, align `quantidade`; optional `Exercise.dificuldade` | MOD `models.py` + model tests | — | Everything else reads the plan from the request/response types |
+| 2 | Prompt: itemized user/system branch; keep uniform path bit-compatible | MOD `prompts.py` + prompt tests | 1 | Generators already call `build_prompts`; no generator edits required |
+| 3 | Validator: length + per-item alignment when `itens` set; RELY still works | MOD `validator.py` + validator tests | 1 (2 for e2e realism) | Fail closed on mixed lots before UX invents plans |
+| 4 | CLI/wizard: plan shorthand → `itens`; argparse/wizard stay adapters | MOD `main.py`, `wizard.py` + tests | 1–3 | Presentation last so domain rules are already enforced in-library |
+| 5 | Cap / docs: revisit `MAX_QUANTIDADE`; README embed note that `itens` is additive | MOD models/main/wizard constants | 1–4 | Avoid raising cap before prompt/validator prove mixed lots |
 
-**Why not fold 2 and 3 into 1:** step 1's whole value is that it is behaviour-preserving and
-verifiable against the untouched test suite. Mixing in env-restore and new exception types would
-mean a failing test could be either a bad extraction or a bad new behaviour. Keeping the pure
-move separate is what makes "zero regression" checkable rather than asserted.
+**Preserve embed contract checklist:** same function name; same return type; uniform requests
+without `itens` behave as v2.0; errors remain `ConfigError` / `InvalidRequestError` /
+`GenerationFailedError`; no `sys.exit` below `main.run`.
 
 ## Constraint Check
 
-Two places where the research rubs against a stated rule. Neither is a contradiction I am
-proposing to break, but both should be visible to the roadmapper:
-
-1. **"Centralize configuration parsing and validation"** (`.cursor/rules/10-python.mdc`) points
-   toward a `Settings` object, which is explicitly rejected as YAGNI for this milestone. The
-   partial resolution: `service.py` becomes the single place that *scopes and bounds* config for
-   a call, and step 3 centralises the config **error** contract, without introducing a config
-   type. Config *parsing* stays distributed across `generator`, `reasoning` and `reliability`.
-   This is a conscious partial compliance, not an oversight — worth recording so a future
-   milestone can finish the job if a host ever needs programmatic config.
-2. **Library logging** — official Python guidance says libraries must not write to the
-   application's streams (Anti-Pattern 2). This codebase does, in ~15 places, and I am
-   recommending **not** fixing it in v2.0 on YAGNI and regression-risk grounds, with
-   `redirect_stderr` as the documented host escape hatch. This is research contradicting current
-   behaviour and the milestone consciously deferring the fix; it should be logged as known debt
-   rather than quietly accepted.
+1. **YAGNI:** no agent, no RAG, no FastAPI, no chunk service unless discuss proves a hard
+   context limit.
+2. **LLM is not source of truth:** mixed plan must be checked in `validator.py`, not only
+   prompted.
+3. **Testability:** plan expansion and validator tests stay offline (fixtures with fake
+   batches).
+4. **Discuss still open:** exact name/taxonomy of “tipo de raciocínio”; whether `Exercise`
+   must echo difficulty; final cap number — architecture allows all three without seam changes.
 
 ## Confidence Summary
 
 | Finding | Confidence | Basis |
 |---------|-----------|-------|
-| Library core + thin CLI adapter is the conventional shape | HIGH | Official mypy docs (`mypy.api.run`), official Click docs (`standalone_mode`), PyPA `console_scripts` spec |
-| Exit codes belong to the outermost wrapper, not library functions | HIGH | PyPA entry-points specification; PEP 348 on `BaseException` |
-| Libraries must not write to the caller's streams; use a named logger + `NullHandler` | HIGH | Official Python logging HOWTO |
-| stdout = primary output, stderr = messaging; non-zero exit on failure | HIGH | Command Line Interface Guidelines (clig.dev) |
-| Scoped env override via context manager with `finally` restore | HIGH | stdlib `unittest.mock.patch.dict`; corroborated by `snakeoil.contexts`, `pollute` |
-| Subclassing `ValueError` keeps existing `except` clauses working | MEDIUM | Practitioner consensus (multiple independent sources); no official spec |
-| `HTTPServer` is single-threaded; IPv6 needs `address_family = AF_INET6` | HIGH | Official `http.server` docs + empirically verified on this machine |
-| The three pinned tests and all named line numbers | HIGH | Read directly from this repository |
-| Build order and new/modified classification | HIGH (judgement) | My own analysis, grounded in the dependency graph above — not sourced |
+| Keep `generate_batch` → `ExerciseBatch` | HIGH | PROJECT.md Key Decisions; shipped v2.0 |
+| Optional `itens` on `GenerationRequest` is smallest integration | HIGH | SEED-006 Slice A; current models/prompts/validator touchpoints |
+| Prompt + validator are the only required pipeline edits | HIGH | `build_prompts` + `validate_exercise_batch` are the sole request-aware leaves |
+| API reasoning stays run-level | HIGH | `reasoning.py` / service scoped env; SEED-006 Slice C |
+| Avoid N-call fan-out and new services | HIGH | YAGNI + existing RELY/failover design |
+| Echo difficulty on `Exercise` for validation | MEDIUM | Strongest check; discuss may prefer prompt-only |
+| Cap raise without chunking | MEDIUM | Product ask vs context risk — finalize in discuss |
 
 ## Sources
 
-- Python logging HOWTO — "Configuring Logging for a Library" — https://docs.python.org/3/howto/logging.html (official)
-- PyPA Entry points specification — "Use for scripts" — https://packaging.python.org/en/latest/specifications/entry-points/ (official)
-- `http.server` — `HTTPServer` vs `ThreadingHTTPServer` — https://docs.python.org/3/library/http.server.html (official)
-- `unittest.mock` — `patch.dict(os.environ, ...)` — https://docs.python.org/3/library/unittest.mock.html (official)
-- Click — "Exception Handling and Exit Codes" / `standalone_mode` — https://click.palletsprojects.com/en/stable/exceptions (official, via Context7)
-- mypy — "Integrating mypy into another Python application" (`mypy.api.run`) — https://mypy.readthedocs.io/en/stable/extending_mypy.html (official)
-- Command Line Interface Guidelines — https://clig.dev/ (community standard)
-- PEP 348 — Exception Reorganization — https://peps.python.org/pep-0348/
-- Functional Core / Imperative Shell (Gary Bernhardt, 2012) — pattern framing for pushing effects to the edge
-- `snakeoil.contexts.os_environ` — https://pkgcore.github.io/snakeoil/_modules/snakeoil/contexts.html — reference env-restore implementation
-- This repository, read directly: `main.py`, `failover.py`, `reliability.py`, `generator.py`, `validator.py`, `reasoning.py`, `wizard.py`, `models.py`, `output_paths.py`, `token_usage/collector.py`, and `tests/`
+- `.planning/PROJECT.md` — v2.1 goal, pipeline diagram, embed contract decisions
+- `.planning/seeds/SEED-006-dynamic-batch-per-exercise.md` — slices A–E, breadcrumbs
+- `exercise-ai/models.py`, `service.py`, `prompts.py`, `validator.py`, `failover.py`, `reliability.py`
+- Prior research `.planning/research/ARCHITECTURE.md` (v2.0 embed, 2026-09-16) — seam invariants reused
+- AGENTS.md / STACK — Structured Outputs + Pydantic, no agent frameworks
 
 ---
-*Architecture research for: Python LLM pipeline — library boundary extraction from a CLI-first codebase*
-*Researched: 2026-09-16*
+*Architecture research for: dynamic per-item exercise batches on existing GenerationRequest → ExerciseBatch pipeline*
+*Researched: 2026-09-21*
