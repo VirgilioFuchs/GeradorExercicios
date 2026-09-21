@@ -274,8 +274,10 @@ def test_gemini_falls_back_on_usage_error(monkeypatch):
                     "enunciado": "Quanto é 1+1?",
                     "resposta": "2",
                     "explicacao": "Soma básica.",
+                    "dificuldade": "facil",
                 }
-            ]
+            ],
+            "dificuldades": ["facil"],
         }
     )
 

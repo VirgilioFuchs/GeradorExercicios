@@ -55,6 +55,23 @@ def _band_summary(specs: list[ExerciseSpec]) -> list[DificuldadeEnum]:
     return [b for b in _BAND_ORDER if b in present]
 
 
+def _equal_split_specs(
+    quantidade: int, bands: list[DificuldadeEnum]
+) -> list[ExerciseSpec]:
+    """Divide quantidade igualmente; resto na última faixa (D-07, D-08)."""
+    ordered = [b for b in _BAND_ORDER if b in bands]
+    n = len(ordered)
+    if n < 2:
+        raise ValueError("equal-split requer 2+ faixas distintas")
+    base, rem = divmod(quantidade, n)
+    counts = [base] * n
+    counts[-1] += rem
+    specs: list[ExerciseSpec] = []
+    for band, count in zip(ordered, counts):
+        specs.extend(ExerciseSpec(dificuldade=band) for _ in range(count))
+    return specs
+
+
 class GenerationRequest(BaseModel):
     """Parâmetros de entrada para solicitação de geração de exercícios."""
 
@@ -115,6 +132,15 @@ class GenerationRequest(BaseModel):
                     f"quantidade ({self.quantidade}) deve ser igual ao tamanho de "
                     f"itens ({len(specs)})"
                 )
+        elif self.dificuldades is not None and len(
+            [b for b in _BAND_ORDER if b in self.dificuldades]
+        ) >= 2:
+            # D-07 / D-08: equal-split across listed bands; remainder to last
+            unique_ordered = [b for b in _BAND_ORDER if b in self.dificuldades]
+            if not unique_ordered:
+                raise ValueError("dificuldades não pode ser vazio")
+            specs = _equal_split_specs(self.quantidade, unique_ordered)
+            self.itens = specs
         elif self.dificuldade is not None:
             # D-05 / D-06: uniform via scalar — one band, qty slots for Phase 14
             specs = [
@@ -127,9 +153,11 @@ class GenerationRequest(BaseModel):
             specs = [ExerciseSpec(dificuldade=band) for _ in range(self.quantidade)]
             if self.dificuldade is None:
                 self.dificuldade = band
+        elif self.dificuldades is not None and len(self.dificuldades) == 0:
+            raise ValueError("dificuldades não pode ser vazio")
         else:
             raise ValueError(
-                "informe dificuldade (uniforme), dificuldades (1 faixa), plano ou itens"
+                "informe dificuldade (uniforme), dificuldades, plano ou itens"
             )
 
         object.__setattr__(self, "_ordered_specs", specs)

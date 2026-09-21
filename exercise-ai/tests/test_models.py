@@ -9,6 +9,7 @@ from models import (
     DificuldadeEnum,
     Exercise,
     ExerciseBatch,
+    ExerciseSpec,
     GenerationRequest,
     MAX_QUANTIDADE,
     PlanoDificuldade,
@@ -148,3 +149,87 @@ def test_verify_plan_echo_passes_and_fails():
     with pytest.raises(ValueError, match="echo mismatch"):
         verify_plan_echo(bad, req)
     assert bad.exercicios[0].dificuldade == DificuldadeEnum.MEDIO
+
+
+def test_plano_and_itens_xor_rejected():
+    """D-03: plano ∧ itens → ValidationError."""
+    with pytest.raises(ValidationError, match="mutuamente exclusivos"):
+        GenerationRequest(
+            topico="Frações",
+            quantidade=2,
+            plano=PlanoDificuldade(facil=1, medio=1, dificil=0),
+            itens=[
+                ExerciseSpec(dificuldade=DificuldadeEnum.FACIL),
+                ExerciseSpec(dificuldade=DificuldadeEnum.MEDIO),
+            ],
+        )
+
+
+def test_quantidade_mismatch_plano_rejected():
+    """BATCH-02: quantidade != sum(plano) → ValidationError."""
+    with pytest.raises(ValidationError, match="quantidade"):
+        GenerationRequest(
+            topico="Frações",
+            quantidade=3,
+            plano=PlanoDificuldade(facil=1, medio=1, dificil=0),
+        )
+
+
+def test_quantidade_mismatch_itens_rejected():
+    """BATCH-02: quantidade != len(itens) → ValidationError."""
+    with pytest.raises(ValidationError, match="quantidade"):
+        GenerationRequest(
+            topico="Frações",
+            quantidade=3,
+            itens=[
+                ExerciseSpec(dificuldade=DificuldadeEnum.FACIL),
+                ExerciseSpec(dificuldade=DificuldadeEnum.MEDIO),
+            ],
+        )
+
+
+def test_empty_plano_with_qty_rejected():
+    """Empty plano (all zeros) with quantidade>0 fails BATCH-02."""
+    with pytest.raises(ValidationError, match="quantidade"):
+        GenerationRequest(
+            topico="Frações",
+            quantidade=2,
+            plano=PlanoDificuldade(facil=0, medio=0, dificil=0),
+        )
+
+
+def test_itens_only_path_preserves_order():
+    """BATCH-01: explicit itens accepted and ordered as given."""
+    req = GenerationRequest(
+        topico="Frações",
+        quantidade=3,
+        itens=[
+            ExerciseSpec(dificuldade=DificuldadeEnum.DIFICIL),
+            ExerciseSpec(dificuldade=DificuldadeEnum.FACIL),
+            ExerciseSpec(dificuldade=DificuldadeEnum.MEDIO),
+        ],
+    )
+    assert [s.dificuldade for s in req.itens_ordenados] == [
+        DificuldadeEnum.DIFICIL,
+        DificuldadeEnum.FACIL,
+        DificuldadeEnum.MEDIO,
+    ]
+    assert req.dificuldades == [
+        DificuldadeEnum.FACIL,
+        DificuldadeEnum.MEDIO,
+        DificuldadeEnum.DIFICIL,
+    ]
+
+
+def test_equal_split_dificuldades_remainder_to_last():
+    """D-07/D-08: qty 5, facil+medio → 2 fáceis + 3 médios."""
+    req = GenerationRequest(
+        topico="Frações",
+        quantidade=5,
+        dificuldades=[DificuldadeEnum.FACIL, DificuldadeEnum.MEDIO],
+    )
+    bands = [s.dificuldade for s in req.itens_ordenados]
+    assert bands == (
+        [DificuldadeEnum.FACIL] * 2 + [DificuldadeEnum.MEDIO] * 3
+    )
+    assert req.dificuldades == [DificuldadeEnum.FACIL, DificuldadeEnum.MEDIO]
