@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v2.1
 current_phase_name: Request schema & plan contract
 status: planning
-stopped_at: "Roadmap v2.1 drafted — awaiting approval"
-last_updated: "2026-09-21T13:10:00.000Z"
+stopped_at: "Roadmap v2.1 approved — next: discuss or plan Phase 13"
+last_updated: "2026-09-21T13:14:00.000Z"
 last_activity: 2026-09-21
-last_activity_desc: Roadmap v2.1 phases 13-15 drafted
+last_activity_desc: Roadmap v2.1 approved (phases 13-15)
 progress:
   total_phases: 3
   completed_phases: 0
