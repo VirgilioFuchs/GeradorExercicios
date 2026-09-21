@@ -64,26 +64,24 @@ Deferred; tracked but not in current roadmap.
 
 ## Traceability
 
-Filled during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BATCH-01 | — | Pending |
-| BATCH-02 | — | Pending |
-| BATCH-03 | — | Pending |
-| BATCH-04 | — | Pending |
-| PROMPT-01 | — | Pending |
-| VAL-01 | — | Pending |
-| VAL-02 | — | Pending |
-| UX-01 | — | Pending |
-| UX-02 | — | Pending |
-| CAP-01 | — | Pending |
+| BATCH-01 | Phase 13 | Pending |
+| BATCH-02 | Phase 13 | Pending |
+| BATCH-03 | Phase 13 | Pending |
+| BATCH-04 | Phase 13 | Pending |
+| CAP-01 | Phase 13 | Pending |
+| PROMPT-01 | Phase 14 | Pending |
+| VAL-01 | Phase 14 | Pending |
+| VAL-02 | Phase 14 | Pending |
+| UX-01 | Phase 15 | Pending |
+| UX-02 | Phase 15 | Pending |
 
 **Coverage:**
 - v2.1 requirements: 10 total
-- Mapped to phases: 0
-- Unmapped: 10 (roadmap next)
+- Mapped to phases: 10
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-09-21*  
-*Last updated: 2026-09-21 after milestone v2.1 scoping*
+*Last updated: 2026-09-21 after roadmap v2.1 (phases 13–15)*

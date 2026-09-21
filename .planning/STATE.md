@@ -1,15 +1,14 @@
 ---
 gsd_state_version: 1.0
 milestone: v2.1
-current_phase_name: defining requirements
+current_phase_name: Request schema & plan contract
 status: planning
-stopped_at: "Session resumed, proceeding to choose next action (primary: $gsd-new-milestone)"
-last_updated: "2026-09-21T13:04:06.318Z"
+stopped_at: "Roadmap v2.1 drafted — awaiting approval"
+last_updated: "2026-09-21T13:10:00.000Z"
 last_activity: 2026-09-21
-last_activity_desc: Milestone v2.1 started
-state_head: 5b0cfe33e049a67bee7df227d7353ef379e21ec4
+last_activity_desc: Roadmap v2.1 phases 13-15 drafted
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -24,13 +23,13 @@ milestone_name: Lotes dinâmicos
 See: .planning/PROJECT.md (updated 2026-09-21)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato — agora também como biblioteca embutível
-**Current focus:** v2.1 Lotes dinâmicos (SEED-006) — defining requirements
+**Current focus:** v2.1 Phase 13 — Request schema & plan contract
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 13 of 15 — Request schema & plan contract
 Plan: —
-Status: Defining requirements
+Status: Ready to plan Phase 13
 Last activity: 2026-09-21 — Milestone v2.1 started
 
 ## Performance Metrics
@@ -110,7 +109,7 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 1 | wizard: matéria before tipo de exercício | 2026-09-16 | 80072d4 | — |
 | 2 | model catalogs GPT/Gemini/Grok from Modelos.txt + capacity fallbacks | 2026-09-21 | 961fc2e | 260921-d9y-add-gpt-gemini-grok-model-catalogs-from- |
-| 3 | --description | 2026-09-21 | 5b0cfe3 | 260921-dsv-demo-select-model-from-model-catalog-lis |
+| 3 | demo model picker from model_catalog | 2026-09-21 | f9fbbbc | 260921-dsv-demo-select-model-from-model-catalog-lis |
 
 ## Session Continuity
 

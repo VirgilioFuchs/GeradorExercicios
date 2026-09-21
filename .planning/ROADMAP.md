@@ -6,8 +6,43 @@
 - ✅ **v1.1 Qualidade do exercício** — Phases 4–6 (shipped 2026-09-09) — [archive](./milestones/v1.1-ROADMAP.md) · [requirements](./milestones/v1.1-REQUIREMENTS.md) · [phases](./milestones/v1.1-phases/) · [audit](./milestones/v1.1-MILESTONE-AUDIT.md)
 - ✅ **v1.2 Ops & Resilience** — Phases 7–10 (shipped 2026-09-15) — [archive](./milestones/v1.2-ROADMAP.md) · [requirements](./milestones/v1.2-REQUIREMENTS.md) · [phases](./milestones/v1.2-phases/) · [audit](./milestones/v1.2-MILESTONE-AUDIT.md)
 - ✅ **v2.0 Embed em Produção** — Phases 11–12 (shipped 2026-09-18) — [archive](./milestones/v2.0-ROADMAP.md) · [requirements](./milestones/v2.0-REQUIREMENTS.md) · [phases](./milestones/v2.0-phases/) · [audit](./milestones/v2.0-MILESTONE-AUDIT.md)
+- 🚧 **v2.1 Lotes dinâmicos** — Phases 13–15 (in progress)
 
-## Phases
+## Current Milestone: v2.1 Lotes dinâmicos
+
+**Goal:** O operador monta um lote com controle por exercício (dificuldade mista), em vez de N cópias do mesmo nível — schema → prompt/validator → CLI/wizard.
+
+**Requirements:** 10 v2.1 · see [REQUIREMENTS.md](./REQUIREMENTS.md)
+
+### Phase 13: Request schema & plan contract
+**Goal:** O domínio expressa um plano misto (ou uniforme) de forma tipada, com invariantes, sem quebrar o embed `generate_batch → ExerciseBatch`.
+**Requirements:** BATCH-01, BATCH-02, BATCH-03, BATCH-04, CAP-01
+**Success criteria:**
+1. Operador/host pode enviar request com specs por item **ou** modo uniforme (`dificuldade` + `quantidade`)
+2. Request com `quantidade` ≠ len(plano) é rejeitado antes da chamada LLM
+3. Cada exercício no JSON tipado pode ecoar `dificuldade` do slot
+4. Cap de quantidade permanece **40** (domínio + superfícies alinhadas)
+5. Suite offline existente continua verde no caminho uniforme
+
+### Phase 14: Mixed prompt + plan-adherence validation
+**Goal:** Lotes mistos são instruídos no prompt e verificados no validator; RELY/math_check não são redesenhados.
+**Requirements:** PROMPT-01, VAL-01, VAL-02
+**Success criteria:**
+1. Com plano misto, o prompt enumera cada slot → dificuldade esperada
+2. Validator falha se count ou dificuldade por slot não aderir ao plano
+3. Falhas de adesão/validação ainda entram no loop RELY existente (bounded)
+4. math_check continua sem overhaul; fixtures offline cobrem mismatch de plano
+
+### Phase 15: CLI / wizard batch-plan UX
+**Goal:** Operador define o plano com UX compacta (wizard + argparse), sem N flags manuais; host usa o mesmo `GenerationRequest`.
+**Requirements:** UX-01, UX-02
+**Success criteria:**
+1. Wizard `gerar` permite contagens por banda (ex. fáceis/médios/difíceis) e monta o request
+2. Argparse aceita plano compacto (ex. `--plano`) e deriva `itens`/`quantidade`
+3. Documentação curta: embed usa request enriquecido; demo não exige UX nova de plano
+4. Caller matrix (CLI, wizard, service) verde offline
+
+## Phases (shipped)
 
 <details>
 <summary>✅ v1 MVP (Phases 1–3) — SHIPPED 2026-09-04</summary>
@@ -45,10 +80,11 @@
 
 </details>
 
-## Next Milestone
+## Deferred / open (not in v2.1 phases)
 
-Awaiting `$gsd-new-milestone`. Lead candidate: **PKG-01** packaging `pyproject.toml` + rename `exercise_ai/`.
+- **CAP-02** — subir cap finito (após v2.1)
+- **TIPO-OPEN** — taxonomia de “tipo de raciocínio” (discuss/research; não bloqueia 13–15 de dificuldade mista)
+- PKG-01, OBS-01, LOG-01, SEED-001/003/005/007
 
 ---
-*Last milestone shipped: v2.0 — 2026-09-18*
-*Roadmap collapsed after v2.0 archive*
+*Roadmap updated: 2026-09-21 — start v2.1 Lotes dinâmicos (phases 13–15)*
