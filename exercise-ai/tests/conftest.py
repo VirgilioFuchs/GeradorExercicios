@@ -43,18 +43,20 @@ def make_request():
 
 @pytest.fixture
 def make_exercise():
-    """Factory for a single Exercise."""
+    """Factory for a single Exercise (supplies required dificuldade echo)."""
 
     def _make(
         *,
         enunciado: str = "enunciado",
         resposta: str = "resposta",
         explicacao: str = "explicacao",
+        dificuldade: DificuldadeEnum = DificuldadeEnum.FACIL,
     ) -> Exercise:
         return Exercise(
             enunciado=enunciado,
             resposta=resposta,
             explicacao=explicacao,
+            dificuldade=dificuldade,
         )
 
     return _make
@@ -62,9 +64,14 @@ def make_exercise():
 
 @pytest.fixture
 def make_batch(make_exercise):
-    """Factory for ExerciseBatch with N filled exercises."""
+    """Factory for ExerciseBatch with N filled exercises + dificuldades echo."""
 
-    def _make(n: int = 2, **field_overrides) -> ExerciseBatch:
+    def _make(
+        n: int = 2,
+        *,
+        dificuldades: list[DificuldadeEnum] | None = None,
+        **field_overrides,
+    ) -> ExerciseBatch:
         exercises = []
         for i in range(n):
             kwargs = {
@@ -74,6 +81,14 @@ def make_batch(make_exercise):
             }
             kwargs.update(field_overrides)
             exercises.append(make_exercise(**kwargs))
-        return ExerciseBatch(exercicios=exercises)
+        if dificuldades is None:
+            bands = {ex.dificuldade for ex in exercises}
+            order = (
+                DificuldadeEnum.FACIL,
+                DificuldadeEnum.MEDIO,
+                DificuldadeEnum.DIFICIL,
+            )
+            dificuldades = [b for b in order if b in bands] or [DificuldadeEnum.FACIL]
+        return ExerciseBatch(exercicios=exercises, dificuldades=dificuldades)
 
     return _make
