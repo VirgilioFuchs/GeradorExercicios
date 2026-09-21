@@ -105,7 +105,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 1 | wizard: matéria before tipo de exercício | 2026-09-16 | 80072d4 | — |
-| 2 | model catalogs GPT/Gemini/Grok from Modelos.txt + capacity fallbacks | 2026-09-21 | — | 260921-d9y-add-gpt-gemini-grok-model-catalogs-from- |
+| 2 | model catalogs GPT/Gemini/Grok from Modelos.txt + capacity fallbacks | 2026-09-21 | 961fc2e | 260921-d9y-add-gpt-gemini-grok-model-catalogs-from- |
 
 ## Session Continuity
 
