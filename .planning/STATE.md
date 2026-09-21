@@ -1,19 +1,21 @@
 ---
 gsd_state_version: 1.0
 milestone: v2.1
+milestone_name: Lotes dinâmicos
+current_phase: 13
 current_phase_name: Request schema & plan contract
 status: planning
-stopped_at: "Roadmap v2.1 approved — next: discuss or plan Phase 13"
-last_updated: "2026-09-21T13:14:00.000Z"
+stopped_at: Phase 13 context gathered
+last_updated: "2026-09-21T14:07:19.003Z"
 last_activity: 2026-09-21
 last_activity_desc: Roadmap v2.1 approved (phases 13-15)
+state_head: b8ad4c886afdeca3a56aac1013b465bae57a1afc
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
   percent: 0
-milestone_name: Lotes dinâmicos
 ---
 
 # Project State
@@ -113,8 +115,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-21T11:49:00.000Z
-Stopped at: Session resumed, proceeding to choose next action (primary: $gsd-new-milestone)
+Last session: 2026-09-21T14:07:18.978Z
+Stopped at: Phase 13 context gathered
 Resume file: .planning/.continue-here.md
 
 ## Operator Next Steps
