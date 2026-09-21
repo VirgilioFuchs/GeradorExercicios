@@ -17,6 +17,7 @@ def test_index_html_has_form_and_tab_markers() -> None:
         "Exercícios",
         "JSON",
         "GenerationRequest",
+        "model-select",
     ):
         assert needle in text, f"missing marker in index.html: {needle!r}"
 
@@ -25,10 +26,12 @@ def test_app_js_has_client_behavior_markers() -> None:
     text = APP_JS.read_text(encoding="utf-8")
     for needle in (
         "/gerar",
+        "/models",
         "Gerando",
         "HTTP 409",
         "lastSuccessBatch",
         "sessionStorage",  # D-16 banner dismiss
+        "fillModelOptions",
     ):
         assert needle in text, f"missing marker in app.js: {needle!r}"
 

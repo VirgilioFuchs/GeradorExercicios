@@ -404,13 +404,15 @@ def generate_exercises(
 ) -> ExerciseBatch:
     """Gera exercícios matemáticos estruturados via OpenAI, Gemini ou Grok."""
     provider = _resolve_provider()
+    env_model = os.getenv("LLM_MODEL", "").strip() or None
+    chosen = model or env_model
 
     if provider == "gemini":
         from generator_gemini import DEFAULT_GEMINI_MODEL, generate_exercises as generate_gemini
 
-        return generate_gemini(request, model=model or DEFAULT_GEMINI_MODEL)
+        return generate_gemini(request, model=chosen or DEFAULT_GEMINI_MODEL)
 
     if provider == "grok":
-        return _generate_with_grok(request, model=model or DEFAULT_GROK_MODEL)
+        return _generate_with_grok(request, model=chosen or DEFAULT_GROK_MODEL)
 
-    return _generate_with_openai(request, model=model or DEFAULT_OPENAI_MODEL)
+    return _generate_with_openai(request, model=chosen or DEFAULT_OPENAI_MODEL)

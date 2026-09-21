@@ -15,6 +15,8 @@
 
   var form = document.getElementById("gerar-form");
   var btn = document.getElementById("submit-btn");
+  var providerSelect = document.getElementById("provider-select");
+  var modelSelect = document.getElementById("model-select");
   var errorRegion = document.getElementById("error-region");
   var errorBadge = document.getElementById("error-badge");
   var errorMsg = document.getElementById("error-msg");
@@ -28,9 +30,55 @@
   var jsonOut = document.getElementById("json-out");
 
   var lastSuccessBatch = null;
+  var modelsCatalog = null;
   var BANNER_KEY = "demo-throwaway-banner-dismissed";
   var banner = document.getElementById("throwaway-banner");
   var bannerDismiss = document.getElementById("banner-dismiss");
+
+  function fillModelOptions(provider) {
+    if (!modelSelect) return;
+    var prev = modelSelect.value;
+    modelSelect.innerHTML = "";
+    var empty = document.createElement("option");
+    empty.value = "";
+    empty.textContent = "default (auto)";
+    modelSelect.appendChild(empty);
+    if (!modelsCatalog) return;
+    var key = provider || "openai";
+    if (key === "") key = "openai";
+    var list = modelsCatalog[key] || [];
+    var defaults = modelsCatalog.defaults || {};
+    list.forEach(function (id) {
+      var opt = document.createElement("option");
+      opt.value = id;
+      opt.textContent = id === defaults[key] ? id + " (default)" : id;
+      modelSelect.appendChild(opt);
+    });
+    if (prev && list.indexOf(prev) !== -1) {
+      modelSelect.value = prev;
+    }
+  }
+
+  function loadModels() {
+    return fetch("/models")
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (data) {
+        modelsCatalog = data;
+        fillModelOptions(providerSelect ? providerSelect.value : "");
+      })
+      .catch(function () {
+        modelsCatalog = null;
+      });
+  }
+
+  if (providerSelect) {
+    providerSelect.addEventListener("change", function () {
+      fillModelOptions(providerSelect.value);
+    });
+  }
+  loadModels();
 
   // D-16: dismissible banner for browser session via sessionStorage
   try {
@@ -145,6 +193,7 @@
       dificuldade: fd.get("dificuldade"),
       quantidade: Number(fd.get("quantidade")),
       provider: fd.get("provider") || "",
+      model: fd.get("model") || "",
       reasoning: fd.get("reasoning") || "medium",
     };
 

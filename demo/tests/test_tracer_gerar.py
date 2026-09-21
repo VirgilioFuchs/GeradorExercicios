@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 import threading
 import time
@@ -90,6 +91,53 @@ def test_gerar_success_mocked(demo_server) -> None:
         assert req.materia == "Matemática"
         assert req.topico == "equação do 1º grau"
         assert req.quantidade == 1
+
+
+def test_models_endpoint(demo_server) -> None:
+    _httpd, port = demo_server
+    conn = HTTPConnection("::1", port, timeout=5)
+    try:
+        conn.request("GET", "/models", headers={"Host": "[::1]:8642"})
+        resp = conn.getresponse()
+        data = json.loads(resp.read().decode("utf-8"))
+        assert resp.status == 200
+        assert "openai" in data and "gemini" in data and "grok" in data
+        assert "defaults" in data
+        assert data["defaults"]["openai"]
+        assert isinstance(data["openai"], list) and len(data["openai"]) >= 1
+    finally:
+        conn.close()
+
+
+def test_gerar_sets_llm_model_env(demo_server) -> None:
+    _httpd, port = demo_server
+    seen: dict[str, str | None] = {}
+
+    def capture(request):
+        seen["LLM_MODEL"] = os.environ.get("LLM_MODEL")
+        return ExerciseBatch(
+            exercicios=[
+                Exercise(enunciado="1+1", resposta="2", explicacao="soma")
+            ]
+        )
+
+    with patch.object(serve, "generate_batch", side_effect=capture):
+        status, data = _post_gerar(
+            port,
+            {
+                "materia": "Matemática",
+                "topico": "soma",
+                "dificuldade": "facil",
+                "quantidade": 1,
+                "provider": "openai",
+                "model": "gpt-4o-mini",
+                "reasoning": "medium",
+            },
+        )
+        assert status == 200
+        assert data["ok"] is True
+        assert seen["LLM_MODEL"] == "gpt-4o-mini"
+    assert os.environ.get("LLM_MODEL") in (None, "")
 
 
 def test_gerar_config_error_mocked(demo_server) -> None:

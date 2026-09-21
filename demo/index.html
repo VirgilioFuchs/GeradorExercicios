@@ -89,11 +89,16 @@
       <legend>Ambiente (só nesta demo)</legend>
       <p class="hint">Estes controles <strong>não</strong> entram no JSON do lote (<code>GenerationRequest</code> / <code>ExerciseBatch</code>).</p>
       <label>provider
-        <select name="provider">
+        <select name="provider" id="provider-select">
           <option value="">auto</option>
           <option value="openai">openai</option>
           <option value="gemini">gemini</option>
           <option value="grok">grok</option>
+        </select>
+      </label>
+      <label>model
+        <select name="model" id="model-select">
+          <option value="">default (auto)</option>
         </select>
       </label>
       <label>reasoning

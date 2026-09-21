@@ -41,7 +41,7 @@ PORT = 8642
 
 _VALID_PROVIDER = frozenset({"openai", "gemini", "grok"})
 _VALID_REASONING = frozenset({"none", "low", "medium", "high"})
-_SCOPED_ENV_KEYS = ("LLM_PROVIDER", "LLM_REASONING_EFFORT")
+_SCOPED_ENV_KEYS = ("LLM_PROVIDER", "LLM_REASONING_EFFORT", "LLM_MODEL")
 
 _GEN_LOCK = threading.Lock()
 
@@ -52,8 +52,12 @@ class DemoServer(ThreadingHTTPServer):
     address_family = socket.AF_INET6
 
 
-def _apply_env(provider: str | None, reasoning: str | None) -> dict[str, Any]:
-    """Snapshot env, apply provider/reasoning; caller must restore via _restore_scoped_env."""
+def _apply_env(
+    provider: str | None,
+    reasoning: str | None,
+    model: str | None = None,
+) -> dict[str, Any]:
+    """Snapshot env, apply provider/reasoning/model; caller must restore."""
     snapshot: dict[str, Any] = {
         key: os.environ.get(key) for key in _SCOPED_ENV_KEYS
     }
@@ -71,6 +75,12 @@ def _apply_env(provider: str | None, reasoning: str | None) -> dict[str, Any]:
     else:
         os.environ["LLM_REASONING_EFFORT"] = "medium"
 
+    model_id = (model or "").strip()
+    if model_id:
+        os.environ["LLM_MODEL"] = model_id
+    else:
+        os.environ.pop("LLM_MODEL", None)
+
     return snapshot
 
 
@@ -87,8 +97,38 @@ def _restore_scoped_env(snapshot: dict[str, Any]) -> None:
             os.environ.pop(key, None)
 
 
+def _models_payload() -> dict[str, Any]:
+    """Generation fallback lists for the demo model picker."""
+    from model_catalog import (
+        DEFAULT_GEMINI_MODEL,
+        DEFAULT_GROK_MODEL,
+        DEFAULT_OPENAI_MODEL,
+        GEMINI_MODEL_FALLBACKS,
+        GROK_MODEL_FALLBACKS,
+        OPENAI_MODEL_FALLBACKS,
+    )
+
+    return {
+        "openai": list(OPENAI_MODEL_FALLBACKS),
+        "gemini": list(GEMINI_MODEL_FALLBACKS),
+        "grok": list(GROK_MODEL_FALLBACKS),
+        "defaults": {
+            "openai": DEFAULT_OPENAI_MODEL,
+            "gemini": DEFAULT_GEMINI_MODEL,
+            "grok": DEFAULT_GROK_MODEL,
+        },
+    }
+
+
 class DemoHandler(SimpleHTTPRequestHandler):
     """Static files from demo/ plus POST /gerar → generate_batch under Lock."""
+
+    def do_GET(self) -> None:  # noqa: N802
+        path = self.path.split("?", 1)[0]
+        if path == "/models":
+            self._send_json(200, _models_payload())
+            return
+        super().do_GET()
 
     def do_POST(self) -> None:  # noqa: N802
         if self.path.split("?", 1)[0] != "/gerar":
@@ -153,9 +193,11 @@ class DemoHandler(SimpleHTTPRequestHandler):
 
             provider = body.get("provider")
             reasoning = body.get("reasoning")
+            model = body.get("model")
             snapshot = _apply_env(
                 provider if isinstance(provider, str) else None,
                 reasoning if isinstance(reasoning, str) else None,
+                model if isinstance(model, str) else None,
             )
             try:
                 try:
