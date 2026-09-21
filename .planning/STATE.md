@@ -17,10 +17,10 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-18)
+See: .planning/PROJECT.md (updated 2026-09-21)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato — agora também como biblioteca embutível
-**Current focus:** Planning next milestone (PKG-01 lead)
+**Current focus:** v2.1 Lotes dinâmicos (SEED-006) — defining requirements
 
 ## Current Position
 
@@ -93,7 +93,8 @@ None yet.
 | Observability | OBS-01 usage/cost alongside batch | Next embed-hardening | 2026-09-16 | v2.0 |
 | Logging | LOG-01 print→logging (~33 sites) | Known debt | 2026-09-16 | v2.0 |
 | Seeds | SEED-005-usable-postmortem (dormant) | acknowledged at close | 2026-09-18 | v2.0 |
-| Seeds | SEED-006-dynamic-batch-per-exercise (dormant) | acknowledged at close | 2026-09-18 | v2.0 |
+| Seeds | SEED-006-dynamic-batch-per-exercise | Promoted → v2.1 | 2026-09-21 | v2.1 |
+| Seeds | SEED-007-exercise-ai-persona-rules (dormant) | planted | 2026-09-21 | v2.1 |
 | Seeds | SEED-001 BNCC (dormant) | Acknowledged at v1.2 close | 2026-09-15 | v1.2 |
 | Seeds | SEED-003 B/C images / storytelling | After embed | 2026-09-16 | v2.0 |
 | Ops | Nyquist VALIDATION gaps (phases 8–10) | Accepted tech debt | 2026-09-15 | v1.2 |
@@ -104,6 +105,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 1 | wizard: matéria before tipo de exercício | 2026-09-16 | 80072d4 | — |
+| 2 | model catalogs GPT/Gemini/Grok from Modelos.txt + capacity fallbacks | 2026-09-21 | — | 260921-d9y-add-gpt-gemini-grok-model-catalogs-from- |
 
 ## Session Continuity
 
