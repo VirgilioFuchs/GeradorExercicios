@@ -15,9 +15,11 @@
 **Requirements:** 11 v2.1 · see [REQUIREMENTS.md](./REQUIREMENTS.md)
 
 ### Phase 13: Request schema & plan contract
+
 **Goal:** O domínio expressa um plano misto (ou uniforme) de forma tipada, com invariantes, sem quebrar o embed `generate_batch → ExerciseBatch`.
 **Requirements:** BATCH-01, BATCH-02, BATCH-03, BATCH-04, CAP-01
 **Success criteria:**
+
 1. Operador/host pode enviar request com specs por item **ou** modo uniforme (`dificuldade` + `quantidade`)
 2. Request com `quantidade` ≠ len(plano) é rejeitado antes da chamada LLM
 3. Cada exercício no JSON tipado pode ecoar `dificuldade` do slot
@@ -25,9 +27,11 @@
 5. Suite offline existente continua verde no caminho uniforme
 
 ### Phase 14: Mixed prompt + plan-adherence + demo enablement
+
 **Goal:** Lotes mistos são instruídos no prompt, verificados no validator, e **habilitados na demo** (mesmo `GenerationRequest`); RELY/math_check não são redesenhados.
 **Requirements:** PROMPT-01, VAL-01, VAL-02, DEMO-01
 **Success criteria:**
+
 1. Com plano misto, o prompt enumera cada slot → dificuldade esperada
 2. Validator falha se count ou dificuldade por slot não aderir ao plano
 3. Falhas de adesão/validação ainda entram no loop RELY existente (bounded)
@@ -35,9 +39,11 @@
 5. Demo UI permite contagens por banda e `POST /gerar` monta `plano` (caminho misto exercitável sem CLI)
 
 ### Phase 15: CLI / wizard batch-plan UX
+
 **Goal:** Operador define o plano com UX compacta (wizard + argparse), sem N flags manuais; mesmo contrato já usado pela demo na Phase 14.
 **Requirements:** UX-01, UX-02
 **Success criteria:**
+
 1. Wizard `gerar` permite contagens por banda (ex. fáceis/médios/difíceis) e monta o request
 2. Argparse aceita plano compacto (ex. `--plano`) e deriva `itens`/`quantidade`
 3. Documentação curta: embed/demo/CLI compartilham `GenerationRequest` enriquecido
