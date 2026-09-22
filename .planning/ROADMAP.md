@@ -26,10 +26,12 @@
 4. Cap de quantidade permanece **40** (domínio + superfícies alinhadas)
 5. Suite offline existente continua verde no caminho uniforme
 
-### Phase 14: Mixed prompt + plan-adherence + demo enablement
+### Phase 14: Mixed prompt + plan-adherence + demo enablement ✅
 
 **Goal:** Lotes mistos são instruídos no prompt, verificados no validator, e **habilitados na demo** (mesmo `GenerationRequest`); RELY/math_check não são redesenhados.
 **Requirements:** PROMPT-01, VAL-01, VAL-02, DEMO-01
+**Plans:** 3/3 complete
+**Status:** Complete — 2026-09-22
 **Success criteria:**
 
 1. Com plano misto, o prompt enumera cada slot → dificuldade esperada
@@ -87,11 +89,20 @@
 
 </details>
 
+<details>
+<summary>🚧 v2.1 Lotes dinâmicos (Phases 13–15) — IN PROGRESS</summary>
+
+- [x] Phase 13: Request schema & plan contract (1/1 plans) — completed 2026-09-22
+- [x] Phase 14: Mixed prompt + plan-adherence + demo enablement (3/3 plans) — completed 2026-09-22
+- [ ] Phase 15: CLI / wizard batch-plan UX
+
+</details>
+
 ## Deferred / open (not in v2.1 phases)
 
 - **CAP-02** — subir cap finito (após v2.1)
 - **TIPO-OPEN** — taxonomia de “tipo de raciocínio” (discuss/research; não bloqueia 13–15 de dificuldade mista)
-- PKG-01, OBS-01, LOG-01, SEED-001/003/005/007
+- PKG-01, OBS-01, LOG-01, SEED-001/003/005/007/009
 
 ---
-*Roadmap updated: 2026-09-21 — DEMO-01 into Phase 14 (prompt+VAL+demo vertical slice)*
+*Roadmap updated: 2026-09-22 — Phase 14 complete (UAT 4/4); next Phase 15*

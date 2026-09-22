@@ -17,16 +17,16 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### PROMPT — Prompt misto
 
-- [ ] **PROMPT-01**: Prompt enumera slot → dificuldade (item-a-item) quando o plano misto está presente
+- [x] **PROMPT-01**: Prompt enumera slot → dificuldade (item-a-item) quando o plano misto está presente
 
 ### VAL — Validação (sem overhaul de math)
 
-- [ ] **VAL-01**: Validator checa count + adesão por slot ao plano
-- [ ] **VAL-02**: RELY + math_check atuais permanecem (sem redesign)
+- [x] **VAL-01**: Validator checa count + adesão por slot ao plano
+- [x] **VAL-02**: RELY + math_check atuais permanecem (sem redesign)
 
 ### DEMO — Habilitação na demo local
 
-- [ ] **DEMO-01**: Demo (`demo/`) permite montar plano misto (contagens por banda) e envia `plano` (ou equivalente) em `POST /gerar` → `GenerationRequest` enriquecido — sem função morta só no schema
+- [x] **DEMO-01**: Demo (`demo/`) permite montar plano misto (contagens por banda) e envia `plano` (ou equivalente) em `POST /gerar` → `GenerationRequest` enriquecido — sem função morta só no schema
 
 ### UX — CLI / wizard
 
@@ -74,14 +74,15 @@ Deferred; tracked but not in current roadmap.
 | BATCH-03 | Phase 13 | Pending |
 | BATCH-04 | Phase 13 | Pending |
 | CAP-01 | Phase 13 | Pending |
-| PROMPT-01 | Phase 14 | Pending |
-| VAL-01 | Phase 14 | Pending |
-| VAL-02 | Phase 14 | Pending |
-| DEMO-01 | Phase 14 | Pending |
+| PROMPT-01 | Phase 14 | Complete |
+| VAL-01 | Phase 14 | Complete |
+| VAL-02 | Phase 14 | Complete |
+| DEMO-01 | Phase 14 | Complete |
 | UX-01 | Phase 15 | Pending |
 | UX-02 | Phase 15 | Pending |
 
 **Coverage:**
+
 - v2.1 requirements: 11 total
 - Mapped to phases: 11
 - Unmapped: 0

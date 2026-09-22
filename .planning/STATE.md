@@ -2,20 +2,20 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Lotes dinâmicos
-current_phase: 14
-current_phase_name: Mixed prompt + plan-adherence + demo enablement
-status: ready_to_discuss
-stopped_at: Phase 14 executed — verification human_needed (live demo UAT)
-last_updated: "2026-09-22T13:48:27.824Z"
+current_phase: 15
+current_phase_name: CLI / wizard batch-plan UX
+status: planning
+stopped_at: Phase 14 complete, ready to plan Phase 15
+last_updated: "2026-09-22T14:58:20.772Z"
 last_activity: 2026-09-22
-last_activity_desc: Resumed; Phase 13 complete — next discuss Phase 14
-state_head: 45f73065bc05262592d2c711c43e9cd215c6a8a3
+last_activity_desc: Phase 14 complete, transitioned to Phase 15
+state_head: 91b3f46a43422d4e0c0156f6b9294b2ccb1c50dc
 progress:
   total_phases: 3
-  completed_phases: 0
-  total_plans: 3
-  completed_plans: 3
-  percent: 0
+  completed_phases: 1
+  total_plans: 4
+  completed_plans: 4
+  percent: 33
 ---
 
 # Project State
@@ -25,14 +25,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-21)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato — agora também como biblioteca embutível
-**Current focus:** v2.1 Phase 14 — Mixed prompt + plan-adherence + demo enablement
+**Current focus:** v2.1 Phase 15 — CLI / wizard batch-plan UX
 
 ## Current Position
 
-Phase: 14 (Mixed prompt + plan-adherence + demo enablement) — READY TO EXECUTE
-Plan: —
-Status: Ready to discuss Phase 14
-Last activity: 2026-09-22 — Session resumed (Phase 13 shipped)
+Phase: 15 — CLI / wizard batch-plan UX
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-22 — Phase 14 complete, transitioned to Phase 15
 
 ## Performance Metrics
 
@@ -50,6 +50,7 @@ Last activity: 2026-09-22 — Session resumed (Phase 13 shipped)
 | 12. Local Embed Demo | 0 | — | — |
 | 11 | 3 | - | - |
 | 12 | 2 | - | - |
+| 14 | 3 | - | - |
 
 *Updated after each plan completion*
 **Per-Plan Metrics:**
@@ -118,10 +119,12 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-22T13:03:41.205Z
-Stopped at: Phase 14 executed — verification human_needed (live demo UAT)
-Resume file: .planning/phases/14-mixed-prompt-plan-adherence-demo-enablement/14-VERIFICATION.md
+Last session: 2026-09-22T14:58:00Z
+Stopped at: Phase 14 complete (UAT 4/4); ready to discuss/plan Phase 15
+Resume file: .planning/HANDOFF.json
 
 ## Operator Next Steps
 
-- `$gsd-discuss-phase 14` (PROMPT-01, VAL-01/02, DEMO-01) — then plan/execute
+- `$gsd-discuss-phase 15` (UX-01, UX-02) — then plan/execute
+- Optional: `$gsd-secure-phase 14` (security_enforcement on; no 14-SECURITY.md yet)
+- Do not treat root `.planning/.continue-here.md` from v2.0 pause as current — replaced on pause

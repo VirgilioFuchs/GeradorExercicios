@@ -16,20 +16,28 @@ O usuário consegue gerar exercícios de matemática confiáveis e estruturados 
 - **v1.2 Ops & Resilience** (2026-09-15) — GitHub Actions CI, failover OpenAI↔Gemini, token usage NDJSON/`[USAGE]`, wizard interativo `gerar`, reasoning default `medium`
 - **v2.0 Embed em Produção** (2026-09-18) — `service.generate_batch` → `ExerciseBatch`, erros discrimináveis (`kind`/subclasses), env restore, encoding/timeout, demo local throwaway `demo/` em `[::1]:8642`
 
-**Stack:** Python 3.11+, openai, pydantic v2, python-dotenv, google-genai, pytest. Code under `exercise-ai/`. Suite: 155 package tests + 17 demo tests (no live LLM).
+**Current Milestone: v2.1 Lotes dinâmicos** (in progress)
 
-**Known debt (parked):** PKG-01 packaging/rename; OBS-01 usage alongside batch; LOG-01 print→logging; Nyquist VALIDATION draft/gaps (phases 8–12); dormant seeds SEED-001/005; SEED-003 B/C.
+**Shipped in milestone so far:**
+- Phase 13 — `GenerationRequest` plano misto / uniforme tipado, cap 40
+- Phase 14 — prompt slot list + `verify_plan_echo` (RELY) + demo band counts / `plano` POST; UAT 4/4
+
+**Next:** Phase 15 — CLI / wizard batch-plan UX
+
+**Stack:** Python 3.11+, openai, pydantic v2, python-dotenv, google-genai, pytest. Code under `exercise-ai/`. Suite: ~179 package tests + ~23 demo tests (no live LLM).
+
+**Known debt (parked):** PKG-01 packaging/rename; OBS-01 usage alongside batch; LOG-01 print→logging; Nyquist VALIDATION draft/gaps; dormant seeds SEED-001/003/005/007/008/009 (009 depends on 001).
 
 ## Current Milestone: v2.1 Lotes dinâmicos
 
 **Goal:** O operador monta um lote com controle por exercício (dificuldade e tipo de raciocínio), em vez de N cópias do mesmo nível.
 
 **Target features:**
-- Spec por item: dificuldade (e tipo de raciocínio) por exercício no request
-- Prompt + validação do lote misto (quantidade e campos por item)
-- Revisar cap de quantidade (hoje 40) se fizer sentido para lotes maiores
-- UX CLI/wizard: plano de lote (ex. 2 fáceis + 3 médios) sem N flags manuais
-- Esclarecer na discuss: “tipo de raciocínio” pedagógico vs `reasoning_effort` da API
+- Spec por item: dificuldade (e tipo de raciocínio) por exercício no request — ✓ Phase 13
+- Prompt + validação do lote misto (quantidade e campos por item) + demo bands — ✓ Phase 14
+- Revisar cap de quantidade (hoje 40) se fizer sentido para lotes maiores — CAP-02 deferred
+- UX CLI/wizard: plano de lote (ex. 2 fáceis + 3 médios) sem N flags manuais — Phase 15
+- Esclarecer na discuss: “tipo de raciocínio” pedagógico vs `reasoning_effort` da API — TIPO-OPEN
 
 **Promoted seed:** SEED-006
 
@@ -54,10 +62,13 @@ O usuário consegue gerar exercícios de matemática confiáveis e estruturados 
 - ✓ README contrato JSON + erros + nomes reservados — v2.0 / EMBED-07
 - ✓ Demo local stdlib `[::1]:8642` (form, tabs, Gerando…, erros) — v2.0 / DEMO-01
 - ✓ Demo guards (loopback, Lock→409, Host/Origin/JSON) + anti-accretion — v2.0 / DEMO-02
+- ✓ Plano misto tipado no request (BATCH-*) — Phase 13
+- ✓ Prompt slots + plan-echo RELY + demo band/`plano` (PROMPT/VAL/DEMO-01) — Phase 14
 
 ### Active
 
-- Lotes dinâmicos — spec por exercício, validação mista, UX de plano de lote, revisão de cap — v2.1 / SEED-006
+- UX CLI/wizard compacto para plano de lote — Phase 15 / UX-01..02
+- Lotes dinâmicos restante (tipo de raciocínio pedagógico) — TIPO-OPEN / SEED-006 remnant
 
 ### Out of Scope
 
@@ -67,22 +78,23 @@ O usuário consegue gerar exercícios de matemática confiáveis e estruturados 
 - Packaging `pyproject.toml` + rename — PKG-01 (parked; pós-v2.1)
 - Usage/cost no retorno do lote — OBS-01 (parked)
 - print→logging — LOG-01 (parked)
-- BNCC — SEED-001 dormant
+- BNCC — SEED-001 dormant (SEED-009 math_check hardening waits on it)
 - Imagens / storytelling — SEED-003 Slices B e C
-- Overhaul de validação matemática/semântica além do necessário para lotes mistos
+- Overhaul de validação matemática/semântica além do necessário para lotes mistos (generic harden before BNCC)
 - HTTP produto / FastAPI / Flask / Streamlit — demo foi throwaway stdlib
 - Concorrência / async / thread pool — contrato sequencial
 
 ## Context
 
-Pipeline v2.0:
+Pipeline v2.1 (Phases 13–14):
 
 ```
-Host/demo → service.generate_batch(GenerationRequest)
-  → Prompt → LLM (OpenAI|Gemini|Grok)
-  → Failover envelope (OpenAI↔Gemini) → Validação + math_check → RELY
+Host/demo → service.generate_batch(GenerationRequest [plano|uniforme])
+  → Prompt (slot list) → LLM (OpenAI|Gemini|Grok)
+  → Failover envelope → Validação + math_check → verify_plan_echo → RELY
   → ExerciseBatch | ConfigError | InvalidRequestError | GenerationFailedError
-CLI (argparse | gerar wizard) → main.run → generate_batch (+ stdout/--out / flush)
+Demo bands → buildGerarPayload (mixed→plano / uniform→legacy)
+CLI (argparse | gerar wizard) → main.run → generate_batch  # Phase 15: compact plano UX
 ```
 
 ## Constraints
@@ -114,6 +126,9 @@ CLI (argparse | gerar wizard) → main.run → generate_batch (+ stdout/--out / 
 | Demo = ThreadingHTTPServer + Lock→409, `[::1]:8642`, stdlib | Throwaway accept of embed contract | ✓ Good |
 | Error classes in service.py; leaf lazy-import | Avoid cycles | ✓ Good |
 | Gemini HttpOptions.timeout=30000 ms | Align magnitude to OpenAI 30s | ✓ Good |
+| `verify_plan_echo` after validate in RELY (not validator.py) | D-05; keep math_check ownership | ✓ Phase 14 |
+| `batch.dificuldades` = unique band summary (1–3), not per-exercise pad | G-14-4; canonical compare + schema/prompt | ✓ Phase 14 |
+| SEED-009 after SEED-001 | Harden math_check by BNCC skill, not generic | — Dormant |
 
 <details>
 <summary>Prior milestone notes (v1 → v1.1 → v1.2 → v2.0)</summary>
@@ -133,4 +148,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-21 — start milestone v2.1 Lotes dinâmicos*
+*Last updated: 2026-09-22 after Phase 14*
