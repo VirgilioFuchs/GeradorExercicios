@@ -94,12 +94,12 @@
 
 | Option | Description | Selected |
 |--------|-------------|----------|
-| Three count inputs; qty = sum | Hide/lock old qty | |
+| Three count inputs | Replace select; qty derived or kept (see follow-up) | ✓ |
 | Toggle Uniform \| Misto | | |
-| Always three counts | Uniform = one band | ✓ (as “three counts”; qty kept editable below) |
+| Always three counts | Uniform = one band; no separate mode | |
 | You decide | — | |
 
-**User's choice:** 1 — three count inputs (then clarified qty stays editable)
+**User's choice:** 1 — three count inputs (follow-up: keep quantidade editable)
 
 ### Client validation
 
