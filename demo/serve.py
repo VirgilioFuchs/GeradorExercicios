@@ -201,12 +201,19 @@ class DemoHandler(SimpleHTTPRequestHandler):
             )
             try:
                 try:
-                    request = GenerationRequest(
-                        materia=body.get("materia", "Matemática"),
-                        topico=body.get("topico", ""),
-                        dificuldade=body.get("dificuldade", "medio"),
-                        quantidade=body.get("quantidade", 1),
-                    )
+                    # D-15: pass plano when present; do not force dificuldade="medio"
+                    # (mixed clients omit top-level dificuldade).
+                    req_kwargs: dict[str, Any] = {
+                        "materia": body.get("materia", "Matemática"),
+                        "topico": body.get("topico", ""),
+                        "quantidade": body.get("quantidade", 1),
+                    }
+                    if body.get("plano") is not None:
+                        req_kwargs["plano"] = body["plano"]
+                    dificuldade = body.get("dificuldade")
+                    if dificuldade is not None and dificuldade != "":
+                        req_kwargs["dificuldade"] = dificuldade
+                    request = GenerationRequest(**req_kwargs)
                 except ValidationError as exc:
                     self._send_json(
                         400,

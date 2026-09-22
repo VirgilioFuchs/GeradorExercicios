@@ -22,7 +22,7 @@ for path in (DEMO_DIR, EXERCISE_AI):
         sys.path.insert(0, s)
 
 import serve  # noqa: E402
-from models import Exercise, ExerciseBatch  # noqa: E402
+from models import DificuldadeEnum, Exercise, ExerciseBatch  # noqa: E402
 from service import ConfigError  # noqa: E402
 
 
@@ -60,17 +60,23 @@ def _post_gerar(port: int, body: dict, extra_headers: dict | None = None) -> tup
         conn.close()
 
 
-def test_gerar_success_mocked(demo_server) -> None:
-    _httpd, port = demo_server
-    batch = ExerciseBatch(
+def _uniform_batch(band: str = "medio") -> ExerciseBatch:
+    return ExerciseBatch(
         exercicios=[
             Exercise(
                 enunciado="2x=4",
                 resposta="x=2",
                 explicacao="dividir por 2",
+                dificuldade=band,
             )
-        ]
+        ],
+        dificuldades=[band],
     )
+
+
+def test_gerar_success_mocked(demo_server) -> None:
+    _httpd, port = demo_server
+    batch = _uniform_batch("medio")
     with patch.object(serve, "generate_batch", return_value=batch) as mock_gen:
         status, data = _post_gerar(
             port,
@@ -91,6 +97,70 @@ def test_gerar_success_mocked(demo_server) -> None:
         assert req.materia == "Matemática"
         assert req.topico == "equação do 1º grau"
         assert req.quantidade == 1
+        assert req.plano is None
+
+
+def test_gerar_mixed_plano_passthrough(demo_server) -> None:
+    """DEMO-01 / D-15: mixed POST with plano reaches GenerationRequest."""
+    _httpd, port = demo_server
+    batch = ExerciseBatch(
+        exercicios=[
+            Exercise(
+                enunciado="fácil",
+                resposta="1",
+                explicacao="ok",
+                dificuldade="facil",
+            ),
+            Exercise(
+                enunciado="médio",
+                resposta="2",
+                explicacao="ok",
+                dificuldade="medio",
+            ),
+        ],
+        dificuldades=["facil", "medio"],
+    )
+    with patch.object(serve, "generate_batch", return_value=batch) as mock_gen:
+        status, data = _post_gerar(
+            port,
+            {
+                "materia": "Matemática",
+                "topico": "misto",
+                "quantidade": 2,
+                "plano": {"facil": 1, "medio": 1, "dificil": 0},
+                "provider": "",
+                "reasoning": "medium",
+            },
+        )
+        assert status == 200
+        assert data["ok"] is True
+        mock_gen.assert_called_once()
+        req = mock_gen.call_args[0][0]
+        assert req.plano is not None
+        assert req.plano.facil == 1
+        assert req.plano.medio == 1
+        assert req.plano.dificil == 0
+        bands = [s.dificuldade for s in req.itens_ordenados]
+        assert bands == [DificuldadeEnum.FACIL, DificuldadeEnum.MEDIO]
+
+
+def test_gerar_plano_qty_drift_returns_400(demo_server) -> None:
+    """Illegal qty↔plano drift rejected by Pydantic → 400."""
+    _httpd, port = demo_server
+    with patch.object(serve, "generate_batch") as mock_gen:
+        status, data = _post_gerar(
+            port,
+            {
+                "materia": "Matemática",
+                "topico": "drift",
+                "quantidade": 3,
+                "plano": {"facil": 1, "medio": 1, "dificil": 0},
+            },
+        )
+        assert status == 400
+        assert data["ok"] is False
+        assert data["error"]["kind"] == "validation"
+        mock_gen.assert_not_called()
 
 
 def test_models_endpoint(demo_server) -> None:
@@ -117,8 +187,14 @@ def test_gerar_sets_llm_model_env(demo_server) -> None:
         seen["LLM_MODEL"] = os.environ.get("LLM_MODEL")
         return ExerciseBatch(
             exercicios=[
-                Exercise(enunciado="1+1", resposta="2", explicacao="soma")
-            ]
+                Exercise(
+                    enunciado="1+1",
+                    resposta="2",
+                    explicacao="soma",
+                    dificuldade="facil",
+                )
+            ],
+            dificuldades=["facil"],
         )
 
     with patch.object(serve, "generate_batch", side_effect=capture):
