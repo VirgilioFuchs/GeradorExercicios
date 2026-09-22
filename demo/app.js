@@ -172,6 +172,91 @@
   // Before first success: Exercícios empty; JSON shows schema hint (D-03)
   renderJson(null);
 
+  var softWarn = document.getElementById("band-soft-warn");
+
+  function parseBandCount(fd, name) {
+    var n = Number(fd.get(name));
+    if (!Number.isFinite(n) || n < 0) return 0;
+    return Math.floor(n);
+  }
+
+  function updateSoftWarn() {
+    if (!softWarn) return;
+    var fd = new FormData(form);
+    var facil = parseBandCount(fd, "facil");
+    var medio = parseBandCount(fd, "medio");
+    var dificil = parseBandCount(fd, "dificil");
+    var qty = Number(fd.get("quantidade"));
+    var sum = facil + medio + dificil;
+    var lines = [];
+    if (sum === 0) {
+      lines.push(
+        "Aviso: a soma das dificuldades é 0. O servidor pode rejeitar o pedido."
+      );
+    }
+    if (sum > 40) {
+      lines.push(
+        "Aviso: a soma das dificuldades é maior que 40. O servidor pode rejeitar o pedido."
+      );
+    }
+    if (Number(qty) !== sum) {
+      lines.push(
+        "Aviso: quantidade (" +
+          qty +
+          ") é diferente da soma das bandas (" +
+          sum +
+          "). No modo uniforme o POST usa a contagem da banda; no misto o servidor valida."
+      );
+    }
+    if (lines.length) {
+      softWarn.hidden = false;
+      softWarn.textContent = lines.join("\n");
+    } else {
+      softWarn.hidden = true;
+      softWarn.textContent = "";
+    }
+  }
+
+  function buildGerarPayload(fd) {
+    var facil = parseBandCount(fd, "facil");
+    var medio = parseBandCount(fd, "medio");
+    var dificil = parseBandCount(fd, "dificil");
+    var qty = Number(fd.get("quantidade"));
+    var active = [];
+    if (facil > 0) active.push({ band: "facil", count: facil });
+    if (medio > 0) active.push({ band: "medio", count: medio });
+    if (dificil > 0) active.push({ band: "dificil", count: dificil });
+
+    var payload = {
+      materia: fd.get("materia"),
+      topico: fd.get("topico"),
+      quantidade: qty,
+      provider: fd.get("provider") || "",
+      model: fd.get("model") || "",
+      reasoning: fd.get("reasoning") || "medium",
+    };
+
+    if (active.length >= 2) {
+      // Mixed (D-12): plano only; omit top-level dificuldade
+      payload.plano = { facil: facil, medio: medio, dificil: dificil };
+    } else if (active.length === 1) {
+      // Uniform (D-13, D-14): legacy shape; quantidade = band count
+      payload.dificuldade = active[0].band;
+      payload.quantidade = active[0].count;
+    }
+    // Zero bands: editable quantidade only; soft-warn visible (D-11)
+    return payload;
+  }
+
+  ["facil", "medio", "dificil", "quantidade"].forEach(function (name) {
+    var el = form.querySelector('[name="' + name + '"]');
+    if (el) {
+      el.addEventListener("input", updateSoftWarn);
+      el.addEventListener("change", updateSoftWarn);
+    }
+  });
+  updateSoftWarn();
+
   tabExercicios.addEventListener("click", function () {
     showTab("exercicios");
   });
@@ -182,20 +267,13 @@
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
     clearError();
-    // D-09: disable only submit; leave other fields editable
+    updateSoftWarn();
+    // Disable only submit; leave other fields editable (soft-warn never blocks)
     btn.disabled = true;
     btn.textContent = "Gerando…";
 
     var fd = new FormData(form);
-    var payload = {
-      materia: fd.get("materia"),
-      topico: fd.get("topico"),
-      dificuldade: fd.get("dificuldade"),
-      quantidade: Number(fd.get("quantidade")),
-      provider: fd.get("provider") || "",
-      model: fd.get("model") || "",
-      reasoning: fd.get("reasoning") || "medium",
-    };
+    var payload = buildGerarPayload(fd);
 
     try {
       var res = await fetch("/gerar", {

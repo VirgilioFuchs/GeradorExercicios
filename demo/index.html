@@ -50,6 +50,16 @@
       line-height: 1;
       padding: 0 0.25rem;
     }
+    .soft-warn {
+      background: #fff8e1;
+      border: 1px solid #e0c060;
+      padding: 0.6rem 0.75rem;
+      margin: 0.4rem 0;
+      font-size: 0.9rem;
+      color: #555;
+      white-space: pre-wrap;
+    }
+    .soft-warn[hidden] { display: none; }
     footer.footnote {
       margin-top: 2rem;
       padding-top: 0.75rem;
@@ -76,14 +86,11 @@
       <legend>Contrato (GenerationRequest)</legend>
       <label>materia <input name="materia" value="Matemática" /></label>
       <label>topico <input name="topico" value="equação do 1º grau" required /></label>
-      <label>dificuldade
-        <select name="dificuldade">
-          <option value="facil">facil</option>
-          <option value="medio" selected>medio</option>
-          <option value="dificil">dificil</option>
-        </select>
-      </label>
+      <label>facil <input name="facil" type="number" min="0" max="40" value="0" /></label>
+      <label>medio <input name="medio" type="number" min="0" max="40" value="2" /></label>
+      <label>dificil <input name="dificil" type="number" min="0" max="40" value="0" /></label>
       <label>quantidade <input name="quantidade" type="number" min="1" max="40" value="2" /></label>
+      <div id="band-soft-warn" class="soft-warn" role="status" hidden></div>
     </fieldset>
     <fieldset>
       <legend>Ambiente (só nesta demo)</legend>
