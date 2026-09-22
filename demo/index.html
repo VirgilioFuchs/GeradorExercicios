@@ -67,6 +67,9 @@
       font-size: 0.8rem;
       color: #555;
     }
+    .usage-toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.75rem; }
+    .usage-summary { font-family: ui-monospace, monospace; font-size: 0.9rem; white-space: pre-wrap; margin: 0 0 0.75rem; }
+    .usage-events { font-family: ui-monospace, monospace; font-size: 0.8rem; max-height: 12rem; overflow: auto; }
   </style>
 </head>
 <body>
@@ -129,6 +132,7 @@
   <div class="tabs" role="tablist" aria-label="Resultados">
     <button type="button" role="tab" id="tab-exercicios" aria-selected="true" aria-controls="panel-exercicios">Exercícios</button>
     <button type="button" role="tab" id="tab-json" aria-selected="false" aria-controls="panel-json">JSON</button>
+    <button type="button" role="tab" id="tab-uso" aria-selected="false" aria-controls="panel-uso">Uso</button>
   </div>
 
   <div id="panel-exercicios" class="panel" role="tabpanel" aria-labelledby="tab-exercicios">
@@ -137,6 +141,24 @@
   </div>
   <div id="panel-json" class="panel" role="tabpanel" aria-labelledby="tab-json" hidden>
     <pre id="json-out"></pre>
+  </div>
+  <div id="panel-uso" class="panel" role="tabpanel" aria-labelledby="tab-uso" hidden>
+    <div class="usage-toolbar">
+      <label for="usage-run-select">Sessão (run_id)</label>
+      <select id="usage-run-select">
+        <option value="">Nenhuma sessão</option>
+      </select>
+      <button type="button" id="usage-refresh">Atualizar</button>
+    </div>
+    <p id="usage-empty" class="hint">Nenhum registro de uso. Gere um lote ou verifique <code>exercise-ai/token-usage/</code>.</p>
+    <p id="usage-error" class="hint" hidden></p>
+    <pre id="usage-summary" class="usage-summary" hidden></pre>
+    <div id="usage-counts" class="hint" hidden>
+      tentativas: <span id="usage-tentativas">0</span>
+      · sucessos: <span id="usage-sucessos">0</span>
+      · erros: <span id="usage-erros">0</span>
+    </div>
+    <pre id="usage-events" class="usage-events" hidden></pre>
   </div>
 
   <footer class="footnote">

@@ -23,11 +23,23 @@
   var errorKind = document.getElementById("error-kind");
   var tabExercicios = document.getElementById("tab-exercicios");
   var tabJson = document.getElementById("tab-json");
+  var tabUso = document.getElementById("tab-uso");
   var panelExercicios = document.getElementById("panel-exercicios");
   var panelJson = document.getElementById("panel-json");
+  var panelUso = document.getElementById("panel-uso");
   var exerciciosEmpty = document.getElementById("exercicios-empty");
   var exerciciosList = document.getElementById("exercicios-list");
   var jsonOut = document.getElementById("json-out");
+  var usageRunSelect = document.getElementById("usage-run-select");
+  var usageRefresh = document.getElementById("usage-refresh");
+  var usageEmpty = document.getElementById("usage-empty");
+  var usageError = document.getElementById("usage-error");
+  var usageSummary = document.getElementById("usage-summary");
+  var usageCounts = document.getElementById("usage-counts");
+  var usageTentativas = document.getElementById("usage-tentativas");
+  var usageSucessos = document.getElementById("usage-sucessos");
+  var usageErros = document.getElementById("usage-erros");
+  var usageEvents = document.getElementById("usage-events");
 
   var lastSuccessBatch = null;
   var modelsCatalog = null;
@@ -101,10 +113,155 @@
 
   function showTab(which) {
     var isEx = which === "exercicios";
+    var isJson = which === "json";
+    var isUso = which === "uso";
     tabExercicios.setAttribute("aria-selected", isEx ? "true" : "false");
-    tabJson.setAttribute("aria-selected", isEx ? "false" : "true");
+    tabJson.setAttribute("aria-selected", isJson ? "true" : "false");
+    if (tabUso) tabUso.setAttribute("aria-selected", isUso ? "true" : "false");
     panelExercicios.hidden = !isEx;
-    panelJson.hidden = isEx;
+    panelJson.hidden = !isJson;
+    if (panelUso) panelUso.hidden = !isUso;
+  }
+
+  function clearUsagePanel() {
+    if (usageSummary) {
+      usageSummary.textContent = "";
+      usageSummary.hidden = true;
+    }
+    if (usageCounts) usageCounts.hidden = true;
+    if (usageEvents) {
+      usageEvents.textContent = "";
+      usageEvents.hidden = true;
+    }
+    if (usageTentativas) usageTentativas.textContent = "0";
+    if (usageSucessos) usageSucessos.textContent = "0";
+    if (usageErros) usageErros.textContent = "0";
+  }
+
+  function showUsageError(msg) {
+    if (!usageError) return;
+    usageError.textContent = msg || "";
+    usageError.hidden = !msg;
+  }
+
+  function renderUsageSummary(summary) {
+    if (!summary || !usageSummary) {
+      clearUsagePanel();
+      return;
+    }
+    var inTok = summary.prompt_tokens;
+    var outTok = summary.completion_tokens;
+    var totalTok = summary.total_tokens;
+    var usd = summary.usd;
+    usageSummary.textContent =
+      "[USAGE] in=" +
+      inTok +
+      " out=" +
+      outTok +
+      " total=" +
+      totalTok +
+      " duration_ms=" +
+      summary.duration_ms +
+      " usd=" +
+      usd;
+    usageSummary.hidden = false;
+    if (usageTentativas) usageTentativas.textContent = String(summary.tentativas || 0);
+    if (usageSucessos) usageSucessos.textContent = String(summary.sucessos || 0);
+    if (usageErros) usageErros.textContent = String(summary.erros || 0);
+    if (usageCounts) usageCounts.hidden = false;
+  }
+
+  function renderUsageEvents(events) {
+    if (!usageEvents) return;
+    if (!events || !events.length) {
+      usageEvents.textContent = "";
+      usageEvents.hidden = true;
+      return;
+    }
+    usageEvents.textContent = events
+      .map(function (ev) {
+        return (
+          (ev.ts || "") +
+          " " +
+          (ev.status || "") +
+          " in=" +
+          ev.prompt_tokens +
+          " out=" +
+          ev.completion_tokens +
+          " duration_ms=" +
+          ev.duration_ms
+        );
+      })
+      .join("\n");
+    usageEvents.hidden = false;
+  }
+
+  function loadUsageSession(runId) {
+    if (!runId) {
+      clearUsagePanel();
+      return Promise.resolve();
+    }
+    return fetch("/usage/session?run_id=" + encodeURIComponent(runId))
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (data) {
+        if (!data || !data.ok) {
+          showUsageError("Não foi possível carregar a sessão.");
+          clearUsagePanel();
+          return;
+        }
+        showUsageError("");
+        renderUsageSummary(data.summary);
+        renderUsageEvents(data.events);
+      })
+      .catch(function () {
+        showUsageError("Falha ao buscar uso (rede/servidor).");
+      });
+  }
+
+  function refreshUsageSessions() {
+    if (!usageRunSelect) return Promise.resolve();
+    var prev = usageRunSelect.value;
+    return fetch("/usage/sessions")
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (data) {
+        showUsageError("");
+        var sessions = (data && data.sessions) || [];
+        usageRunSelect.innerHTML = "";
+        var placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = "Nenhuma sessão";
+        usageRunSelect.appendChild(placeholder);
+        sessions.forEach(function (s) {
+          var opt = document.createElement("option");
+          opt.value = s.run_id;
+          opt.textContent = s.last_ts
+            ? s.run_id + " (" + s.last_ts + ")"
+            : s.run_id;
+          usageRunSelect.appendChild(opt);
+        });
+        if (usageEmpty) {
+          usageEmpty.hidden = sessions.length > 0;
+        }
+        if (!sessions.length) {
+          clearUsagePanel();
+          return;
+        }
+        if (prev && sessions.some(function (s) { return s.run_id === prev; })) {
+          usageRunSelect.value = prev;
+        } else {
+          usageRunSelect.value = sessions[0].run_id;
+        }
+        return loadUsageSession(usageRunSelect.value);
+      })
+      .catch(function () {
+        showUsageError("Falha ao listar sessões de uso.");
+        if (usageEmpty) usageEmpty.hidden = false;
+        clearUsagePanel();
+      });
   }
 
   function clearError() {
@@ -293,6 +450,22 @@
   tabJson.addEventListener("click", function () {
     showTab("json");
   });
+  if (tabUso) {
+    tabUso.addEventListener("click", function () {
+      showTab("uso");
+    });
+  }
+  if (usageRefresh) {
+    usageRefresh.addEventListener("click", function () {
+      refreshUsageSessions();
+    });
+  }
+  if (usageRunSelect) {
+    usageRunSelect.addEventListener("change", function () {
+      loadUsageSession(usageRunSelect.value);
+    });
+  }
+  refreshUsageSessions();
 
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -355,6 +528,11 @@
       renderExercicios(lastSuccessBatch);
       renderJson(lastSuccessBatch);
       showTab("exercicios");
+      try {
+        refreshUsageSessions();
+      } catch (_) {
+        /* best-effort; do not block generate UX */
+      }
     } catch (ex) {
       showError("NetworkError", String(ex && ex.message ? ex.message : ex), null);
     } finally {
