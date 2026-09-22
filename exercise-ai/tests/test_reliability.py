@@ -236,9 +236,12 @@ def test_single_retry_loop_only():
     """Module still has exactly one generate_validated_batch retry loop (D-07)."""
     import inspect
     import math_check
+    import validator
     src = inspect.getsource(reliability)
     assert 'for attempt in range' in src
     assert src.count('for attempt in range') == 1
+    assert 'verify_plan_echo' in src
+    assert 'verify_plan_echo' not in inspect.getsource(validator)
     assert not hasattr(math_check, 'generate_validated_batch')
     assert not hasattr(math_check, 'retry')
 

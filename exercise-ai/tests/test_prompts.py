@@ -36,6 +36,22 @@ def test_uniform_prompt_enumerates_n_slots_same_band():
     assert "2. médio (medio)" in user
     assert "3. médio (medio)" in user
     assert user.count("médio (medio)") == 3
+    assert "Matemática" in user
+    assert "Equação do primeiro grau" in user
     assert "enunciado:" not in user
     assert "resposta:" not in user
     assert "explicacao:" not in user
+
+
+def test_uniform_facil_prompt_uses_hybrid_facil_label():
+    """Uniform fácil path uses accented hybrid label (D-02, D-04)."""
+    req = GenerationRequest(
+        materia="Matemática",
+        topico="Soma",
+        dificuldade=DificuldadeEnum.FACIL,
+        quantidade=2,
+    )
+    _, user = build_prompts(req)
+    assert "1. fácil (facil)" in user
+    assert "2. fácil (facil)" in user
+    assert user.count("fácil (facil)") == 2
