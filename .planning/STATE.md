@@ -2,20 +2,20 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Lotes dinâmicos
-current_phase: 13
-current_phase_name: Request schema & plan contract
-status: planning
-stopped_at: "Paused: Phase 13 done; next discuss Phase 14 (+DEMO-01)"
-last_updated: "2026-09-21T15:00:58.220Z"
-last_activity: 2026-09-21
-last_activity_desc: Roadmap v2.1 approved (phases 13-15)
-state_head: 883ba40c942b948995377ac9cd509e7d9caa684a
+current_phase: 14
+current_phase_name: Mixed prompt + plan-adherence + demo enablement
+status: ready_to_discuss
+stopped_at: "Session resumed — awaiting discuss Phase 14 (+DEMO-01)"
+last_updated: "2026-09-22T08:25:55.143Z"
+last_activity: 2026-09-22
+last_activity_desc: Resumed; Phase 13 complete — next discuss Phase 14
+state_head: 65e5239
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 1
   completed_plans: 1
-  percent: 0
+  percent: 33
 ---
 
 # Project State
@@ -25,14 +25,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-21)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato — agora também como biblioteca embutível
-**Current focus:** v2.1 Phase 13 — Request schema & plan contract
+**Current focus:** v2.1 Phase 14 — Mixed prompt + plan-adherence + demo enablement
 
 ## Current Position
 
-Phase: 13 of 15 — Request schema & plan contract
+Phase: 14 of 15 — Mixed prompt + plan-adherence + demo enablement
 Plan: —
-Status: Ready to plan Phase 13
-Last activity: 2026-09-21 — Milestone v2.1 started
+Status: Ready to discuss Phase 14
+Last activity: 2026-09-22 — Session resumed (Phase 13 shipped)
 
 ## Performance Metrics
 
@@ -115,10 +115,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-21T15:00:58.183Z
-Stopped at: Paused: Phase 13 done; next discuss Phase 14 (+DEMO-01)
-Resume file: .planning/.continue-here.md
+Last session: 2026-09-22T08:25:55.143Z
+Stopped at: Session resumed — awaiting discuss Phase 14 (+DEMO-01)
+Resume file: .planning/phases/13-request-schema-plan-contract/.continue-here.md
 
 ## Operator Next Steps
 
-- Start the next milestone with $gsd-new-milestone (lead: PKG-01)
+- `$gsd-discuss-phase 14` (PROMPT-01, VAL-01/02, DEMO-01) — then plan/execute
