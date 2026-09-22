@@ -179,8 +179,8 @@ def test_verify_plan_echo_batch_dificuldades_summary_mismatch():
         verify_plan_echo(drifted, req)
 
 
-def test_verify_plan_echo_duplicated_summary_padding_fails():
-    """G-14-4: per-slot OK but padded resumo ['medio','medio'] vs ['medio'] fails."""
+def test_verify_plan_echo_duplicated_summary_padding_ok():
+    """LLM padding ['medio','medio'] vs summary ['medio'] is accepted (canonical unique)."""
     req = GenerationRequest(
         topico="Equação do primeiro grau",
         dificuldade=DificuldadeEnum.MEDIO,
@@ -204,8 +204,7 @@ def test_verify_plan_echo_duplicated_summary_padding_fails():
         ],
         dificuldades=[DificuldadeEnum.MEDIO, DificuldadeEnum.MEDIO],
     )
-    with pytest.raises(ValueError, match="resumo dificuldades"):
-        verify_plan_echo(padded, req)
+    verify_plan_echo(padded, req)
 
 
 def test_verify_plan_echo_length_mismatch():

@@ -213,7 +213,12 @@ class ExerciseBatch(BaseModel):
 
 
 def verify_plan_echo(batch: ExerciseBatch, request: GenerationRequest) -> None:
-    """Compara dificuldade de cada exercício ao slot ordenado e o resumo do batch (D-11, D-07)."""
+    """Compara dificuldade de cada exercício ao slot ordenado e o resumo do batch (D-11, D-07).
+
+    Resumo do batch: compara o conjunto canônico (únicas, fácil→médio→difícil).
+    Padding LLM tipo ``['medio','medio']`` vs ``['medio']`` é aceito; conjunto
+    errado (ex. falta ``medio``) ainda falha.
+    """
     expected = [s.dificuldade for s in request.itens_ordenados]
     if len(batch.exercicios) != len(expected):
         raise ValueError(
@@ -225,9 +230,12 @@ def verify_plan_echo(batch: ExerciseBatch, request: GenerationRequest) -> None:
                 f"echo mismatch no slot {i}: esperado {band.value}, "
                 f"obtido {ex.dificuldade.value}"
             )
-    if batch.dificuldades != request.dificuldades:
+    expected_summary = list(request.dificuldades or [])
+    got_summary = [b for b in _BAND_ORDER if b in batch.dificuldades]
+    if got_summary != expected_summary:
         raise ValueError(
             f"resumo dificuldades diverge: esperado "
-            f"{[b.value for b in request.dificuldades]}, "
-            f"obtido {[b.value for b in batch.dificuldades]}"
+            f"{[b.value for b in expected_summary]}, "
+            f"obtido {[b.value for b in batch.dificuldades]} "
+            f"(canônico {[b.value for b in got_summary]})"
         )
