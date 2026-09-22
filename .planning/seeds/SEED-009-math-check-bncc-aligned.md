@@ -1,7 +1,7 @@
 ---
 id: SEED-009
 status: dormant
-planted:  mid-UAT Phase 14 (v2.1)
+planted: 2026-09-22
 planted_during: mid-UAT Phase 14 (v2.1)
 trigger_when: math_check, endurecer math, BNCC math rules, curriculum-aligned validation, checker por habilidade, symbolic/math rigor after BNCC
 depends_on:
