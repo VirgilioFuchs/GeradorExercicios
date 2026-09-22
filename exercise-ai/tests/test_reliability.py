@@ -327,3 +327,36 @@ def test_plan_echo_mismatch_exhausts_validation():
     assert caught.value.kind == "validation_exhausted"
     assert "echo mismatch" in str(caught.value).lower()
     assert gen.call_count == 2
+
+
+def test_duplicated_dificuldades_summary_exhausts_validation():
+    """G-14-4: slots OK but padded dificuldades → validation_exhausted via RELY."""
+    req = GenerationRequest(
+        topico="Equação do primeiro grau",
+        dificuldade=DificuldadeEnum.MEDIO,
+        quantidade=2,
+    )
+    assert req.dificuldades == [DificuldadeEnum.MEDIO]
+    padded = ExerciseBatch(
+        exercicios=[
+            Exercise(
+                enunciado="e1",
+                resposta="r1",
+                explicacao="x1",
+                dificuldade=DificuldadeEnum.MEDIO,
+            ),
+            Exercise(
+                enunciado="e2",
+                resposta="r2",
+                explicacao="x2",
+                dificuldade=DificuldadeEnum.MEDIO,
+            ),
+        ],
+        dificuldades=[DificuldadeEnum.MEDIO, DificuldadeEnum.MEDIO],
+    )
+    with patch.object(reliability, "generate_exercises", return_value=padded) as gen:
+        with pytest.raises(service.InvalidRequestError) as caught:
+            reliability.generate_validated_batch(req, max_retries=1)
+    assert caught.value.kind == "validation_exhausted"
+    assert "resumo dificuldades" in str(caught.value).lower()
+    assert gen.call_count == 2
