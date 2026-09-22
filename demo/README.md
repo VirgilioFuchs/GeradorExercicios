@@ -50,3 +50,7 @@ screen-share surface — **not** a staging or production service.
 
 Never render stderr diagnostics or `.env` secret values in the page. Errors show
 typed class / message / kind only.
+
+The **Uso** tab reads local NDJSON under `exercise-ai/token-usage/` via
+`GET /usage/sessions` and `GET /usage/session` — no API keys or prompts on the
+page. Outside CI; restart `python demo/serve.py` if new routes are missing.
