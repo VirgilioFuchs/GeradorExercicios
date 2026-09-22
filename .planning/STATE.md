@@ -5,17 +5,17 @@ milestone_name: Lotes dinâmicos
 current_phase: 14
 current_phase_name: Mixed prompt + plan-adherence + demo enablement
 status: ready_to_discuss
-stopped_at: "Session resumed — awaiting discuss Phase 14 (+DEMO-01)"
-last_updated: "2026-09-22T08:25:55.143Z"
+stopped_at: Phase 14 context gathered
+last_updated: "2026-09-22T12:12:43.405Z"
 last_activity: 2026-09-22
 last_activity_desc: Resumed; Phase 13 complete — next discuss Phase 14
-state_head: 65e5239
+state_head: 5e32ccc3d2f124e9fc3c46569b153bdf101a1b1a
 progress:
   total_phases: 3
-  completed_phases: 1
+  completed_phases: 0
   total_plans: 1
   completed_plans: 1
-  percent: 33
+  percent: 0
 ---
 
 # Project State
@@ -100,6 +100,7 @@ None yet.
 | Seeds | SEED-005-usable-postmortem (dormant) | acknowledged at close | 2026-09-18 | v2.0 |
 | Seeds | SEED-006-dynamic-batch-per-exercise | Promoted → v2.1 | 2026-09-21 | v2.1 |
 | Seeds | SEED-007-exercise-ai-persona-rules (dormant) | planted | 2026-09-21 | v2.1 |
+| Seeds | SEED-008-response-structure-over-prompt (dormant) | planted | 2026-09-22 | v2.1 |
 | Seeds | SEED-001 BNCC (dormant) | Acknowledged at v1.2 close | 2026-09-15 | v1.2 |
 | Seeds | SEED-003 B/C images / storytelling | After embed | 2026-09-16 | v2.0 |
 | Ops | Nyquist VALIDATION gaps (phases 8–10) | Accepted tech debt | 2026-09-15 | v1.2 |
@@ -115,9 +116,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-22T08:25:55.143Z
-Stopped at: Session resumed — awaiting discuss Phase 14 (+DEMO-01)
-Resume file: .planning/phases/13-request-schema-plan-contract/.continue-here.md
+Last session: 2026-09-22T12:12:43.358Z
+Stopped at: Phase 14 context gathered
+Resume file: .planning/phases/14-mixed-prompt-plan-adherence-demo-enablement/14-CONTEXT.md
 
 ## Operator Next Steps
 
