@@ -1,65 +1,98 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-21T14:59:57.656Z",
-  "phase": "13",
-  "phase_name": "Request schema & plan contract",
-  "phase_dir": "13-request-schema-plan-contract",
-  "plan": 1,
+  "timestamp": "2026-09-22T15:02:22.576Z",
+  "phase": "15",
+  "phase_name": "cli-/-wizard-batch-plan-ux",
+  "phase_dir": null,
+  "plan": null,
   "task": null,
-  "total_tasks": null,
+  "total_tasks": 0,
   "status": "paused",
   "completed_tasks": [
     {
-      "id": 1,
-      "name": "13-01 tracer schema + XOR/equal-split/CAP-01 + verify_plan_echo",
+      "id": "14-01",
+      "name": "Mixed prompt slot enumeration",
       "status": "done",
-      "commit": "6018adc"
+      "commit": "14-01-SUMMARY"
     },
     {
-      "id": 2,
-      "name": "DEMO-01 scope pull into Phase 14 (REQUIREMENTS/ROADMAP)",
+      "id": "14-02",
+      "name": "Plan-echo RELY + demo band UX",
       "status": "done",
-      "commit": "883ba40"
+      "commit": "14-02-SUMMARY"
+    },
+    {
+      "id": "14-03",
+      "name": "Unique-band dificuldades gap-closure G-14-4",
+      "status": "done",
+      "commit": "80b2dac"
+    },
+    {
+      "id": "14-uat",
+      "name": "Live UAT 4/4 + verification passed",
+      "status": "done",
+      "commit": "91b3f46"
+    },
+    {
+      "id": "seed-009",
+      "name": "Plant SEED-009 BNCC-aligned math_check (after SEED-001)",
+      "status": "done",
+      "commit": "e485693"
     }
   ],
   "remaining_tasks": [
     {
-      "id": 1,
-      "name": "Phase 14 discuss/plan/execute: PROMPT-01 + VAL-01/02 + DEMO-01",
+      "id": "15-discuss",
+      "name": "Discuss Phase 15 CLI/wizard batch-plan UX",
       "status": "not_started"
     },
     {
-      "id": 2,
-      "name": "Phase 15 CLI/wizard UX-01/UX-02",
+      "id": "15-plan",
+      "name": "Plan Phase 15",
+      "status": "not_started"
+    },
+    {
+      "id": "15-execute",
+      "name": "Execute Phase 15",
       "status": "not_started"
     }
   ],
   "blockers": [],
   "async_jobs": [],
-  "human_actions_pending": [],
+  "human_actions_pending": [
+    {
+      "action": "Optional: /gsd-secure-phase 14 — config has security_enforcement true; no 14-SECURITY.md yet",
+      "context": "Phase 14 sealed without SECURITY.md; not blocking pause/resume to Phase 15 discuss",
+      "blocking": false
+    }
+  ],
   "decisions": [
     {
-      "decision": "Phase 13 = schema contract only (plano XOR itens, equal-split, echo fields, verify_plan_echo unused until 14)",
-      "rationale": "Tracer-first; prompt/validator/CLI deferred",
-      "phase": "13"
-    },
-    {
-      "decision": "DEMO-01 moved into Phase 14 (not deferred / not Phase 15-only)",
-      "rationale": "User rejected dead schema: demo must enable mixed batches in same vertical slice as prompt+VAL — option 2",
+      "decision": "verify_plan_echo lives in RELY after validate, not validator.py",
+      "rationale": "D-05; keep math_check ownership",
       "phase": "14"
     },
     {
-      "decision": "Phase 15 remains CLI/wizard only (UX-01, UX-02)",
-      "rationale": "Same GenerationRequest already exercised by demo in 14",
-      "phase": "15"
+      "decision": "batch.dificuldades is unique band summary (1–3), not per-exercise padding; compare canonically",
+      "rationale": "G-14-4 uniform path exhausted RELY on ['medio','medio'] vs ['medio']",
+      "phase": "14"
+    },
+    {
+      "decision": "SEED-009 hardens math_check only after SEED-001 BNCC skills land",
+      "rationale": "Rules must align to BNCC habilidades, not generic pack",
+      "phase": "seed"
     }
   ],
   "uncommitted_files": [
     ".planning/.gsd-allow-shrink",
     ".planning/config.json",
+    ".planning/state.json",
     ".planning/seeds/SEED-007-exercise-ai-persona-rules.md (untracked)",
-    ".cursor/ .serena/ skills/ exercise-ai/token-usage-logs/ (local — do not ship)"
+    ".cursor/ (untracked)",
+    ".serena/ (untracked)",
+    "exercise-ai/token-usage-logs/ (untracked — do not commit secrets/logs)",
+    "skills/ (untracked)"
   ],
-  "next_action": "$gsd-discuss-phase 14 (or $gsd-plan-phase 14 --auto if skipping discuss) — must include DEMO-01: demo UI band counts → POST /gerar with plano",
-  "context_notes": "Phase 13 code shipped (172 tests). gerar/CLI/demo still uniform-only. Echo fields already tax LLM schema tokens. User insisted demo enablement in Phase 14 so mixed lotes are not dead code. verify_plan_echo exists but is not wired into RELY yet."
+  "next_action": "Run /gsd-discuss-phase 15 (UX-01, UX-02). Ignore any stale v2.0 pause narrative — this handoff supersedes it.",
+  "context_notes": "v2.1 Phase 14 fully sealed (UAT 4/4, VERIFICATION passed, ROADMAP/STATE advanced). Quick tasks this session: demo Uso token panel; SEED-009 planted dormant. Phase 15 has no phase directory yet — discuss creates context."
 }
