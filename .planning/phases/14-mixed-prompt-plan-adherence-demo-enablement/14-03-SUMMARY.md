@@ -16,7 +16,7 @@ affects:
   - 15-cli-wizard-ux
 
 actuals:
-  tokens: 2200
+  tokens: 1200
   tasks: 2
   commits: 3
 
@@ -107,7 +107,7 @@ Each task was committed atomically:
 1. **Task 1: Schema + prompt unique-band dificuldades summary** - `a35f538` (fix)
 2. **Task 2: Optional RELY fixture + suite green** - `38ed51b` (test)
 
-**Plan metadata:** (this SUMMARY commit)
+**Plan metadata:** `80b2dac` (docs: complete plan)
 
 ## Files Created/Modified
 - `exercise-ai/models.py` - Stronger `dificuldades` Field description
