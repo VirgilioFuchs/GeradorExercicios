@@ -179,6 +179,35 @@ def test_verify_plan_echo_batch_dificuldades_summary_mismatch():
         verify_plan_echo(drifted, req)
 
 
+def test_verify_plan_echo_duplicated_summary_padding_fails():
+    """G-14-4: per-slot OK but padded resumo ['medio','medio'] vs ['medio'] fails."""
+    req = GenerationRequest(
+        topico="Equação do primeiro grau",
+        dificuldade=DificuldadeEnum.MEDIO,
+        quantidade=2,
+    )
+    assert req.dificuldades == [DificuldadeEnum.MEDIO]
+    padded = ExerciseBatch(
+        exercicios=[
+            Exercise(
+                enunciado="a",
+                resposta="1",
+                explicacao="x",
+                dificuldade=DificuldadeEnum.MEDIO,
+            ),
+            Exercise(
+                enunciado="b",
+                resposta="2",
+                explicacao="y",
+                dificuldade=DificuldadeEnum.MEDIO,
+            ),
+        ],
+        dificuldades=[DificuldadeEnum.MEDIO, DificuldadeEnum.MEDIO],
+    )
+    with pytest.raises(ValueError, match="resumo dificuldades"):
+        verify_plan_echo(padded, req)
+
+
 def test_verify_plan_echo_length_mismatch():
     """Length mismatch between batch and slots raises ValueError."""
     req = GenerationRequest(

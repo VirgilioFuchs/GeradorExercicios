@@ -55,3 +55,18 @@ def test_uniform_facil_prompt_uses_hybrid_facil_label():
     assert "1. fácil (facil)" in user
     assert "2. fácil (facil)" in user
     assert user.count("fácil (facil)") == 2
+
+
+def test_prompt_includes_dificuldades_summary_shape_cue():
+    """G-14-4 / SEED-008: one-line unique-band resumo cue; no field-schema dump."""
+    req = GenerationRequest(
+        materia="Matemática",
+        topico="Frações",
+        dificuldade=DificuldadeEnum.MEDIO,
+        quantidade=2,
+    )
+    _, user = build_prompts(req)
+    assert "resumo das faixas distintas" in user
+    assert "enunciado:" not in user
+    assert "resposta:" not in user
+    assert "explicacao:" not in user

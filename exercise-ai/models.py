@@ -204,7 +204,11 @@ class ExerciseBatch(BaseModel):
 
     exercicios: list[Exercise] = Field(..., description="Lista de exercícios gerados")
     dificuldades: list[DificuldadeEnum] = Field(
-        ..., description="Resumo das faixas ecoadas (D-10)"
+        ...,
+        description=(
+            "Resumo das faixas únicas usadas no lote (D-10): comprimento 1–3, "
+            "ordem fácil→médio→difícil; NÃO uma entrada por exercício"
+        ),
     )
 
 

@@ -27,7 +27,9 @@ USER_PROMPT_TEMPLATE = (
     "1. Gere exatamente {quantidade} exercício(s), um por slot acima, "
     "respeitando a dificuldade indicada em cada linha.\n"
     "2. Todos os exercícios devem pertencer estritamente ao tópico '{topico}'.\n"
-    "3. Utilize português brasileiro formal e didático."
+    "3. Utilize português brasileiro formal e didático.\n"
+    "4. No lote, o campo dificuldades é o resumo das faixas distintas usadas "
+    "(ordem fácil→médio→difícil), não um valor por exercício."
 )
 
 
