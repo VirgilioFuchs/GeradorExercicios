@@ -209,7 +209,7 @@ class ExerciseBatch(BaseModel):
 
 
 def verify_plan_echo(batch: ExerciseBatch, request: GenerationRequest) -> None:
-    """Compara dificuldade de cada exercício ao slot ordenado; falha sem corrigir (D-11)."""
+    """Compara dificuldade de cada exercício ao slot ordenado e o resumo do batch (D-11, D-07)."""
     expected = [s.dificuldade for s in request.itens_ordenados]
     if len(batch.exercicios) != len(expected):
         raise ValueError(
@@ -221,3 +221,9 @@ def verify_plan_echo(batch: ExerciseBatch, request: GenerationRequest) -> None:
                 f"echo mismatch no slot {i}: esperado {band.value}, "
                 f"obtido {ex.dificuldade.value}"
             )
+    if batch.dificuldades != request.dificuldades:
+        raise ValueError(
+            f"resumo dificuldades diverge: esperado "
+            f"{[b.value for b in request.dificuldades]}, "
+            f"obtido {[b.value for b in batch.dificuldades]}"
+        )

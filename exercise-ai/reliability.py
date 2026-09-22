@@ -13,7 +13,7 @@ import sys
 import time
 from pathlib import Path
 
-from models import ExerciseBatch, GenerationRequest
+from models import ExerciseBatch, GenerationRequest, verify_plan_echo
 from generator import generate_exercises
 from validator import validate_exercise_batch
 from math_check import (
@@ -116,6 +116,7 @@ def generate_validated_batch(
             print("Validando…", file=sys.stderr)
             try:
                 validated = validate_exercise_batch(batch, request)
+                verify_plan_echo(validated, request)
                 clear_math_buffers()
                 return validated
             except ValueError as exc:

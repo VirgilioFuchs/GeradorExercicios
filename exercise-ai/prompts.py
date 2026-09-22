@@ -1,6 +1,6 @@
 """Prompt templates and builders for math exercise generation."""
 
-from models import GenerationRequest
+from models import DificuldadeEnum, GenerationRequest
 
 SYSTEM_PROMPT = (
     "Você é um professor especialista na elaboração de exercícios educacionais de matemática no Brasil. "
@@ -10,34 +10,42 @@ SYSTEM_PROMPT = (
     "Retorne estritamente os dados estruturados no formato solicitado, sem textos introdutórios ou conclusivos adicionais."
 )
 
+_HYBRID_LABELS: dict[DificuldadeEnum, str] = {
+    DificuldadeEnum.FACIL: "fácil (facil)",
+    DificuldadeEnum.MEDIO: "médio (medio)",
+    DificuldadeEnum.DIFICIL: "difícil (dificil)",
+}
+
 USER_PROMPT_TEMPLATE = (
     "Gere exercícios de matemática com base nos seguintes parâmetros:\n"
     "- Matéria: {materia}\n"
     "- Tópico: {topico}\n"
-    "- Dificuldade: {dificuldade}\n"
     "- Quantidade: {quantidade}\n\n"
+    "Plano de dificuldade por exercício (slot → faixa):\n"
+    "{slot_list}\n\n"
     "Requisitos obrigatórios:\n"
-    "1. Gere exatamente {quantidade} exercício(s).\n"
+    "1. Gere exatamente {quantidade} exercício(s), um por slot acima, "
+    "respeitando a dificuldade indicada em cada linha.\n"
     "2. Todos os exercícios devem pertencer estritamente ao tópico '{topico}'.\n"
-    "3. Para cada exercício, forneça obrigatoriamente:\n"
-    "   - enunciado: o texto claro do problema ou questão;\n"
-    "   - resposta: o resultado final ou solução direta;\n"
-    "   - explicacao: o passo a passo completo da resolução.\n"
-    "4. Utilize português brasileiro formal e didático."
+    "3. Utilize português brasileiro formal e didático."
 )
+
+
+def _format_slot_list(request: GenerationRequest) -> str:
+    """Numbered 1-based hybrid labels from itens_ordenados (D-01..D-04)."""
+    lines = [
+        f"{i}. {_HYBRID_LABELS[spec.dificuldade]}"
+        for i, spec in enumerate(request.itens_ordenados, start=1)
+    ]
+    return "\n".join(lines)
 
 
 def build_prompts(request: GenerationRequest) -> tuple[str, str]:
     """Constrói a tupla (system_prompt, user_prompt) formatada a partir de uma requisição."""
-    dificuldade_str = (
-        request.dificuldade.value
-        if hasattr(request.dificuldade, "value")
-        else str(request.dificuldade)
-    )
     user_prompt = USER_PROMPT_TEMPLATE.format(
         materia=request.materia,
         topico=request.topico,
-        dificuldade=dificuldade_str,
         quantidade=request.quantidade,
+        slot_list=_format_slot_list(request),
     )
     return SYSTEM_PROMPT, user_prompt

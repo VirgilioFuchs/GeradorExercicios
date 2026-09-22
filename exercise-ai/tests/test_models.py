@@ -151,6 +151,56 @@ def test_verify_plan_echo_passes_and_fails():
     assert bad.exercicios[0].dificuldade == DificuldadeEnum.MEDIO
 
 
+def test_verify_plan_echo_batch_dificuldades_summary_mismatch():
+    """D-07: per-slot OK but batch.dificuldades ≠ request.dificuldades fails."""
+    req = GenerationRequest(
+        topico="Frações",
+        quantidade=2,
+        plano=PlanoDificuldade(facil=1, medio=1, dificil=0),
+    )
+    drifted = ExerciseBatch(
+        exercicios=[
+            Exercise(
+                enunciado="a",
+                resposta="1",
+                explicacao="x",
+                dificuldade=DificuldadeEnum.FACIL,
+            ),
+            Exercise(
+                enunciado="b",
+                resposta="2",
+                explicacao="y",
+                dificuldade=DificuldadeEnum.MEDIO,
+            ),
+        ],
+        dificuldades=[DificuldadeEnum.FACIL],  # missing medio in summary
+    )
+    with pytest.raises(ValueError, match="resumo dificuldades"):
+        verify_plan_echo(drifted, req)
+
+
+def test_verify_plan_echo_length_mismatch():
+    """Length mismatch between batch and slots raises ValueError."""
+    req = GenerationRequest(
+        topico="Frações",
+        quantidade=2,
+        plano=PlanoDificuldade(facil=1, medio=1, dificil=0),
+    )
+    short = ExerciseBatch(
+        exercicios=[
+            Exercise(
+                enunciado="a",
+                resposta="1",
+                explicacao="x",
+                dificuldade=DificuldadeEnum.FACIL,
+            ),
+        ],
+        dificuldades=[DificuldadeEnum.FACIL],
+    )
+    with pytest.raises(ValueError, match="tamanho do batch"):
+        verify_plan_echo(short, req)
+
+
 def test_plano_and_itens_xor_rejected():
     """D-03: plano ∧ itens → ValidationError."""
     with pytest.raises(ValidationError, match="mutuamente exclusivos"):

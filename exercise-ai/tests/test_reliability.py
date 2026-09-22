@@ -5,8 +5,15 @@ import io
 import json
 from unittest.mock import patch
 import pytest
-from models import DificuldadeEnum, Exercise, ExerciseBatch, GenerationRequest
+from models import (
+    DificuldadeEnum,
+    Exercise,
+    ExerciseBatch,
+    GenerationRequest,
+    PlanoDificuldade,
+)
 import reliability
+import service
 import main
 
 @pytest.fixture
@@ -234,3 +241,86 @@ def test_single_retry_loop_only():
     assert src.count('for attempt in range') == 1
     assert not hasattr(math_check, 'generate_validated_batch')
     assert not hasattr(math_check, 'retry')
+
+
+def test_plan_echo_mismatch_retries_then_succeeds():
+    """Wrong slot echo once → RELY regenerates; second batch passes (VAL-01/02)."""
+    req = GenerationRequest(
+        topico="Frações",
+        quantidade=2,
+        plano=PlanoDificuldade(facil=1, medio=1, dificil=0),
+    )
+    wrong_echo = ExerciseBatch(
+        exercicios=[
+            Exercise(
+                enunciado="e1",
+                resposta="r1",
+                explicacao="x1",
+                dificuldade=DificuldadeEnum.MEDIO,  # slot 0 should be facil
+            ),
+            Exercise(
+                enunciado="e2",
+                resposta="r2",
+                explicacao="x2",
+                dificuldade=DificuldadeEnum.MEDIO,
+            ),
+        ],
+        dificuldades=req.dificuldades,
+    )
+    good = ExerciseBatch(
+        exercicios=[
+            Exercise(
+                enunciado="e1",
+                resposta="r1",
+                explicacao="x1",
+                dificuldade=DificuldadeEnum.FACIL,
+            ),
+            Exercise(
+                enunciado="e2",
+                resposta="r2",
+                explicacao="x2",
+                dificuldade=DificuldadeEnum.MEDIO,
+            ),
+        ],
+        dificuldades=req.dificuldades,
+    )
+    effects = [wrong_echo, good]
+    with patch.object(reliability, "generate_exercises", side_effect=effects) as gen:
+        result = reliability.generate_validated_batch(req, max_retries=1)
+    assert gen.call_count == 2
+    assert [ex.dificuldade for ex in result.exercicios] == [
+        DificuldadeEnum.FACIL,
+        DificuldadeEnum.MEDIO,
+    ]
+
+
+def test_plan_echo_mismatch_exhausts_validation():
+    """Persistent echo mismatch → InvalidRequestError(kind=validation_exhausted)."""
+    req = GenerationRequest(
+        topico="Frações",
+        quantidade=2,
+        plano=PlanoDificuldade(facil=1, medio=1, dificil=0),
+    )
+    wrong_echo = ExerciseBatch(
+        exercicios=[
+            Exercise(
+                enunciado="e1",
+                resposta="r1",
+                explicacao="x1",
+                dificuldade=DificuldadeEnum.MEDIO,
+            ),
+            Exercise(
+                enunciado="e2",
+                resposta="r2",
+                explicacao="x2",
+                dificuldade=DificuldadeEnum.MEDIO,
+            ),
+        ],
+        dificuldades=req.dificuldades,
+    )
+    with patch.object(reliability, "generate_exercises", return_value=wrong_echo) as gen:
+        with pytest.raises(service.InvalidRequestError) as caught:
+            reliability.generate_validated_batch(req, max_retries=1)
+    assert caught.value.kind == "validation_exhausted"
+    assert "echo mismatch" in str(caught.value).lower()
+    assert gen.call_count == 2
