@@ -23,7 +23,7 @@ def test_index_html_has_form_and_tab_markers() -> None:
 
 
 def test_index_html_band_counts_and_soft_warn() -> None:
-    """DEMO-01 / D-09..D-11: three band inputs + soft-warn; no dificuldade select."""
+    """DEMO-01 / D-09..D-11: quantidade first (0); bands locked until qty > 0."""
     text = INDEX.read_text(encoding="utf-8")
     for needle in (
         'name="facil"',
@@ -37,8 +37,13 @@ def test_index_html_band_counts_and_soft_warn() -> None:
         assert needle in text, f"missing band/soft-warn marker: {needle!r}"
     assert 'name="dificuldade"' not in text
     assert "<select name=\"dificuldade\">" not in text
-    assert 'value="0"' in text  # facil/dificil defaults
-    assert 'value="2"' in text  # medio + quantidade defaults
+    qty_pos = text.find('name="quantidade"')
+    facil_pos = text.find('name="facil"')
+    assert 0 <= qty_pos < facil_pos, "quantidade must appear before band inputs"
+    assert 'name="quantidade" type="number" min="0" max="40" value="0"' in text
+    assert 'name="facil" type="number" min="0" max="40" value="0" disabled' in text
+    assert 'name="medio" type="number" min="0" max="40" value="0" disabled' in text
+    assert 'name="dificil" type="number" min="0" max="40" value="0" disabled' in text
 
 
 def test_app_js_has_client_behavior_markers() -> None:
@@ -56,6 +61,8 @@ def test_app_js_has_client_behavior_markers() -> None:
         "band-soft-warn",
         "buildGerarPayload",
         "updateSoftWarn",
+        "syncBandAvailability",
+        "defina quantidade > 0 para liberar",
         "Aviso: a soma das dificuldades é 0",
         "Aviso: a soma das dificuldades é maior que 40",
         "é diferente da soma das bandas",

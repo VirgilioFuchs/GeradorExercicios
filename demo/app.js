@@ -173,11 +173,25 @@
   renderJson(null);
 
   var softWarn = document.getElementById("band-soft-warn");
+  var bandInputs = ["facil", "medio", "dificil"].map(function (name) {
+    return form.querySelector('[name="' + name + '"]');
+  });
+  var qtyInput = form.querySelector('[name="quantidade"]');
 
   function parseBandCount(fd, name) {
     var n = Number(fd.get(name));
     if (!Number.isFinite(n) || n < 0) return 0;
     return Math.floor(n);
+  }
+
+  function syncBandAvailability() {
+    var qty = qtyInput ? Number(qtyInput.value) : 0;
+    var unlocked = Number.isFinite(qty) && qty > 0;
+    bandInputs.forEach(function (el) {
+      if (!el) return;
+      el.disabled = !unlocked;
+      if (!unlocked) el.value = "0";
+    });
   }
 
   function updateSoftWarn() {
@@ -189,7 +203,12 @@
     var qty = Number(fd.get("quantidade"));
     var sum = facil + medio + dificil;
     var lines = [];
-    if (sum === 0) {
+    if (!Number.isFinite(qty) || qty <= 0) {
+      lines.push(
+        "Aviso: defina quantidade > 0 para liberar fácil / médio / difícil."
+      );
+    }
+    if (sum === 0 && qty > 0) {
       lines.push(
         "Aviso: a soma das dificuldades é 0. O servidor pode rejeitar o pedido."
       );
@@ -199,7 +218,7 @@
         "Aviso: a soma das dificuldades é maior que 40. O servidor pode rejeitar o pedido."
       );
     }
-    if (Number(qty) !== sum) {
+    if (qty > 0 && Number(qty) !== sum) {
       lines.push(
         "Aviso: quantidade (" +
           qty +
@@ -248,13 +267,24 @@
     return payload;
   }
 
-  ["facil", "medio", "dificil", "quantidade"].forEach(function (name) {
+  if (qtyInput) {
+    qtyInput.addEventListener("input", function () {
+      syncBandAvailability();
+      updateSoftWarn();
+    });
+    qtyInput.addEventListener("change", function () {
+      syncBandAvailability();
+      updateSoftWarn();
+    });
+  }
+  ["facil", "medio", "dificil"].forEach(function (name) {
     var el = form.querySelector('[name="' + name + '"]');
     if (el) {
       el.addEventListener("input", updateSoftWarn);
       el.addEventListener("change", updateSoftWarn);
     }
   });
+  syncBandAvailability();
   updateSoftWarn();
 
   tabExercicios.addEventListener("click", function () {
