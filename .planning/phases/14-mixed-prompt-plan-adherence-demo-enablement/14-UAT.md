@@ -1,21 +1,18 @@
 ---
-status: diagnosed
+status: complete
 phase: 14-mixed-prompt-plan-adherence-demo-enablement
 source:
   - 14-01-SUMMARY.md
   - 14-02-SUMMARY.md
+  - 14-03-SUMMARY.md
   - 14-VERIFICATION.md
 started: 2026-09-22T13:17:00Z
-updated: 2026-09-22T14:14:00Z
+updated: 2026-09-22T14:54:00Z
 ---
 
 ## Current Test
 
-number: 4
-name: Live DEMO-01 uniform legacy path
-expected: |
-  Uma sola banda > 0 → payload com dificuldade + quantidade=contagem da banda, sem plano.
-awaiting: none — session complete
+[testing complete]
 
 ## Tests
 
@@ -33,15 +30,17 @@ result: pass
 
 ### 4. Live DEMO-01 uniform legacy path
 expected: Uma sola banda > 0 → payload com dificuldade + quantidade=contagem da banda, sem plano
-result: issue
-reported: "deu invalid request error InvalidRequestError após 1 regenerações: resumo dificuldades diverge: esperado ['medio'], obtido ['medio', 'medio'] kind: validation_exhausted"
-severity: blocker
+result: pass
+notes: |
+  Após 14-03 (schema/prompt unique-band) + fix canônico `verify_plan_echo` (unique bands
+  in batch.dificuldades), operador confirmou caminho uniforme live OK (2026-09-22).
+  Gap G-14-4 resolved.
 
 ## Summary
 
 total: 4
-passed: 3
-issues: 1
+passed: 4
+issues: 0
 pending: 0
 skipped: 0
 blocked: 0
@@ -61,4 +60,5 @@ blocked: 0
   missing:
     - Prompt or schema cue that dificuldades is unique bands used (1–3), fácil→médio→difícil — not N copies
   resolved_by: 14-03-SUMMARY.md
+  reverify: "Operator confirmed live uniform path after restart + canonical unique-band compare (56eb830)"
   debug_session: ""

@@ -1,20 +1,18 @@
 ---
 phase: 14-mixed-prompt-plan-adherence-demo-enablement
-verified: 2026-09-22T13:01:29Z
-status: human_needed
+verified: 2026-09-22T14:54:00Z
+status: passed
 score: 10/10 must-haves verified
-behavior_unverified: 1
-behavior_unverified_items:
-  - truth: "Operator uses live demo browser to author band counts, see soft-warn, and POST mixed plano through real /gerar → GenerationRequest (ROADMAP SC5 live path)"
-    test: "python demo/serve.py → open http://[::1]:8642/ → set facil/medio/dificil mixed → Gerar; also try uniform single-band and soft-warn cases"
-    expected: "Soft-warn advisory (#fff8e1) without blocking; mixed POST includes plano; Exercícios render with per-slot difficulties; uniform omits plano and uses band dificuldade/quantidade"
-    why_human: "Offline marker/tracer tests mock generate_batch and assert strings/JSON; they do not prove live LLM paint or browser soft-warn UX"
+behavior_unverified: 0
 human_verification:
   - test: "Live DEMO-01 mixed band path"
     expected: "Three band inputs; soft-warn on sum=0 / sum>40 / qty≠sum; Gerar still enabled; mixed → plano in network/JSON; exercises adhere to slots"
+    result: pass
     why_human: "Needs live LLM keys + real browser"
   - test: "Live DEMO-01 uniform legacy path"
     expected: "Single non-zero band → payload has dificuldade + quantidade=band count, no plano"
+    result: pass
+    notes: "G-14-4 closed via 14-03 + canonical unique-band compare; operator confirmed live"
     why_human: "Browser DevTools confirmation of payload shape"
 ---
 
@@ -35,7 +33,7 @@ human_verification:
 | 2 | Validator falha se count ou dificuldade por slot não aderir ao plano | ✓ VERIFIED | Plan echo is RELY-owned (`verify_plan_echo` after validate per D-05); fails on length, per-slot, and batch `dificuldades` summary — `test_verify_plan_echo_*` |
 | 3 | Falhas de adesão/validação ainda entram no loop RELY existente (bounded) | ✓ VERIFIED | `reliability.py` L118–119 then existing `except ValueError`; `test_plan_echo_mismatch_retries_then_succeeds` / `_exhausts_validation`; `test_single_retry_loop_only` |
 | 4 | math_check continua sem overhaul; fixtures offline cobrem mismatch de plano | ✓ VERIFIED | `validator.py` has no `verify_plan_echo`; `check_math_batch` unchanged ownership; offline echo mismatch fixtures in models + reliability tests |
-| 5 | Demo UI permite contagens por banda e `POST /gerar` monta `plano` | ⚠️ PRESENT_BEHAVIOR_UNVERIFIED | Offline: band inputs + soft-warn markers + `buildGerarPayload` + `serve.py` plano passthrough + `test_gerar_mixed_plano_passthrough` green. Live browser+LLM UAT not run. |
+| 5 | Demo UI permite contagens por banda e `POST /gerar` monta `plano` | ✓ VERIFIED | Offline markers + live UAT 4/4 (mixed + uniform after 14-03 / G-14-4) — see `14-UAT.md` |
 
 ### Observable Truths (plan must_haves)
 
@@ -52,7 +50,7 @@ human_verification:
 | 9 | `demo/serve.py` constructs `GenerationRequest` with `plano` when present (D-15) | ✓ VERIFIED | `req_kwargs["plano"]` when body has plano; no forced `dificuldade="medio"`; tracer passthrough |
 | 10 | Offline demo tests cover mixed plano POST and UI markers | ✓ VERIFIED | `pytest demo/tests -q` → 23 passed |
 
-**Score:** 10/10 plan must-haves verified (1 ROADMAP SC present, behavior-unverified for live demo)
+**Score:** 10/10 plan must-haves verified (live DEMO-01 UAT complete 2026-09-22)
 
 ### Required Artifacts
 
@@ -101,9 +99,9 @@ human_verification:
 | PROMPT-01 | ✓ SATISFIED | Slot enumeration tests + `prompts.py` |
 | VAL-01 | ✓ SATISFIED | `verify_plan_echo` slot + summary; wired in RELY |
 | VAL-02 | ✓ SATISFIED | Existing RELY bounds; math in validator; no redesign |
-| DEMO-01 | ? NEEDS HUMAN | Offline form + payload + serve passthrough ✓; live browser UAT remaining |
+| DEMO-01 | ✓ SATISFIED | Offline form + payload + serve ✓; live UAT 4/4 in `14-UAT.md` |
 
-**Coverage:** 3/4 requirements fully closed offline; DEMO-01 awaits live glance
+**Coverage:** 4/4 requirements closed (offline + live UAT)
 
 ## Anti-Patterns Found
 
@@ -115,21 +113,19 @@ human_verification:
 
 ## Human Verification Required
 
-### 1. Live DEMO-01 mixed band path
+### 1. Live DEMO-01 mixed band path — PASSED
 
-**Test:** `python demo/serve.py` → open `http://[::1]:8642/` → set e.g. facil=1, medio=1, dificil=0 (qty synced or intentionally drifted) → Gerar  
-**Expected:** Soft-warn if qty≠sum (non-blocking); network body includes `plano`; Exercícios show mixed difficulties matching slots; JSON contract dump present  
-**Why human:** Live LLM + browser paint; tracers mock generation
+**Test:** `python demo/serve.py` → open `http://[::1]:8642/` → mixed bands → Gerar  
+**Result:** pass (operator UAT 2026-09-22)
 
-### 2. Live DEMO-01 uniform + soft-warn glance
+### 2. Live DEMO-01 uniform + soft-warn glance — PASSED
 
-**Test:** Single non-zero band (e.g. medio=2); also try sum=0 briefly before correcting  
-**Expected:** Uniform payload omits `plano`, uses `dificuldade` + band `quantidade`; soft-warn `#fff8e1` appears for sum=0 / drift without disabling Gerar  
-**Why human:** Visual CSS + DevTools payload confirmation
+**Test:** Single non-zero band; soft-warn cases  
+**Result:** pass after G-14-4 (14-03 + canonical `dificuldades` unique-band compare); operator confirmed
 
 ## Gaps Summary
 
-**No implementation gaps.** Plan 14-01 and 14-02 must-haves hold under offline pytest. Phase status is **human_needed** solely for live demo browser UAT of DEMO-01 / ROADMAP SC5.
+**No open gaps.** Plans 14-01..14-03 must-haves hold; live DEMO-01 UAT complete (`14-UAT.md` status: complete).
 
 ## Automated Checks
 
@@ -143,11 +139,11 @@ human_verification:
 **Verification approach:** Goal-backward (ROADMAP SC + plan must_haves)  
 **Must-haves source:** `14-01-PLAN.md` + `14-02-PLAN.md` frontmatter  
 **Automated checks:** 2 suites passed, 0 failed  
-**Human checks required:** 2  
+**Human checks required:** 0 (both live DEMO-01 tests passed)  
 **Spot-checked code:** `prompts.py`, `reliability.py`, `models.py` (`verify_plan_echo`), `demo/app.js`, `demo/serve.py`, `demo/index.html`
 
 ---
-*Verified: 2026-09-22T13:01:29Z*
-*Verifier: gsd-verifier (subagent)*
+*Verified: 2026-09-22T14:54:00Z (re-verified after 14-03 + live UAT)*
+*Initial verifier: gsd-verifier (subagent); human UAT closed by operator*
 
-## VERIFICATION HUMAN_NEEDED
+## VERIFICATION PASSED
