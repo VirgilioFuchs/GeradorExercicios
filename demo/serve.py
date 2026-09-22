@@ -5,12 +5,14 @@ from __future__ import annotations
 import functools
 import json
 import os
+import re
 import socket
 import sys
 import threading
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
+from urllib.parse import parse_qs, urlparse
 
 from pydantic import ValidationError
 
@@ -35,6 +37,7 @@ from service import (  # noqa: E402
     InvalidRequestError,
     generate_batch,
 )
+from token_usage.collector import TOKEN_USAGE_DIR  # noqa: E402
 
 HOST = "::1"
 PORT = 8642
@@ -42,8 +45,176 @@ PORT = 8642
 _VALID_PROVIDER = frozenset({"openai", "gemini", "grok"})
 _VALID_REASONING = frozenset({"none", "low", "medium", "high"})
 _SCOPED_ENV_KEYS = ("LLM_PROVIDER", "LLM_REASONING_EFFORT", "LLM_MODEL")
+_DAY_DIR_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+_INDISPONIVEL = "indisponível"
 
 _GEN_LOCK = threading.Lock()
+# Injectable for tests; default is exercise-ai/token-usage/.
+_USAGE_DIR: Path = TOKEN_USAGE_DIR
+
+
+def _iter_usage_events(base: Path) -> list[dict[str, Any]]:
+    """Read UsageEvent dicts from {base}/YYYY-MM-DD/*.ndjson; skip corrupt lines."""
+    if not base.exists() or not base.is_dir():
+        return []
+    try:
+        base_resolved = base.resolve()
+    except OSError:
+        return []
+
+    events: list[dict[str, Any]] = []
+    try:
+        day_dirs = sorted(p for p in base.iterdir() if p.is_dir())
+    except OSError:
+        return []
+
+    for day_dir in day_dirs:
+        if not _DAY_DIR_RE.match(day_dir.name):
+            continue
+        try:
+            day_resolved = day_dir.resolve()
+        except OSError:
+            continue
+        if not day_resolved.is_relative_to(base_resolved):
+            continue
+        try:
+            ndjson_files = sorted(
+                p for p in day_dir.iterdir() if p.is_file() and p.name.endswith(".ndjson")
+            )
+        except OSError:
+            continue
+        for path in ndjson_files:
+            try:
+                file_resolved = path.resolve()
+            except OSError:
+                continue
+            if not file_resolved.is_relative_to(base_resolved):
+                continue
+            if not file_resolved.is_file():
+                continue
+            try:
+                text = file_resolved.read_text(encoding="utf-8")
+            except OSError:
+                continue
+            for line in text.splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if isinstance(obj, dict):
+                    events.append(obj)
+    return events
+
+
+def _sum_token_field(events: list[dict[str, Any]], key: str) -> int | str:
+    nums = [ev[key] for ev in events if isinstance(ev.get(key), int)]
+    if not nums:
+        return _INDISPONIVEL
+    return sum(nums)
+
+
+def _sum_usd(events: list[dict[str, Any]]) -> float | str:
+    vals = [
+        float(ev["usd"])
+        for ev in events
+        if isinstance(ev.get("usd"), (int, float))
+    ]
+    if not vals:
+        return _INDISPONIVEL
+    return sum(vals)
+
+
+def _empty_summary() -> dict[str, Any]:
+    return {
+        "prompt_tokens": _INDISPONIVEL,
+        "completion_tokens": _INDISPONIVEL,
+        "total_tokens": _INDISPONIVEL,
+        "duration_ms": 0,
+        "usd": _INDISPONIVEL,
+        "tentativas": 0,
+        "sucessos": 0,
+        "erros": 0,
+        "event_count": 0,
+    }
+
+
+def _summarize_events(events: list[dict[str, Any]]) -> dict[str, Any]:
+    duration = sum(
+        int(ev["duration_ms"])
+        for ev in events
+        if isinstance(ev.get("duration_ms"), int)
+    )
+    return {
+        "prompt_tokens": _sum_token_field(events, "prompt_tokens"),
+        "completion_tokens": _sum_token_field(events, "completion_tokens"),
+        "total_tokens": _sum_token_field(events, "total_tokens"),
+        "duration_ms": duration,
+        "usd": _sum_usd(events),
+        "tentativas": sum(1 for ev in events if ev.get("status") == "attempt"),
+        "sucessos": sum(1 for ev in events if ev.get("status") == "success"),
+        "erros": sum(1 for ev in events if ev.get("status") == "error"),
+        "event_count": len(events),
+    }
+
+
+def _usage_sessions_payload(base: Path) -> dict[str, Any]:
+    events = _iter_usage_events(base)
+    by_run: dict[str, list[dict[str, Any]]] = {}
+    for ev in events:
+        run_id = ev.get("run_id")
+        if not isinstance(run_id, str) or not run_id:
+            continue
+        by_run.setdefault(run_id, []).append(ev)
+
+    sessions: list[dict[str, Any]] = []
+    for run_id, subset in by_run.items():
+        timestamps = [str(ev.get("ts", "")) for ev in subset if ev.get("ts")]
+        timestamps_sorted = sorted(timestamps)
+        providers = sorted(
+            {
+                str(ev["provider"])
+                for ev in subset
+                if isinstance(ev.get("provider"), str) and ev["provider"]
+            }
+        )
+        sessions.append(
+            {
+                "run_id": run_id,
+                "event_count": len(subset),
+                "first_ts": timestamps_sorted[0] if timestamps_sorted else "",
+                "last_ts": timestamps_sorted[-1] if timestamps_sorted else "",
+                "providers": providers,
+            }
+        )
+    sessions.sort(key=lambda s: s["last_ts"], reverse=True)
+    return {"ok": True, "sessions": sessions}
+
+
+def _is_safe_run_id(run_id: str) -> bool:
+    if not run_id or ".." in run_id:
+        return False
+    if "/" in run_id or "\\" in run_id:
+        return False
+    return True
+
+
+def _usage_session_payload(base: Path, run_id: str) -> dict[str, Any]:
+    events = [
+        ev
+        for ev in _iter_usage_events(base)
+        if isinstance(ev.get("run_id"), str) and ev["run_id"] == run_id
+    ]
+    events.sort(key=lambda ev: str(ev.get("ts", "")))
+    summary = _summarize_events(events) if events else _empty_summary()
+    return {
+        "ok": True,
+        "run_id": run_id,
+        "events": events,
+        "summary": summary,
+    }
 
 
 class DemoServer(ThreadingHTTPServer):
@@ -124,9 +295,32 @@ class DemoHandler(SimpleHTTPRequestHandler):
     """Static files from demo/ plus POST /gerar → generate_batch under Lock."""
 
     def do_GET(self) -> None:  # noqa: N802
-        path = self.path.split("?", 1)[0]
+        parsed = urlparse(self.path)
+        path = parsed.path
         if path == "/models":
             self._send_json(200, _models_payload())
+            return
+        if path == "/usage/sessions":
+            self._send_json(200, _usage_sessions_payload(_USAGE_DIR))
+            return
+        if path == "/usage/session":
+            qs = parse_qs(parsed.query)
+            raw_ids = qs.get("run_id") or []
+            run_id = raw_ids[0] if raw_ids else ""
+            if not _is_safe_run_id(run_id):
+                self._send_json(
+                    400,
+                    {
+                        "ok": False,
+                        "error": {
+                            "class": "InvalidRequestError",
+                            "message": "run_id inválido",
+                            "kind": "validation",
+                        },
+                    },
+                )
+                return
+            self._send_json(200, _usage_session_payload(_USAGE_DIR, run_id))
             return
         super().do_GET()
 
