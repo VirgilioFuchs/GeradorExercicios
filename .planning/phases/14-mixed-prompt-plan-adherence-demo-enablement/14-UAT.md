@@ -50,7 +50,7 @@ blocked: 0
 
 - gap_id: G-14-4
   truth: "Uniform single-band POST succeeds; ExerciseBatch.dificuldades echoes request summary (e.g. ['medio']) not per-exercise repetition"
-  status: failed
+  status: resolved
   reason: "User reported: InvalidRequestError após 1 regenerações: resumo dificuldades diverge: esperado ['medio'], obtido ['medio', 'medio'] kind: validation_exhausted"
   severity: blocker
   test: 4
@@ -60,5 +60,5 @@ blocked: 0
     - exercise-ai/prompts.py (no guidance on batch dificuldades summary)
   missing:
     - Prompt or schema cue that dificuldades is unique bands used (1–3), fácil→médio→difícil — not N copies
-    - Optional: canonicalize comparison via _band_summary(exercicios) if PRODUCT accepts relaxing exact list equality for duplicate padding
+  resolved_by: 14-03-SUMMARY.md
   debug_session: ""
