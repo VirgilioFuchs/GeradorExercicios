@@ -39,3 +39,5 @@ Also relevant when extending CLI flags, prompt templates, or `Exercise` / batch 
 ## Notes
 
 Captured during `$gsd-new-milestone` after user asked to annotate: want the project to support placing BNCC skills (habilidades) into the generation flow. Candidate focus for **v1.2** — confirm with user before locking requirements.
+
+**Downstream:** SEED-009 (endurecer `math_check` alinhado à BNCC) depends on this seed landing first.
