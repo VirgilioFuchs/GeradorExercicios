@@ -6,10 +6,10 @@ current_phase: 14
 current_phase_name: Mixed prompt + plan-adherence + demo enablement
 status: ready_to_discuss
 stopped_at: Phase 14 executed — verification human_needed (live demo UAT)
-last_updated: "2026-09-22T13:12:23.969Z"
+last_updated: "2026-09-22T13:48:27.824Z"
 last_activity: 2026-09-22
 last_activity_desc: Resumed; Phase 13 complete — next discuss Phase 14
-state_head: 6ab6c34eb5d84257cf5545f7d5068b28c7ae70b6
+state_head: 45f73065bc05262592d2c711c43e9cd215c6a8a3
 progress:
   total_phases: 3
   completed_phases: 0
@@ -114,6 +114,7 @@ None yet.
 | 2 | model catalogs GPT/Gemini/Grok from Modelos.txt + capacity fallbacks | 2026-09-21 | 961fc2e | 260921-d9y-add-gpt-gemini-grok-model-catalogs-from- |
 | 3 | demo model picker from model_catalog | 2026-09-21 | f9fbbbc | 260921-dsv-demo-select-model-from-model-catalog-lis |
 | 4 | demo: quantidade first, unlock bands when qty>0 | 2026-09-22 | 6ab6c34 | — |
+| 5 | demo: painel Uso tokens/tempo + seletor run_id | 2026-09-22 | 45f7306 | — |
 
 ## Session Continuity
 
