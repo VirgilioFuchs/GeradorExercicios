@@ -1,14 +1,16 @@
 # Stack Research
 
-**Domain:** LLM exercise generation / dynamic mixed-difficulty batches (per-item specs)
-**Researched:** 2026-09-21
+**Domain:** Domain AI generation contract + prompt hygiene (schema-as-authority)
+**Researched:** 2026-09-23
 **Confidence:** HIGH
 
 ---
 
 ## Headline
 
-**For v2.1 the correct stack addition is: nothing new in `requirements.txt`.** Mixed batches, per-item difficulty, pedagogical reasoning type, larger caps, and batch-plan CLI/wizard UX are all schema + prompt + validator + argparse/wizard work on the existing Pydantic v2 + Structured Outputs pipeline. Keep `openai`, `google-genai`, `pydantic`, `python-dotenv`, `pytest` unchanged; extend models and validation with nested list types already proven by the SDK and Context7 docs.
+**For v2.2 the correct stack addition is: nothing new in `exercise-ai/requirements.txt`.** The milestone is markdown contracts (Cursor skill + `.cursor` rules), a `prompts.py` rewrite that stops duplicating field shape in prose, and light offline policy/validation hooks on the existing Pydantic + Structured Outputs + `validator` / `verify_plan_echo` pipeline. Keep `openai`, `google-genai`, `pydantic`, `python-dotenv`, `pytest` unchanged. Do not introduce prompt-guard libraries, agent frameworks, or packaging.
+
+**Baseline already shipped (do not re-select):** Python 3.11+, openai Structured Outputs + Pydantic v2, google-genai, pytest, `service.generate_batch`, `verify_plan_echo`, `plan_ux`.
 
 ---
 
@@ -18,11 +20,9 @@
 
 | Technology | Version | Purpose | Why Recommended |
 |------------|---------|---------|-----------------|
-| Python | 3.11+ (CI pin 3.11) | Runtime | Already validated through v2.0; nested typing + enums suffice for per-item specs. |
-| pydantic | ≥2.0 (keep pin) | Request/response schemas + validators | Nested `list[ItemModel]`, `Field(min_length/max_length)`, `@model_validator`, and `str, Enum` map cleanly to OpenAI/Gemini JSON schema. Single source of truth for request plan + output echo fields. |
-| openai | ≥1.50 (keep pin) | Structured Outputs via `chat.completions.parse(response_format=…)` | Nested `list[BaseModel]` is first-class (SDK helpers + cookbook). Same `ExerciseBatch` pattern; enrich item fields, do not change client stack. |
-| google-genai | ≥1.0 (keep pin) | Gemini path: `response_json_schema=ExerciseBatch.model_json_schema()` | Schema still derived from the same Pydantic models; nested lists/enums continue to work without a second schema DSL. |
-| python-dotenv | ≥1.0 (keep pin) | Env config | Unchanged; `LLM_REASONING_EFFORT` stays **run-level**, not per-item. |
+| *(unchanged)* Pydantic models + Structured Outputs | existing pins | **Format authority** | `Exercise` / `ExerciseBatch` + `.parse()` / `model_json_schema()` already own shape. Field `description=` metadata flows into JSON schema (Context7 `/pydantic/pydantic`) — that is where field semantics live, not SYSTEM_PROMPT prose. |
+| *(unchanged)* `validator.py` + `verify_plan_echo` + math_check + RELY | in-repo | **Code-owned adherence** | Validation / plan echo / math stay deterministic; skill must tell agents not to invent a second “LLM validates itself” layer. |
+| Cursor / repo markdown contracts | n/a (files) | Domain skill + rules | Same pattern as `skills/python-ai-engineering/SKILL.md` → `.cursor/rules/*.mdc`: index skill points at authoritative rules; GSD agents load them on plan/execute/review. |
 
 **Nothing is added to `exercise-ai/requirements.txt` for this milestone.**
 
@@ -30,70 +30,60 @@
 
 | Library | Version | Purpose | When to Use |
 |---------|---------|---------|-------------|
-| `argparse` (stdlib) | stdlib | CLI flags for batch plan / uniform fallback | Extend existing `main.py` — e.g. `--plano "2f,3m,1d"` or repeated `--item` — without Click/Typer. |
-| `re` / string split (stdlib) | stdlib | Parse compact batch-plan tokens | Wizard/CLI plan shorthand; keep parser tiny and unit-tested. |
-| `enum.Enum` (stdlib) | stdlib | `DificuldadeEnum` + new pedagogical `TipoRaciocinio` (or similar) | Pedagogical taxonomy ≠ API `reasoning_effort`. Separate enums prevent conflating cost/model knobs with exercise pedagogy. |
-| Existing `reasoning.py` | in-repo | Map `none\|low\|medium\|high` → OpenAI/Gemini | **Keep run-level only.** Providers do not expose reliable per-item `reasoning_effort` in this lab’s multi-provider setup. |
+| stdlib `str` / `re` (optional) | stdlib | Prompt hygiene helpers | Bound/strip control chars on interpolated `materia`/`topico` if discuss-phase wants SEED-008 slice C; keep tiny and unit-tested — no `bleach` / `validators` package. |
+| Existing `prompts.build_prompts` | in-repo | Persona + pedagogical content only | Rewrite strings: keep professor tone, slot list, PT-BR, topic fidelity; **remove** field-contract sentences that list `enunciado` / `resposta` / `explicacao` or “retorne no formato solicitado” as if prompt owned the schema. |
+| Existing `tests/test_prompts.py` | in-repo | Offline prompt-policy asserts | Extend absence-of-field-contract checks to SYSTEM_PROMPT; optional marker for filtering — still pytest only. |
 
 ### Development Tools
 
 | Tool | Purpose | Notes |
 |------|---------|-------|
-| pytest ≥8.0 | Offline unit tests | Mock LLM; assert plan expansion, length-vs-spec, per-item field echo, backward-compatible uniform request. |
-| GitHub Actions (existing) | CI without secrets | No new deps → CI install line unchanged. |
+| pytest ≥8.0 (existing) | Offline policy + validator tests | Assert SYSTEM/USER prompts lack field-schema dumps; assert contract docs/rules exist if desired via path checks. No live LLM. |
+| Optional `@pytest.mark.prompt_policy` | Group SEED-008 tests | Register via `pytest.ini` / `conftest.pytest_configure` or a one-line marker list — Context7 `/pytest-dev/pytest` (custom markers). Prefer **no** new config file unless markers proliferate; plain asserts in `test_prompts.py` already work. |
+| Cursor rules frontmatter | Agent scoping | Mirror `20-ai-engineering.mdc`: `description` + `alwaysApply: false` (or globs for `prompts.py` / generation paths) so the domain rule loads when editing generation contract code. |
 
 ---
 
 ## Installation
 
 ```bash
-# v2.1 adds nothing. Existing install remains the contract:
+# v2.2 adds nothing to the Python install contract:
 pip install -r exercise-ai/requirements.txt
+
+# Artifact layout (files only — not pip packages):
+#   skills/exercise-generation/SKILL.md          # index (mirror python-ai-engineering)
+#   .cursor/rules/30-exercise-generation.mdc    # authoritative domain contract
+#   optional: short docs pointer in README Embed / RESPONSE-CONTRACT section
 ```
 
 ---
 
-## Integration Points (existing layout)
+## Integration Points (NEW only)
 
-| Seam | v2.1 change (stack-neutral) |
+| Seam | v2.2 change (stack-neutral) |
 |------|-----------------------------|
-| `models.py` | Add nested **item spec** model(s); optional `itens`/`plano` on `GenerationRequest`; optionally echo `dificuldade` / pedagogical type on `Exercise` so the validator can align output to the plan. Keep `MAX_QUANTIDADE` as a single constant (raise carefully). |
-| `prompts.py` | Render mixed plan (counts per level + per-item reasoning type) instead of one global dificuldade string. |
-| `validator.py` | Beyond `len(exercicios) == quantidade`: check multiset of difficulties (and types) vs plan; reuse `Field`/`model_validator` where structural, keep semantic checks offline-testable. |
-| `generator.py` / `generator_gemini.py` | Still `response_format=ExerciseBatch` / `model_json_schema()` — **no new client libs**. Larger payloads may need **sequential chunk orchestration** in service/generator (stdlib loops), not a batch SDK. |
-| `reasoning.py` + CLI `--reasoning` | Remains global cost/quality knob. Document clearly vs pedagogical per-item field. |
-| `main.py` / `wizard.py` | Batch-plan UX: compact string or interactive “N fáceis + M médios…”; expand to specs before `GenerationRequest`. |
-| `service.generate_batch` | Same signature shape preferred: still `GenerationRequest` → `ExerciseBatch`. Enrich request model; do not widen return for OBS-01. |
+| `skills/exercise-generation/SKILL.md` | Thin index like `python-ai-engineering`: point at `.cursor/rules/30-exercise-generation.mdc` (+ maybe existing `20-ai-engineering.mdc`). Define when GSD applies it (plan/execute/review touching generation). |
+| `.cursor/rules/30-exercise-generation.mdc` | Persona, capabilities, pipeline order, **split**: Thinking (`reasoning.py` run-level) vs Response (`Exercise` fields via schema) vs Validation (code). Explicit: do not duplicate JSON schema in prompts; do not ask the model to self-validate as substitute for `validate_exercise_batch`. |
+| `prompts.py` | Strip field-contract prose from `SYSTEM_PROMPT` (today lines that mandate enunciado/resposta/explicação + “formato solicitado”). Keep pedagogical requirements + slot enumeration. User prompt may keep the one-line `dificuldades` **resumo** cue (plan semantics), not a field-API dump. |
+| `validator.py` / RELY | **Light** hooks only: extend existing offline checks if needed (e.g. empty fields already covered). Do **not** add a new validation framework. Plan adherence remains `verify_plan_echo`. |
+| `tests/test_prompts.py` | Policy tests: SYSTEM must not restate field contracts; USER must not invent `enunciado:`/`resposta:`/`explicacao:` API lines (already asserted for user). |
+| Generators / providers | **No change** — still `response_format=ExerciseBatch` / Gemini schema from Pydantic. |
 
 ---
 
-## Schema Patterns (verified)
+## Schema-as-Authority Pattern (verified)
 
-**Nested list Structured Outputs (OpenAI + Pydantic)** — Context7 `/openai/openai-python`: `chat.completions.parse(response_format=MathResponse)` where `MathResponse.steps: list[Step]` works today; same pattern as `ExerciseBatch.exercicios: list[Exercise]`.
-
-**Parent–child validation** — Context7 `/pydantic/pydantic`: `@model_validator(mode='after')` on the parent can enforce cross-field rules (e.g. plan length ≡ `quantidade`, or forbidden mismatches). Prefer this over a new validation framework.
-
-**List bounds** — `Field(min_length=…, max_length=…)` on `list[…]` maps to schema constraints; raise `MAX_QUANTIDADE` here and in CLI in lockstep.
-
-**Enums in strict schema** — OpenAI Structured Outputs support `enum` / arrays / nested objects; use `str, Enum` for dificuldade and pedagogical reasoning type so Gemini `model_json_schema()` and OpenAI parse stay aligned.
-
-**Recommended shape (conceptual — not prescribing final names):**
+**Authority split (SEED-008):**
 
 ```text
-GenerationRequest
-  materia, topico
-  dificuldade?          # uniform mode (backward compatible)
-  quantidade            # = len(specs) when mixed
-  itens: list[ExerciseSpec]?   # mixed mode: dificuldade + optional tipo_raciocinio
-
-Exercise  (output)
-  enunciado, resposta, explicacao
-  dificuldade? / tipo_raciocinio?   # echo for validator alignment (discuss-phase)
-
-ExerciseSpec
-  dificuldade: DificuldadeEnum
-  tipo_raciocinio?: PedagogicalEnum   # NOT API reasoning_effort
+FORMAT  → models.py + Structured Outputs / model_json_schema()
+PLAN    → GenerationRequest.itens_ordenados + verify_plan_echo / validator
+CONTENT → prompts (topic, slot difficulty, tone) — best-effort
 ```
+
+**Pydantic Field descriptions** already place semantic field docs in the schema sent to providers (`Field(description=...)` → `model_json_schema()` properties). Context7 `/pydantic/pydantic` confirms `description` is JSON-schema metadata, not a reason to paste field lists into the system prompt.
+
+**Prompt rewrite rule of thumb:** if deleting a sentence would not change pedagogical intent and the information already exists on `Exercise` / `ExerciseBatch`, delete it from the prompt.
 
 ---
 
@@ -101,11 +91,12 @@ ExerciseSpec
 
 | Recommended | Alternative | When to Use Alternative |
 |-------------|-------------|-------------------------|
-| Nested Pydantic models on existing `ExerciseBatch` | Separate LLM call per difficulty group | Only if a single call truncates or fails schema at higher caps; implement as **sequential chunks** in-process, still same stack. |
-| Compact `--plano` string + wizard prompts | Click / Typer / Rich TUI | Never for this lab — argparse + existing `gerar` wizard already ship; richer TUI is YAGNI. |
-| Pedagogical enum on request/output | Overloading `LLM_REASONING_EFFORT` / `--reasoning` per item | Only if discuss-phase proves providers gain true per-item effort **and** all three providers support it; today they do not uniformly — keep effort run-level. |
-| Raise `MAX_QUANTIDADE` + one-shot generate | OpenAI Batch API / async job queue | Out of scope; sequential sync contract is a project constraint. |
-| Hand-written JSON Schema dicts | Keep Pydantic as schema source | Only if a provider rejects a Pydantic-generated construct; fix the model, don’t fork a second schema. |
+| `skills/…/SKILL.md` + `.cursor/rules/30-….mdc` (mirror python-ai-engineering) | Only a `docs/EXERCISE-AI-CONTRACT.md` | Docs-only if agents never need auto-load; weaker for GSD — prefer skill→rules like existing engineering contract. |
+| Repo `skills/exercise-generation/` | `.cursor/skills/exercise-generation/` | Cursor-native discovery prefers `.cursor/skills/`; this repo already uses `skills/` for `python-ai-engineering` — **stay consistent** unless discuss-phase wants dual symlink/copy. |
+| Extend `test_prompts.py` string asserts | New package (`promptfoo`, `guardrails-ai`, `llm-guard`) | Never for MVP lab — YAGNI, live/eval deps, hides ownership in code. |
+| Soften SYSTEM_PROMPT only | Dump full JSON schema into system message | Explicitly forbidden by SEED-008; schema already enforced by API. |
+| Light stdlib sanitize of `materia`/`topico` | New sanitization library | Only if discuss locks injection hygiene; stdlib length cap + control-char strip is enough. |
+| pytest marker `prompt_policy` | Separate test package / tox env | Overkill; one marker or none. |
 
 ---
 
@@ -113,38 +104,33 @@ ExerciseSpec
 
 | Avoid | Why | Use Instead |
 |-------|-----|-------------|
-| LangChain / CrewAI / AutoGen / PydanticAI | Agent frameworks hide the lab’s learning goals; forbidden by PROJECT.md | Plain SDK + modules |
-| `instructor` / extra structured-output wrappers | Duplicates `openai` `.parse()` + Gemini schema path | Existing dual-provider generators |
-| Click, Typer, questionary, Rich | New UX deps for a small plan parser | `argparse` + `wizard.py` |
-| Packaging / `pyproject.toml` (PKG-01) | Explicitly parked until after v2.1 | Current `exercise-ai/` layout |
-| OBS-01 usage in return / LOG-01 print→logging | Out of milestone scope | Existing `[USAGE]` NDJSON / stderr prints |
-| Images, BNCC, FastAPI/Flask/Streamlit | Out of scope seeds / product HTTP | Embed + throwaway demo already shipped |
-| Concurrent/async chunk pools | Contract is sequential; complexity without requirement | Optional **sequential** chunk loop if cap forces it |
-| Per-item API `reasoning_effort` as the “tipo de raciocínio” field | Conflates pedagogy with provider cost knobs; multi-provider mismatch | Separate pedagogical enum; keep `reasoning.py` global |
+| LangChain / CrewAI / AutoGen / PydanticAI “agents that validate” | Violates lab constraints; duplicates RELY in prompt-land | Skill that documents existing pipeline order |
+| `instructor`, Outlines, Guidance, Guardrails | Extra structured-output / policy layers on top of `.parse()` | Existing generators + Pydantic |
+| Packaging / `pyproject.toml` (PKG-01) | Explicitly out of v2.2 | Current `exercise-ai/` layout |
+| BNCC (SEED-001/009), new LLM providers | Out of milestone | Existing OpenAI / Gemini / Grok path |
+| Putting JSON Schema or field API lists in prompts | Prompt is not format authority; invites drift vs models | Schema + validator + Field descriptions |
+| “Ask the model to validate its own JSON” in SYSTEM_PROMPT | Undermines code-owned validation | `validate_exercise_batch` + RELY |
+| New runtime deps for markers/docs | Markers and skills are files | pytest + markdown |
 
 ---
 
 ## Stack Patterns by Variant
 
-**If request is uniform (legacy CLI: one dificuldade + quantidade):**
-- Keep current `GenerationRequest` fields as the default path.
-- Internally expand to N identical specs **or** leave prompt as today — discuss-phase chooses; either way, no new library.
+**If skill is index-only (expected default):**
+- `SKILL.md` lists authoritative files and the validation/thinking/response table.
+- Behavioral detail lives in `.cursor/rules/30-exercise-generation.mdc`.
+- No Python import of the skill at runtime.
 
-**If request is mixed (batch plan):**
-- Represent plan as `list[ExerciseSpec]` (or counts expanded to specs).
-- Prompt lists the required multiset; validator checks length + per-index or multiset match.
-- Output should carry enough echoed fields for offline validation without re-calling the LLM.
+**If prompts still mention pedagogical quality of “enunciado claro” without naming schema fields:**
+- Prefer content adjectives without listing the three field names as a contract.
+- Safer: “exercícios claros, com resolução passo a passo” without inventing an API.
 
-**If quantidade grows beyond reliable one-shot context/schema:**
-- Prefer raising cap modestly first (e.g. toward exams-sized sets) with measurements via existing token NDJSON.
-- If failures appear: **chunk by contiguous specs**, concatenate `ExerciseBatch.exercicios`, validate the merged batch against the full plan — still stdlib orchestration, same providers.
+**If light validation hooks are needed beyond existing validator:**
+- Prefer assertions in tests + tiny pure functions next to `prompts.py` or `validator.py` (e.g. `assert_prompt_policy(system, user)` used by tests, optionally called in debug builds).
+- Do not call LLM-as-judge for format.
 
-**If “tipo de raciocínio” is pedagogical only (expected default):**
-- New enum on specs/exercícios; do not plumb into `openai_compatible_effort_kwargs` / Gemini `thinking_level`.
-- Keep `--reasoning` / env as the single run-level effort control.
-
-**If discuss-phase demands both pedagogy and API effort per item:**
-- Still avoid new deps; effort would need provider capability matrix and likely **chunk-by-effort** sequential calls. Treat as stretch; default stack research says **do not**.
+**If AGENTS.md / GSD skills scan should surface the new skill:**
+- Place under `skills/exercise-generation/` so it matches the existing `skills/` discovery path already used by `python-ai-engineering`.
 
 ---
 
@@ -152,25 +138,21 @@ ExerciseSpec
 
 | Package A | Compatible With | Notes |
 |-----------|-----------------|-------|
-| openai ≥1.50 | pydantic ≥2.0 | `.parse(response_format=Model)` requires this pairing; nested lists already used by this repo. |
-| google-genai ≥1.0 | pydantic ≥2.0 `model_json_schema()` | Nested enums/lists must stay JSON-Schema-subset friendly (no exotic Pydantic constraints that break Gemini). Prefer `str, Enum` + required fields. |
-| Structured Outputs (strict) | Nested objects, arrays, enums | Supported types include Object, Array, Enum; avoid unsupported JSON Schema features when enriching `Exercise`. |
-| pytest ≥8 | No LLM live | Plan parser + validator tests stay offline. |
+| Existing openai + pydantic | Field `description` in schema | No upgrade required for schema-as-authority; descriptions already on `Exercise` fields. |
+| Existing pytest | Custom markers (optional) | Register markers if used; otherwise skip — avoids UnknownMarkWarning. |
+| Cursor rules `.mdc` | Skill `SKILL.md` frontmatter | Skill `name` / `description` for discovery; rule `description` for requestable load — no version pin. |
 
 ---
 
 ## Sources
 
-- Context7 `/pydantic/pydantic` — nested `list[Model]`, `@model_validator(mode='after')`, `Field(min_length/max_length)` on lists, `Annotated` inner constraints, `TypeAdapter(list[Item])`
-- Context7 `/openai/openai-python` — `chat.completions.parse(response_format=…)` with nested `List[Step]` Pydantic models
-- Context7 `/openai/openai-cookbook` — structured batch-style list responses; nested company/list schemas
-- Context7 `/websites/developers_openai_api` — Structured Outputs supported types (Object, Array, Enum); strict schema nested arrays
-- Repo: `exercise-ai/models.py`, `validator.py`, `reasoning.py`, `prompts.py`, `requirements.txt`, SEED-006, PROJECT.md v2.1 scope
-- Prior research: `.planning/research/STACK.md` (v2.0) — “add nothing” precedent for schema-only milestones
+- Context7 `/pydantic/pydantic` — `Field(description=…)` → `model_json_schema()` property descriptions (format metadata lives in schema, not prompt)
+- Context7 `/pytest-dev/pytest` — optional custom marker registration (`markers`, `pytest_configure`)
+- Repo: `skills/python-ai-engineering/SKILL.md`, `.cursor/rules/10-python.mdc`, `.cursor/rules/20-ai-engineering.mdc`, `exercise-ai/prompts.py`, `tests/test_prompts.py`, SEED-007, SEED-008, PROJECT.md v2.2
+- Prior research: `.planning/research/STACK.md` (v2.1) — “add nothing” precedent for schema/docs milestones
 
 ---
 
-*Stack research for: LLM exercise generation / dynamic mixed-difficulty batches*
-*Researched: 2026-09-21*
-*Milestone: v2.1 Lotes dinâmicos (SEED-006)*
-`)
+*Stack research for: Domain AI generation contract + prompt hygiene (schema-as-authority)*
+*Researched: 2026-09-23*
+*Milestone: v2.2 Contrato de geração (SEED-007 + SEED-008)*

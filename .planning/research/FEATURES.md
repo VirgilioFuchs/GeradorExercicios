@@ -1,184 +1,167 @@
 # Feature Research
 
-**Domain:** Exercise batch authoring / LLM math-exercise generators (mixed-difficulty lots)
-**Researched:** 2026-09-21
-**Confidence:** HIGH on table stakes (SEED-006 + shipped uniform `GenerationRequest` + industry quiz/worksheet generators); MEDIUM on differentiators (pedagogical “tipo de raciocínio” taxonomies vary by product); HIGH on anti-features that collide with current multi-provider `reasoning_effort` (run-level only today)
+**Domain:** Exercise-generation AI contract (persona, pipeline concerns, schema-as-format-authority)
+**Researched:** 2026-09-23
+**Confidence:** HIGH on table stakes (SEED-007/008 + PROJECT.md v2.2 goals + Phase 14 partial hygiene); HIGH on anti-features that reintroduce LLM self-check or prompt-as-schema; MEDIUM on how far “light validation hooks” go beyond existing `validate` / `verify_plan_echo` / math_check
 
-**Milestone:** v2.1 “Lotes dinâmicos” — SUBSEQUENT milestone. Uniform generation through v2.0 is EXISTING and must keep working. Scope is SEED-006 only: per-exercise difficulty, per-exercise pedagogical reasoning type, larger quantity, batch-plan UX. Out of scope: images, storytelling, BNCC, packaging, OBS/LOG, validation overhaul beyond mixed-batch needs.
+**Milestone:** v2.2 “Contrato de geração” — SEED-007 + SEED-008. Mixed batches, slot prompts, `verify_plan_echo`, demo/CLI/wizard bands, and Structured Outputs `ExerciseBatch` are **already shipped** (v2.1) and stay baseline. This milestone documents and hardens behavior/contract around generation — not a new product surface (no HTTP, BNCC, images, packaging).
 
 ---
 
 ## Feature Landscape
 
-### Table Stakes (Operators Expect These)
+### Table Stakes (Operators / Agents Expect These)
 
-Features an operator assembling a prova / sequência pedagógica assumes exist. Missing these = still “N cópias do mesmo nível.”
+Features assumed once “contrato de geração” is the milestone. Missing these = prompts and agents keep mixing think / answer / validate, or treat prompt prose as format safety.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| **Batch plan / difficulty distribution** (e.g. `2 fácil + 3 médio + 1 difícil`) | Quiz/worksheet tools expose “Mixed” or an explicit easy/medium/hard mix; teachers think in counts per band, not N identical flags | MEDIUM | Compact UX over raw item list. Wizard + argparse must accept a plan without N manual flags (SEED-006 slice E). Plan expands to ordered item specs before prompt |
-| **Per-exercise difficulty in the request** | Domínio por atividade — core SEED-006 ask; uniform-only feels incomplete once mixed is promised | MEDIUM | Extend beyond single `GenerationRequest.dificuldade`. Prefer: optional `itens: list[ItemSpec]` **or** `plano: {facil, medio, dificil}` that expands; keep scalar `dificuldade` + `quantidade` for backward compat |
-| **Prompt that instructs mixed levels item-by-item** | LLM otherwise averages difficulty or ignores the plan | MEDIUM | `prompts.build_prompts` must enumerate slot N → dificuldade (and tipo if present). Structured Outputs schema should echo metadata so validation can check adherence |
-| **Validator: count + per-item plan adherence** | LLM is not source of truth; mixed batches without checks regress to “hope the model obeyed” | MEDIUM | Today `validate_exercise_batch` checks `len == request.quantidade`. Extend: expected N from plan; each exercise’s declared `dificuldade` matches slot; fail → RELY as today (bounded 1–2) |
-| **Echo difficulty (and tipo) on each `Exercise` in JSON** | Host/CLI/demo need to show which item is easy vs hard; plan is useless if only in the request | LOW–MEDIUM | Add optional/required fields on `Exercise` (or parallel `meta`); keeps `enunciado`/`resposta`/`explicacao` intact |
-| **Backward-compatible uniform mode** | Scripts, tests, embed hosts, wizard defaults all use scalar dificuldade + quantidade (1–40) | LOW | Uniform request remains valid; mixed is additive. Do not break `service.generate_batch` callers |
-| **Raised but still finite quantity cap** | SEED-006: “mais quantidade”; industry caps ~20–50 per run; unbounded = cost/context bombs | MEDIUM | Revisit `MAX_QUANTIDADE = 40`. Raise with a hard ceiling (e.g. 60–80) **or** keep 40 single-shot + optional chunking later. Cap stays in domain model (`ge`/`le`), not only CLI |
-| **CLI/wizard path to specify the plan without N flags** | Operator asked for dynamic lots; forcing `--item` × N defeats the UX | MEDIUM | Examples: wizard steps “quantos fáceis / médios / difíceis”; CLI `--plano 2,3,1` or `--facil 2 --medio 3`. Argparse stays scriptable; `gerar` stays interactive |
+| **Domain skill index for exercise generation** | Lab already has `skills/python-ai-engineering/SKILL.md` → generic AI rules; operators asked for the same pattern **specific to** generating exercises (persona, capabilities, what the system does/doesn’t do, pipeline order) | LOW–MEDIUM | e.g. `skills/exercise-generation/SKILL.md` (+ optional `.cursor/rules/30-exercise-generation.mdc` or `docs/EXERCISE-AI-CONTRACT.md`). Index points to authoritative rules; GSD plan/execute/review apply it. Single professor persona unless discuss unlocks variants |
+| **Explicit validation vs thinking vs response separation (docs)** | Without a written triad, agents invent “validate in the prompt” or treat `reasoning_effort` as a pedagogical field | LOW | Table + short pipeline diagram: **Pensamento** = API effort (`reasoning.py`, run-level); **Resposta** = `Exercise` fields via Structured Outputs; **Validação** = Pydantic + `validator` + `math_check` + `verify_plan_echo` + RELY; **Config** = provider/model/env. Aligns with SEED-007 suggested architecture |
+| **SYSTEM/USER prompt rewrite aligned to the contract** | Today `SYSTEM_PROMPT` still narrates field presence (“enunciado… resposta… explicação…”) and “formato solicitado”; USER already has slots (v2.1) but system is pre-contract | MEDIUM | Persona + pedagogical constraints + follow plan slots; **no** duplicate field API; keep PT-BR professor tone; preserve slot enumeration (SEED-006/Phase 14) |
+| **Strip enunciado/resposta/explicação field-contract prose from prompts** | Prompt is not a safe format contract; Phase 14 removed field bullets from USER (D-03) but SYSTEM still restates the three fields | LOW | Format authority = `models.py` + `.parse()` / `response_format=ExerciseBatch` + validators. Prompt may teach **content** (topic, slot difficulty, band summary cue) only |
+| **Light validation hooks in code (not LLM self-check)** | Core Value: LLM is not source of truth; “ask the model to validate” undermines the lab | LOW–MEDIUM | Prefer small, deterministic hooks around existing seams (e.g. assert prompt policy helpers, keep/strengthen plan-echo + structural checks). **Do not** add a second agent or “self-critique” pass as substitute for `validator` / math / RELY |
+| **Offline tests asserting prompt policy** | Without tests, the next phase re-dumps schema into SYSTEM “for safety” | LOW | Assert: no full JSON schema dump; no enunciado/resposta/explicacao field-contract block; slot list **present** for mixed/uniform via `itens_ordenados`. Pure string/fixture tests — no live LLM |
 
 ### Differentiators (Competitive Advantage)
 
-Not required for “mixed lots work,” but align with lab Core Value (reliable structured batches) and SEED-006’s “tipo de raciocínio.”
+Not required for “docs exist,” but strengthen the lab’s Core Value (reliable structured generation) and make the contract agent-usable.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| **Pedagogical “tipo de raciocínio” per exercise** (content constraint in prompt + echoed field) | Differentiates from “Mixed = random mix of hard numbers”; supports sequences (cálculo → interpretação → prova) | MEDIUM | Small closed enum (e.g. cálculo direto, interpretação, resolução multi-passo, justifique) — **not** full Bloom UI. Clarify in discuss: this is **not** API `reasoning_effort` |
-| **Plan → expanded ItemSpec list as single source of truth** | Host embed can pass explicit list; wizard only authors the plan; one schema for prompt + validator | LOW–MEDIUM | Service expands plan once; generators never see two competing shapes |
-| **Modest quantity increase with honest cost behavior** | Larger provas without pretending one call is free | MEDIUM | Raise cap carefully; document token/`[USAGE]` growth. Chunking (multiple LLM calls) is a differentiator **only if** single-call quality collapses — prefer one call first |
-| **Stable slot order matching the plan** | Operator expects exercise[0..1] easy, then medium, etc., for printing/ordering | LOW | Prompt + schema: `exercicios[i]` corresponds to `itens[i]`. Validator enforces order |
-| **Embed-friendly mixed request on `generate_batch`** | v2.0 hosts reuse the same seam for dynamic lots | LOW | Same return `ExerciseBatch`; richer `GenerationRequest`. No new HTTP product surface |
+| **Skill as single index for GSD + human operators** | Same pattern as python-ai-engineering: one entrypoint so plan/review don’t invent architecture | LOW | Skill lists capabilities (uniform + mixed lots, providers, RELY bounds) and **non-capabilities** (no LangChain validator-agent, no BNCC yet) |
+| **Schema-first field policy for future Exercise fields** | When BNCC/images land later, order is Pydantic → validator → optional content hint in prompt — not the reverse | LOW | Document in contract; SEED-001/003 stay out of v2.2 implementation |
+| **Authority split written once (format / plan / content)** | SEED-008 policy: format → models+SO; plan → `itens_ordenados` + `verify_plan_echo`; content → prompts (best-effort) | LOW | Stops “harden the prompt” as default fix for adherence bugs |
+| **Prompt hygiene hooks (bound/escape request fields)** | `materia`/`topico` are interpolated raw today — injection / junk cost risk called out in SEED-008 | MEDIUM | Caps + control-char strip as **light** code hooks; differentiator if kept small; defer heavy sanitization frameworks |
+| **Markers / constants for policy strings** | Tests and skills share the same “forbidden patterns” / required slot markers | LOW | Avoid brittle copy-paste assertions drifting from prompts |
 
 ### Anti-Features (Commonly Requested, Often Problematic)
 
 | Feature | Why Requested | Why Problematic | Alternative |
 |---------|---------------|-----------------|-------------|
-| **Per-item API `reasoning_effort` / thinking level** | “Hard items should think harder” | OpenAI/Gemini/Grok effort is **run-level** today (`reasoning.py`, env/`--reasoning`); per-item would mean N API calls or unsupported kwargs; cost explodes; failover semantics unclear | Keep API effort **global per run**. Put pedagogical tipo on the **item content** (prompt + schema). Document the split in discuss |
-| **Unbounded / “no max” quantidade** | “IA poder trabalhar com mais quantidade” misread as infinite | Context truncation, validation timeouts, RELY cost, host hangs; project already bound 1–40 in domain | Raise finite cap; if need >cap, sequential chunked plans (later) with explicit UX |
-| **One LLM call per difficulty band (or per item) by default** | Seems easier to “guarantee” levels | Multiplies latency, failover, RELY, usage; breaks single-batch UX; contradicts sequential embed contract | One structured batch call with itemized prompt; chunk only if quality/context fails |
-| **Full Bloom / BNCC / skill graph in v2.1** | “Tipo de raciocínio” sounds like standards alignment | SEED-001 BNCC dormant; taxonomy bikeshed blocks shipping | Small closed enum of pedagogical tipos; BNCC stays out of scope |
-| **Adaptive mid-batch difficulty** (“if model fails hard, insert easy”) | Smart assessment narrative | Second control loop; conflicts with deterministic plan + validator; not YAGNI | Fixed plan in → validated plan out |
-| **Overhaul math_check / semantic validation for every tipo** | “Hard items need deeper checks” | Explicitly out of scope; delays mixed UX | Keep existing math_check + structural plan adherence; deepen later |
-| **Images / storytelling / multi-format MCQ packs** | Common quiz-generator feature parity | SEED-003 B/C parked; dilutes lotes dinâmicos | Stay open-response math JSON as today |
-| **Silent reinterpretation of uniform `dificuldade` when plan present** | Convenience | Ambiguous which wins; breaks scripts | Explicit rules: plan/itens XOR scalar dificuldade, or plan overrides with warning — pick one in discuss, document, test |
+| **LLM self-check / “critic” agent in the prompt or second call** | “Make the model validate itself” | Duplicates deterministic validation; burns tokens; fails closed poorly; violates “LLM not source of truth” | Keep `validate_exercise_batch` + math_check + `verify_plan_echo` + bounded RELY |
+| **Dump full JSON / Pydantic schema into SYSTEM_PROMPT** | Feels safer for Structured Outputs | Schema already enforced by API; dump can drift, bloat context, and teach agents that prompt = contract | `response_format=ExerciseBatch` + models; prompt = pedagogy only |
+| **Re-list enunciado / resposta / explicação as prompt “API”** | Easy to “document” fields next to slots | False security; fights SEED-008; Phase 14 already banned on USER | Strip remaining SYSTEM prose; document fields in RESPONSE/Exercise contract doc |
+| **Multi-persona taxonomy / “personalities” pack** | Seed title says personalidade | Bikeshed; not locked in discuss; YAGNI before single professor contract ships | One persona (professor PT-BR); variants only after discuss |
+| **LangChain / CrewAI / multi-agent “validation crew”** | Industry fashion for “agents” | Explicit project exclusion; hides fundamentals this lab studies | Plain SDK + modules; skill documents the real pipeline order |
+| **Redesign RELY / math_check / failover in v2.2** | “While we’re in the contract…” | Scope explosion; SEED-009 waits on BNCC; mixed RELY already works | Touch only light hooks that protect contract invariants |
+| **Treating thinking (API effort) as a response field or pedagogical tipo** | Name collision with “raciocínio” | Already an anti-feature from v2.1 FEATURES; contract must keep the split visible | Document triad; keep `reasoning_effort` run-level |
+| **HTTP / FastAPI product surface for the contract** | “Expose the contract as API” | Demo is throwaway; embed seam is `generate_batch` | Docs + skill + prompts + tests only |
 
-## Expected Operator Behavior
+## Already Built (Baseline — Do Not Re-scope as v2.2 MVP)
 
-How dynamic/mixed batches typically work end-to-end (and what v2.1 should feel like):
-
-1. **Author a plan, not N clones** — Operator chooses topic (+ matéria) once, then specifies counts per difficulty (and optionally tipo per slot or per band).
-2. **Expand → one request** — Plan becomes an ordered list of item specs; `quantidade` = sum of slots.
-3. **Single generation** — Same pipeline: prompt → LLM structured batch → validate (count + per-slot fields) → math_check → RELY → `ExerciseBatch`.
-4. **Inspect by band** — Output lists exercises with echoed dificuldade/tipo so CLI/`--out`/host UI can group or print in plan order.
-5. **Uniform still available** — Shortcut: one dificuldade + quantidade (current behavior) for demos and regression.
+| Capability | Status | Implication for v2.2 |
+|------------|--------|----------------------|
+| Mixed `plano` / `itens` + uniform compat | Shipped v2.1 | Contract docs must describe both modes |
+| Slot prompts (`build_prompts` + `slot_list`) | Shipped | Keep; rewrite must not remove slot enumeration |
+| `verify_plan_echo` in RELY | Shipped | Cite as **plan** authority, not format |
+| Demo / CLI `--plano` / wizard bands | Shipped | Out of scope unless copy must mention contract |
+| Structured Outputs `ExerciseBatch` | Shipped | Format authority; prompts must defer to it |
+| USER field-list removal (D-03 / SEED-008 partial) | Shipped Phase 14 | Finish the job on SYSTEM + lock with offline tests |
 
 ## Feature Dependencies
 
 ```
-Batch-plan UX (wizard/CLI)
-    └──requires──> Plan / ItemSpec request model
-                       └──requires──> Expanded ordered item list
-                              ├──requires──> Mixed-aware prompt builder
-                              └──requires──> Exercise schema echo (dificuldade [, tipo])
-                                     └──requires──> Validator plan adherence
-                                            └──enhances──> Existing RELY + math_check (unchanged loop)
+Domain skill index (SEED-007 A)
+    └──requires──> Validation vs thinking vs response docs (SEED-007 C/D)
+                       ├──requires──> Accurate pipeline diagram (prompt → LLM → validate → math → plan_echo → RELY)
+                       └──enhances──> SYSTEM/USER prompt rewrite (SEED-007 E)
 
-Raised quantity cap
-    └──requires──> Domain MAX_QUANTIDADE + CLI/wizard bounds aligned
-    └──conflicts──> Unbounded quantity (anti-feature)
+Strip field-contract prose (SEED-008 B/C)
+    └──requires──> Schema-as-format-authority policy (SEED-008 A/B)
+    └──requires──> Prompt rewrite (same change set preferred)
+    └──enhances──> Offline prompt-policy tests (SEED-008 D)
 
-Pedagogical tipo de raciocínio (per item)
-    └──requires──> ItemSpec + prompt + echo fields
-    └──conflicts──> Per-item API reasoning_effort (anti-feature)
+Light validation hooks (code)
+    └──requires──> Existing validator / verify_plan_echo / math_check (reuse)
+    └──conflicts──> LLM self-check agent (anti-feature)
+    └──enhances──> Prompt-policy tests (hooks may be the assert surface)
 
-API reasoning_effort (global)
-    └──enhances──> Whole-run quality/cost knob (existing)
-    └──conflicts──> Treating “tipo de raciocínio” as API effort
+Prompt hygiene (bound materia/topico)
+    └──enhances──> Strip field prose / rewrite
+    └──conflicts──> Treating prompt sanitization as sufficient format security
 
-service.generate_batch (v2.0)
-    └──enhances──> Mixed GenerationRequest without new transport
-
-Uniform GenerationRequest (legacy)
-    └──conflicts──> Ambiguous dual specification (plan + scalar) without rules
+Future Exercise fields (BNCC, images)
+    └──requires──> Schema-first policy (document now; implement later)
+    └──conflicts──> Prompt-first field invention
 ```
 
 ### Dependency Notes
 
-- **Batch-plan UX requires ItemSpec/plan model:** UI is sugar; domain must own the expanded list or validation and embed diverge.
-- **Prompt + validator require echoed per-item fields:** Without schema fields, adherence checks are guesswork on free text.
-- **RELY/math_check enhance, do not redesign:** Mixed failures still go through the same bounded regenerate loop; do not add a second retry architecture.
-- **Raised cap requires domain + CLI alignment:** v2.0 already moved bound into Pydantic (`MAX_QUANTIDADE`); wizard/`argparse` must track the constant.
-- **Pedagogical tipo conflicts with per-item API effort:** Different layers (content vs provider knob); conflating them is the main SEED-006 discuss trap.
-- **Uniform vs plan:** Need an explicit precedence rule so hosts and CLI cannot send contradictory specs.
-
-### Pipeline touchpoints (existing)
-
-| Stage | Today (uniform) | v2.1 delta |
-|-------|-----------------|------------|
-| `models.py` | `dificuldade` + `quantidade` 1–40; `Exercise` = enunciado/resposta/explicacao | ItemSpec/plan; echo fields; maybe raise `MAX_QUANTIDADE` |
-| `prompts.py` | Single difficulty instruction | Enumerated slots |
-| generators + structured parse | One schema batch | Schema includes per-item meta |
-| `validator.py` | `len == quantidade` | + plan adherence |
-| `math_check` / RELY / failover | Unchanged contract | Reuse; no per-item effort routing |
-| `reasoning.py` | Global effort | Stay global |
-| `main.py` / `wizard.py` / `service.py` | Scalar flags / `generate_batch` | Plan UX + accept richer request |
+- **Skill requires separation docs:** An index without the triad just renames generic AI rules; agents still confuse effort / fields / validators.
+- **Strip prose + rewrite should land together:** Leaving SYSTEM field narration while “aligning to contract” recreates Pitfall-style false safety.
+- **Offline tests require a stable policy:** Forbidden patterns (schema dump, field-contract bullets) and required patterns (slot list) must be named in the contract or constants.
+- **Light hooks enhance, do not replace, RELY:** New code asserts invariants or hygiene; regenerations stay in the existing 1–2 attempt loop.
+- **LLM self-check conflicts with Core Value:** Any “model, please verify your JSON” path is out of scope for v2.2.
 
 ## MVP Definition
 
-### Launch With (v2.1 / SEED-006)
+### Launch With (v2.2)
 
-Minimum to stop being “uniform-only.”
+Minimum to make “Contrato de geração” real for operators and GSD agents.
 
-- [ ] **Plan or ItemSpec on `GenerationRequest`** — essential: domínio por exercício
-- [ ] **Mixed prompt + echoed dificuldade on each exercise** — essential: model can obey and we can check
-- [ ] **Validator plan adherence (count + per-slot dificuldade)** — essential: reliability Core Value
-- [ ] **Wizard/CLI batch-plan UX** — essential: operator ask #1 without N flags
-- [ ] **Backward-compatible uniform requests** — essential: no embed/CLI regression
-- [ ] **Discuss-resolved: tipo pedagógico vs API effort** — essential: avoid wrong API design; ship tipo enum only if confirmed pedagogical
+- [ ] **Domain skill index** (persona, capabilities, pipeline order) — SEED-007 A/B/D
+- [ ] **Explicit validation / thinking / response separation** in that skill or linked rule/doc — SEED-007 C
+- [ ] **SYSTEM + USER prompt rewrite** aligned to contract (slots kept; field-API prose removed from SYSTEM) — SEED-007 E + SEED-008 C
+- [ ] **Strip remaining enunciado/resposta/explicação field-contract prose** — SEED-008
+- [ ] **Light code-owned validation/hygiene hooks** (no LLM self-check) — SEED-007 E
+- [ ] **Offline tests for prompt policy** (no schema dump; slots OK; no field-contract block) — SEED-008 D
 
-### Add After Validation (v2.1.x / same milestone if capacity)
+### Add After Validation (v2.2.x / same milestone if capacity)
 
-- [ ] **Pedagogical tipo per item (closed enum)** — trigger: discuss confirms content-level tipo
-- [ ] **Modest raise of `MAX_QUANTIDADE`** — trigger: plan sums often exceed 40 for real provas; quality still holds
-- [ ] **CLI compact plan syntax** (`--plano` / band counts) — trigger: wizard works; scripts need parity
+- [ ] **Dedicated RESPONSE-CONTRACT / EXERCISE-AI-CONTRACT doc** — trigger: skill alone is too dense for embed hosts
+- [ ] **materia/topico length caps + control-char strip** — trigger: discuss marks injection hygiene as in-scope (SEED-008 C)
+- [ ] **Shared policy constants/markers** for tests and skill cross-links — trigger: brittle string asserts in CI
 
-### Future Consideration (post-v2.1)
+### Future Consideration (post-v2.2)
 
-- [ ] **Chunked generation for very large lots** — defer until single-call quality/context fails
-- [ ] **OBS-01 usage on batch return** — parked; cost rises with mixed/large lots but not this milestone
-- [ ] **BNCC / images / storytelling** — SEED-001 / SEED-003; out of scope
-- [ ] **Per-band or per-item provider calls** — only if proven necessary
-- [ ] **PKG-01 packaging** — parked
+- [ ] **Multiple personas** — defer until single contract is proven
+- [ ] **BNCC / images / storytelling fields** — schema-first later (SEED-001/003); contract only documents the rule now
+- [ ] **SEED-009 math_check × BNCC** — waits on SEED-001
+- [ ] **PKG-01 / OBS-01 / LOG-01** — parked; not contract work
+- [ ] **CAP-02 / TIPO-OPEN** — deferred past v2.2 per PROJECT.md
 
 ## Feature Prioritization Matrix
 
 | Feature | User Value | Implementation Cost | Priority |
 |---------|------------|---------------------|----------|
-| Batch plan / distribution UX | HIGH | MEDIUM | P1 |
-| Per-exercise difficulty (ItemSpec/plan) | HIGH | MEDIUM | P1 |
-| Mixed prompt + schema echo | HIGH | MEDIUM | P1 |
-| Validator plan adherence | HIGH | MEDIUM | P1 |
-| Uniform backward compatibility | HIGH | LOW | P1 |
-| Pedagogical tipo de raciocínio (enum) | HIGH | MEDIUM | P2 (P1 if discuss says must-have) |
-| Raise finite quantity cap | MEDIUM | LOW–MEDIUM | P2 |
-| Compact CLI `--plano` syntax | MEDIUM | LOW | P2 |
-| Chunked multi-call large lots | MEDIUM | HIGH | P3 |
-| Per-item API `reasoning_effort` | LOW (misframed) | HIGH | — Anti-feature |
-| Unbounded quantity | LOW | LOW (trap) | — Anti-feature |
-| BNCC / images / storytelling | — | — | Out of scope |
+| Domain skill index (persona + pipeline) | HIGH | LOW–MEDIUM | P1 |
+| Validation vs thinking vs response docs | HIGH | LOW | P1 |
+| Prompt rewrite aligned to contract | HIGH | MEDIUM | P1 |
+| Strip field-contract prose (finish SYSTEM) | HIGH | LOW | P1 |
+| Offline prompt-policy tests | HIGH | LOW | P1 |
+| Light code validation/hygiene hooks | HIGH | LOW–MEDIUM | P1 |
+| RESPONSE/Exercise contract doc (standalone) | MEDIUM | LOW | P2 |
+| Bound/escape materia/topico | MEDIUM | MEDIUM | P2 |
+| Multi-persona pack | LOW | HIGH | P3 / anti until discuss |
+| LLM self-check / schema-in-prompt | LOW (misframed) | MEDIUM–HIGH | — Anti-feature |
+| RELY/math_check redesign | — | HIGH | Out of scope |
 
 **Priority key:**
-- P1: Must have for v2.1 launch
+- P1: Must have for v2.2 launch
 - P2: Should have when discuss/capacity allows
 - P3: Nice to have / later milestone
 
-## Competitor Feature Analysis
+## Competitor / Lab Feature Analysis
 
-| Feature | Typical AI quiz/worksheet tools | CLI/lab generators (uniform) | Our approach (v2.1) |
-|---------|--------------------------------|------------------------------|---------------------|
-| Difficulty | Single level **or** “Mixed” / distribution counts | Often one `--difficulty` for whole batch | Explicit plan or ItemSpec; echo on each exercise |
-| Question count | Caps ~5–50; “>50 = run twice” common | Small fixed caps | Raise finite cap; no unbounded; chunk later if needed |
-| Reasoning / cognition | Bloom labels or “cognitive level” on content | Rare; or model temperature only | Pedagogical tipo enum on items; API `reasoning_effort` stays run-level |
-| Output | HTML/worksheet + answer key | JSON or markdown | Keep structured `ExerciseBatch` JSON + validation |
-| Authorship UX | Forms: counts per difficulty | Many flags / one shot | Wizard plan + argparse plan sugar |
-| Standards (BNCC/CCSS) | Often marketed | Rare | Out of scope (SEED-001 dormant) |
+| Feature | Typical “AI quiz” SaaS | Generic agent frameworks | Our approach (v2.2) |
+|---------|------------------------|--------------------------|---------------------|
+| Persona / teacher voice | Marketing copy in UI; rarely a versioned skill | System prompt only | Versioned domain skill + short SYSTEM aligned to it |
+| Output format trust | Prompt + hope; sometimes JSON mode | Tool schemas vary | Structured Outputs + Pydantic + validator = authority; prompt ≠ schema |
+| Validation | Often another LLM pass or none | Critic agents common | Deterministic code path documented as the only validator |
+| Thinking vs answer | Blurred (“show your work” in one blob) | Chain-of-thought in product text | API effort separate from enunciado/resposta/explicação |
+| Plan adherence | Rare | Rare | Already shipped (`verify_plan_echo`); contract **names** it as plan authority |
 
 ## Sources
 
-- SEED-006 (operator verbatim: dynamic lots, more quantity, per-exercise difficulty, tipo de raciocínio)
-- `.planning/PROJECT.md` — v2.1 milestone goals and out-of-scope list
-- Shipped code: `exercise-ai/models.py` (`GenerationRequest`, `MAX_QUANTIDADE=40`, `Exercise`), `validator.py` (count check), `reasoning.py` (global effort), `wizard.py` / `main.py` / `service.generate_batch`
-- Industry patterns: AI quiz/worksheet generators exposing Mixed difficulty or easy/medium/hard distributions and finite per-run caps (e.g. SmartEduTools, LessonDraft, LogicBalls-style distribution prompts); CLI labs with uniform `--difficulty` (e.g. Quizard-style generators)
-- Provider reality: OpenAI/Gemini/Grok reasoning/thinking knobs applied per request, not per item inside one structured completion — reinforces anti-feature AF on per-item API effort
+- SEED-007 — persona, rules, validation vs thinking vs response, skill index, prompt wiring
+- SEED-008 — response structure over prompt; anti prompt-as-schema; policy tests; prompt hygiene
+- `.planning/PROJECT.md` — v2.2 milestone goals (A3/B2: skill + prompts + light hooks; strip field prose)
+- Shipped baseline: `exercise-ai/prompts.py`, `models.py` (`Exercise`/`ExerciseBatch`, `verify_plan_echo`), `validator.py`, `math_check.py`, `reliability.py`, `reasoning.py`, `service.generate_batch`
+- Phase 14 CONTEXT D-03 / VERIFICATION — USER field-list removed; SYSTEM still has pre-existing field/quality prose
+- Pattern to mirror: `skills/python-ai-engineering/SKILL.md`, `.cursor/rules/20-ai-engineering.mdc`
+- Prior research: `.planning/research/PITFALLS.md` (schema ≠ instruction adherence); v2.1 FEATURES (tipo vs API effort split — still binding)
 
 ---
-*Feature research for: dynamic/mixed-difficulty exercise batch authoring (SEED-006 / v2.1)*
-*Researched: 2026-09-21*
+*Feature research for: exercise-generation AI contract (SEED-007 + SEED-008 / v2.2)*
+*Researched: 2026-09-23*
