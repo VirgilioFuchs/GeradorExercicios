@@ -2,37 +2,38 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Lotes dinâmicos
-current_phase: 15
-current_phase_name: CLI / wizard batch-plan UX
-status: completed
-stopped_at: Phase 15 executed + verified offline; milestone v2.1 plans complete
-last_updated: "2026-09-23T13:00:00.000Z"
+status: Awaiting next milestone
+stopped_at: v2.1 milestone audit passed; ready for complete-milestone
+last_updated: "2026-09-23T13:39:32.564Z"
 last_activity: 2026-09-23
-last_activity_desc: Phase 15 complete — CLI/wizard --plano + band UX
-state_head: d2660e2
+last_activity_desc: Milestone v2.1 completed and archived
+state_head: 92d8fb16abc4936b524d62e7a5a6c6229ab94cc0
 progress:
   total_phases: 3
   completed_phases: 3
   total_plans: 6
   completed_plans: 6
   percent: 100
+current_phase: 15
+current_phase_name: CLI / wizard batch-plan UX
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-21)
+See: .planning/PROJECT.md (updated 2026-09-23)
 
-**Core value:** Gerar exercícios de matemática confiáveis e estruturados com validação de formato — agora também como biblioteca embutível
-**Current focus:** v2.1 Phase 15 — CLI / wizard batch-plan UX
+**Core value:** Gerar exercícios de matemática confiáveis e estruturados (incluindo lotes mistos) com validação e adesão ao plano — também via `service.generate_batch`
+**Current focus:** Planning next milestone (`$gsd-new-milestone`)
 
 ## Current Position
 
-Phase: 15 — CLI / wizard batch-plan UX
-Plan: 2 of 2 complete
-Status: Phase complete (offline verification passed)
-Last activity: 2026-09-23 — Phase 15 executed (15-01, 15-02)
+Phase: —
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-09-23 — Milestone v2.1 archived (phases + quick + audit)
+Stopped at: v2.1 complete; start `$gsd-new-milestone` when ready
 
 ## Performance Metrics
 
@@ -93,15 +94,18 @@ None yet.
 
 ## Deferred Items
 
+Items acknowledged and deferred at milestone close, most recent first:
+
 | Category | Item | Status | Deferred At | Milestone |
 |----------|------|--------|-------------|-----------|
+| seeds | SEED-007-exercise-ai-persona-rules | dormant | 2026-09-23 | v2.1 |
+| seeds | SEED-008-response-structure-over-prompt | dormant | 2026-09-23 | v2.1 |
+| seeds | SEED-009-math-check-bncc-aligned | dormant | 2026-09-23 | v2.1 |
 | Packaging | PKG-01 pyproject + rename `exercise_ai/` | Lead of next milestone | 2026-09-16 | v2.0 |
 | Observability | OBS-01 usage/cost alongside batch | Next embed-hardening | 2026-09-16 | v2.0 |
 | Logging | LOG-01 print→logging (~33 sites) | Known debt | 2026-09-16 | v2.0 |
 | Seeds | SEED-005-usable-postmortem (dormant) | acknowledged at close | 2026-09-18 | v2.0 |
 | Seeds | SEED-006-dynamic-batch-per-exercise | Promoted → v2.1 | 2026-09-21 | v2.1 |
-| Seeds | SEED-007-exercise-ai-persona-rules (dormant) | planted | 2026-09-21 | v2.1 |
-| Seeds | SEED-008-response-structure-over-prompt (dormant) | planted | 2026-09-22 | v2.1 |
 | Seeds | SEED-001 BNCC (dormant) | Acknowledged at v1.2 close | 2026-09-15 | v1.2 |
 | Seeds | SEED-003 B/C images / storytelling | After embed | 2026-09-16 | v2.0 |
 | Ops | Nyquist VALIDATION gaps (phases 8–10) | Accepted tech debt | 2026-09-15 | v1.2 |
@@ -111,23 +115,13 @@ None yet.
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
-| 1 | wizard: matéria before tipo de exercício | 2026-09-16 | 80072d4 | — |
-| 2 | model catalogs GPT/Gemini/Grok from Modelos.txt + capacity fallbacks | 2026-09-21 | 961fc2e | 260921-d9y-add-gpt-gemini-grok-model-catalogs-from- |
-| 3 | demo model picker from model_catalog | 2026-09-21 | f9fbbbc | 260921-dsv-demo-select-model-from-model-catalog-lis |
-| 4 | demo: quantidade first, unlock bands when qty>0 | 2026-09-22 | 6ab6c34 | — |
-| 5 | demo: painel Uso tokens/tempo + seletor run_id | 2026-09-22 | 45f7306 | — |
-| 6 | add GPT-6 Sol/Luna to OpenAI picker (no Astra) | 2026-09-23 | 4bba7fd | [260923-cvj-adicione-os-novos-modelos-do-gpt-6-menos](./quick/260923-cvj-adicione-os-novos-modelos-do-gpt-6-menos/) |
-| 7 | per-model reasoning (pensamento) in demo picker | 2026-09-23 | a03ec71 | [260923-d2d-demo-reasoning-levels-per-model-show-com](./quick/260923-d2d-demo-reasoning-levels-per-model-show-com/) |
-| 8 | xhigh/max for OpenAI reasoning; hide otherwise | 2026-09-23 | 3a97d1f | [260923-da9-keep-xhigh-max-for-gpt-6-hide-when-model](./quick/260923-da9-keep-xhigh-max-for-gpt-6-hide-when-model/) |
 
 ## Session Continuity
 
-Last session: 2026-09-23T13:00:00Z
-Stopped at: Phase 15 complete; v2.1 ready for milestone close / optional live UAT
+Last session: 2026-09-23T13:25:00Z
+Stopped at: v2.1 audit **passed** — see `.planning/v2.1-MILESTONE-AUDIT.md`
 Resume file: (none)
 
 ## Operator Next Steps
 
-- Optional live smoke: `python exercise-ai/main.py gerar` / `--plano 2,1,0`
-- `$gsd-complete-milestone` when ready to archive v2.1
-- Optional: `$gsd-secure-phase 14` / `$gsd-secure-phase 15`
+- Start the next milestone with /gsd-new-milestone

@@ -2,6 +2,43 @@
 
 *A living document updated after each milestone. Lessons feed forward into future planning.*
 
+## Milestone: v2.1 — Lotes dinâmicos
+
+**Shipped:** 2026-09-23  
+**Phases:** 3 | **Plans:** 6 | **Tasks:** 8
+
+### What Was Built
+- Typed `GenerationRequest` with `plano`/`itens` XOR, qty invariants, difficulty echoes, CAP 40
+- Slot prompts + `verify_plan_echo` in RELY; unique-band `dificuldades` (G-14-4)
+- Demo band counts → mixed/uniform payloads; live UAT 4/4
+- CLI `--plano` + wizard band UX via shared `plan_ux`
+
+### What Worked
+- Schema-first (13) before prompt/RELY (14) before CLI/wizard (15) — same contract everywhere
+- Demo vertical slice in Phase 14 avoided dead schema
+- Milestone audit sealed missing Phase 13 VERIFICATION before close
+
+### What Was Inefficient
+- REQUIREMENTS BATCH/CAP checkboxes left Pending after Phase 13 ship
+- Phase 13 VERIFICATION.md missing until audit
+- Branch still `gsd/ship-phase-03-*` through v2.1
+
+### Patterns Established
+- Mixed → `plano`; uniform → legacy `dificuldade`+`quantidade` (never always-send-plano)
+- Plan echo owned by RELY after validate; not `validator.py`
+- Shared `plan_ux` for argparse/wizard/demo payload parity
+
+### Key Lessons
+1. Seal VERIFICATION.md in execute-phase even when SUMMARY has coverage
+2. Flip REQUIREMENTS checkboxes when phase SUMMARY lists `requirements-completed`
+3. Acknowledge dormant seeds at close if promoting to next milestone (do not delete)
+
+### Cost Observations
+- Suite: **198** package tests offline; ~2 days (2026-09-21 → 09-23)
+- Notable: quick tasks (GPT-6 models, per-model reasoning) archived with milestone
+
+---
+
 ## Milestone: v1.1 — Qualidade do exercício
 
 **Shipped:** 2026-09-09  
@@ -85,12 +122,14 @@
 | v1.1 | verified_closeout | Audit passed 6/6; phases archived |
 | v1.2 | override_closeout | Seeds SEED-001/003 acknowledged |
 | v2.0 | override_closeout | Audit passed; SEED-005/006 acknowledged; phases archived by `milestone.complete` |
+| v2.1 | override_closeout | Audit passed; SEED-007/008/009 acknowledged; phases+quick archived |
 
 ### Recurring Friction
 
-- Planning artifact gates (SECURITY, ROADMAP headings) surface late at ship/complete
+- Planning artifact gates (SECURITY, ROADMAP headings, missing VERIFICATION) surface late at ship/complete
 - Packaging rename keeps slipping; blocks real host embed
 - Nyquist VALIDATION often left draft after execute
+- Long-lived branch name `gsd/ship-phase-03-*` across milestones
 
 ---
-*Updated after v2.0 archive — 2026-09-18*
+*Updated after v2.1 archive — 2026-09-23*

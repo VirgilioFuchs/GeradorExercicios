@@ -1,5 +1,30 @@
 # Milestones
 
+## v2.1 Lotes dinâmicos (Shipped: 2026-09-23)
+
+**Closeout:** override_closeout (3 dormant seeds acknowledged at close; audit status `passed`)  
+**Known verification overrides:** 3 newly acknowledged (SEED-007, SEED-008, SEED-009), 4 carried forward from a prior close (see STATE.md Deferred Items)  
+**Phases completed:** 3 phases, 6 plans, 8 tasks  
+**Requirements:** 11/11 v2.1 satisfied  
+**Integration:** 4/4 wiring · 3/3 E2E flows  
+**Audit:** [v2.1-MILESTONE-AUDIT.md](./milestones/v2.1-MILESTONE-AUDIT.md)
+
+**Key accomplishments:**
+
+- Typed uniform/mixed batch contract in `models.py`: `plano`/`itens` XOR, qty invariants, difficulty echoes, pure `verify_plan_echo`, CAP 40
+- Numbered hybrid slot prompts + plan-echo after validate inside RELY (no math_check redesign)
+- Demo band counts → mixed `plano` / uniform legacy; live UAT 4/4
+- Unique-band `dificuldades` summary (G-14-4) fail-closed into RELY
+- CLI `--plano F,M,D` + wizard band UX sharing the same `GenerationRequest` contract
+
+**Known tech debt (accepted):**
+
+- CAP-02 / TIPO-OPEN; PKG-01 / OBS-01 / LOG-01; Nyquist not validated for phases 13–15; dormant SEED-007/008/009 promoted for next milestone
+
+**Archives:** [roadmap](./milestones/v2.1-ROADMAP.md) · [requirements](./milestones/v2.1-REQUIREMENTS.md) · [phases](./milestones/v2.1-phases/) · [quick](./milestones/v2.1-quick/) · [audit](./milestones/v2.1-MILESTONE-AUDIT.md)
+
+---
+
 ## v2.0 Embed em Produção (Shipped: 2026-09-18)
 
 **Closeout:** override_closeout (2 dormant seeds acknowledged at close; audit status `passed`)  
