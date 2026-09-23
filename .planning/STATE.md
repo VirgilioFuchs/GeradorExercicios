@@ -2,11 +2,11 @@
 gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Contrato de geração
-status: ready
-last_updated: "2026-09-23T14:30:00.000Z"
+status: paused
+last_updated: "2026-09-23T14:52:28.223Z"
 last_activity: 2026-09-23
-last_activity_desc: Phase 16 discuss — API skills under exercise-ai/skills/generation
-stopped_at: Phase 16 CONTEXT ready — `$gsd-plan-phase 16`
+last_activity_desc: Paused after Phase 16 discuss — handoff written
+stopped_at: Resume with `$gsd-resume-work` then `$gsd-plan-phase 16`
 progress:
   total_phases: 10
   completed_phases: 0
