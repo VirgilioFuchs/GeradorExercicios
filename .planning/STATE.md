@@ -2,15 +2,19 @@
 gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Contrato de geração
-status: planning
-last_updated: "2026-09-23T14:07:11.037Z"
+status: ready
+last_updated: "2026-09-23T14:30:00.000Z"
 last_activity: 2026-09-23
+last_activity_desc: v2.2 roadmap approved — 10 phases (1 REQ each)
+stopped_at: Ready for Phase 16 discuss/plan
 progress:
-  total_phases: 0
+  total_phases: 10
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
   percent: 0
+current_phase: 16
+current_phase_name: Domain skill index
 ---
 
 # Project State
@@ -20,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-23)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados (incluindo lotes mistos) com validação e adesão ao plano — também via `service.generate_batch`
-**Current focus:** Planning next milestone (`$gsd-new-milestone`)
+**Current focus:** v2.2 Phase 16 — Domain skill index (CONTRACT-01)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 16 (Domain skill index) — not started
 Plan: —
-Status: Defining requirements
-Last activity: 2026-09-23 — Milestone v2.2 started
+Status: Ready to discuss/plan
+Last activity: 2026-09-23 — v2.2 roadmap approved (phases 16–25, 1 REQ each)
 
 ## Performance Metrics
 
