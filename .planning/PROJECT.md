@@ -17,11 +17,24 @@ O usuário consegue gerar exercícios de matemática confiáveis e estruturados 
 - **v2.0 Embed em Produção** (2026-09-18) — `service.generate_batch`, erros discrimináveis, demo local throwaway
 - **v2.1 Lotes dinâmicos** (2026-09-23) — `plano`/`itens` tipados, slot prompts + `verify_plan_echo`, demo bands, CLI `--plano` + wizard bands
 
-**Next:** define via `$gsd-new-milestone` (candidates: PKG-01 packaging, SEED-007 persona contract, CAP-02, TIPO-OPEN, BNCC/SEED-001→009)
+**Next:** **v2.2 Contrato de geração** (SEED-007 + SEED-008) — in planning
 
 **Stack:** Python 3.11+, openai, pydantic v2, python-dotenv, google-genai, pytest. Code under `exercise-ai/`. Suite: **198** package tests (no live LLM) + demo offline tests.
 
-**Known debt:** PKG-01; OBS-01; LOG-01; Nyquist gaps; dormant seeds SEED-001/003/005/007/008/009.
+**Known debt:** PKG-01; OBS-01; LOG-01; Nyquist gaps; dormant seeds SEED-001/003/005/009 (007/008 in v2.2).
+
+## Current Milestone: v2.2 Contrato de geração
+
+**Goal:** Document and enforce a domain AI contract — persona/rules with a clear split of validation vs thinking vs response, and schema (not prompt prose) as format authority.
+
+**Target features:**
+- Domain skill/contract for exercise generation (persona, capabilities, model/agent behavior) — SEED-007
+- Align `SYSTEM_PROMPT` / user prompts to that contract
+- Light validation hooks so shape/adherence stay code-owned
+- Strip field-contract prose from prompts; schema + validator remain sole format authority — SEED-008
+- Offline tests/markers for the prompt policy
+
+**Promoted seeds:** SEED-007, SEED-008
 
 ## Requirements
 
@@ -43,7 +56,9 @@ O usuário consegue gerar exercícios de matemática confiáveis e estruturados 
 
 ### Active
 
-_(Empty — define in `$gsd-new-milestone`)_
+- Domain AI generation contract (persona / rules / validation vs thinking vs response) — SEED-007
+- Prompt alignment + light code-owned validation hooks — SEED-007
+- Schema-as-format-authority; strip field-contract prose from prompts — SEED-008
 
 ### Out of Scope
 
@@ -58,6 +73,7 @@ _(Empty — define in `$gsd-new-milestone`)_
 - Overhaul math_check genérico antes da BNCC
 - HTTP produto / FastAPI / Flask / Streamlit — demo throwaway stdlib
 - Concorrência / async / thread pool — contrato sequencial
+- CAP-02 / TIPO-OPEN — deferred past v2.2
 
 ## Context
 
@@ -97,12 +113,13 @@ Mixed (2+ bands) → `plano`; uniform (1 band) → legado `dificuldade`+`quantid
 | `batch.dificuldades` = unique band summary (1–3) | G-14-4 | ✓ Good |
 | Shared `plan_ux` for demo/CLI/wizard payload rules | One contract, three surfaces | ✓ Good |
 | SEED-009 after SEED-001 | Harden math_check by BNCC skill | — Dormant |
-| SEED-007/008/009 ack’d at v2.1 close | Promote to next milestone | — Deferred |
+| SEED-007/008 promoted into v2.2 | AI generation contract milestone | — Active |
+| v2.2 = skill + prompts + light validation hooks; strip field prose | A3/B2 scope at new-milestone | — Active |
 
 <details>
-<summary>Prior milestone notes (v1 → v2.0)</summary>
+<summary>Prior milestone notes (v1 → v2.1)</summary>
 
-v1 MVP pipeline. v1.1 CLI/RELY/math. v1.2 CI/failover/tokens/wizard. v2.0 embed seam + throwaway demo.
+v1 MVP pipeline. v1.1 CLI/RELY/math. v1.2 CI/failover/tokens/wizard. v2.0 embed seam + throwaway demo. v2.1 mixed-difficulty batches (schema → prompt/RELY/demo → CLI/wizard).
 
 </details>
 
@@ -110,5 +127,18 @@ v1 MVP pipeline. v1.1 CLI/RELY/math. v1.2 CI/failover/tokens/wizard. v2.0 embed 
 
 This document evolves at phase transitions and milestone boundaries.
 
+**After each phase transition** (via `/gsd-transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd-complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
 ---
-*Last updated: 2026-09-23 after v2.1 milestone*
+*Last updated: 2026-09-23 — started v2.2 Contrato de geração*

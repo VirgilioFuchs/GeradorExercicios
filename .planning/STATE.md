@@ -1,14 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.1
-milestone_name: Lotes dinâmicos
-status: Awaiting next milestone
-stopped_at: v2.1 archived; awaiting next milestone
-last_updated: "2026-09-23T13:45:00.000Z"
+milestone: v2.2
+milestone_name: Contrato de geração
+status: planning
+last_updated: "2026-09-23T14:07:11.037Z"
 last_activity: 2026-09-23
-last_activity_desc: Milestone v2.1 archived — ROADMAP/PROJECT/RETROSPECTIVE updated
-current_phase: null
-current_phase_name: null
+progress:
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -22,11 +24,10 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 ## Current Position
 
-Phase: —
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-09-23 — Milestone v2.1 archived (phases + quick + audit)
-Stopped at: v2.1 complete; start `$gsd-new-milestone` when ready
+Status: Defining requirements
+Last activity: 2026-09-23 — Milestone v2.2 started
 
 ## Performance Metrics
 
