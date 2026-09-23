@@ -4,16 +4,16 @@ milestone: v2.1
 milestone_name: Lotes dinâmicos
 current_phase: 15
 current_phase_name: CLI / wizard batch-plan UX
-status: planning
-stopped_at: Completed quick task 260923-d2d — per-model reasoning in demo
-last_updated: "2026-09-23T12:30:00.000Z"
+status: ready_to_execute
+stopped_at: Phase 15 planned (15-01, 15-02); ready to execute
+last_updated: "2026-09-23T12:52:00.000Z"
 last_activity: 2026-09-23
-last_activity_desc: Completed quick task 260923-d2d — per-model reasoning in demo picker
-state_head: a03ec71
+last_activity_desc: Phase 15 CONTEXT + 15-01/15-02 plans written
+state_head: 3a97d1f
 progress:
   total_phases: 3
   completed_phases: 1
-  total_plans: 4
+  total_plans: 6
   completed_plans: 4
   percent: 33
 ---
@@ -32,7 +32,7 @@ See: .planning/PROJECT.md (updated 2026-09-21)
 Phase: 15 — CLI / wizard batch-plan UX
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-09-23 — Completed quick task 260923-d2d: per-model reasoning
+Last activity: 2026-09-23 — Completed quick task 260923-da9: xhigh/max per model
 
 ## Performance Metrics
 
@@ -118,12 +118,13 @@ None yet.
 | 5 | demo: painel Uso tokens/tempo + seletor run_id | 2026-09-22 | 45f7306 | — |
 | 6 | add GPT-6 Sol/Luna to OpenAI picker (no Astra) | 2026-09-23 | 4bba7fd | [260923-cvj-adicione-os-novos-modelos-do-gpt-6-menos](./quick/260923-cvj-adicione-os-novos-modelos-do-gpt-6-menos/) |
 | 7 | per-model reasoning (pensamento) in demo picker | 2026-09-23 | a03ec71 | [260923-d2d-demo-reasoning-levels-per-model-show-com](./quick/260923-d2d-demo-reasoning-levels-per-model-show-com/) |
+| 8 | xhigh/max for OpenAI reasoning; hide otherwise | 2026-09-23 | 3a97d1f | [260923-da9-keep-xhigh-max-for-gpt-6-hide-when-model](./quick/260923-da9-keep-xhigh-max-for-gpt-6-hide-when-model/) |
 
 ## Session Continuity
 
-Last session: 2026-09-23T12:30:00Z
-Stopped at: Completed quick task 260923-d2d — per-model reasoning in demo
-Resume file: .planning/.continue-here.md
+Last session: 2026-09-23T12:46:00Z
+Stopped at: Cleared .continue-here; routing to discuss Phase 15
+Resume file: (none)
 
 ## Operator Next Steps
 
