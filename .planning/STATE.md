@@ -24,7 +24,9 @@ current_phase_name: Domain skill index
 See: .planning/PROJECT.md (updated 2026-09-23)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados (incluindo lotes mistos) com validação e adesão ao plano — também via `service.generate_batch`
-**Current focus:** v2.2 Phase 16 — Domain skill index (CONTRACT-01)
+**Current focus:** v2.2 Phase 16 — Domain skill index (CONTEXT ready; plan next)
+stopped_at: Phase 16 discuss complete — ready `$gsd-plan-phase 16`
+last_activity_desc: Phase 16 discuss — API skills package under exercise-ai/skills/generation
 
 ## Current Position
 
