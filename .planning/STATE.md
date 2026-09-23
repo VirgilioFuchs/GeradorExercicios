@@ -32,7 +32,9 @@ See: .planning/PROJECT.md (updated 2026-09-21)
 Phase: 15 — CLI / wizard batch-plan UX
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-09-22 — Phase 14 complete, transitioned to Phase 15
+Last activity: 2026-09-23 — Completed quick task 260923-cvj: GPT-6 Sol/Luna picker
+Last activity: 2026-09-23
+last_activity_desc: Completed quick task 260923-cvj — add GPT-6 Sol/Luna to OpenAI picker
 
 ## Performance Metrics
 
@@ -116,12 +118,13 @@ None yet.
 | 3 | demo model picker from model_catalog | 2026-09-21 | f9fbbbc | 260921-dsv-demo-select-model-from-model-catalog-lis |
 | 4 | demo: quantidade first, unlock bands when qty>0 | 2026-09-22 | 6ab6c34 | — |
 | 5 | demo: painel Uso tokens/tempo + seletor run_id | 2026-09-22 | 45f7306 | — |
+| 6 | add GPT-6 Sol/Luna to OpenAI picker (no Astra) | 2026-09-23 | 4bba7fd | [260923-cvj-adicione-os-novos-modelos-do-gpt-6-menos](./quick/260923-cvj-adicione-os-novos-modelos-do-gpt-6-menos/) |
 
 ## Session Continuity
 
-Last session: 2026-09-22T14:58:00Z
-Stopped at: Phase 14 complete (UAT 4/4); ready to discuss/plan Phase 15
-Resume file: .planning/HANDOFF.json
+Last session: 2026-09-23T12:20:00Z
+Stopped at: Completed quick task 260923-cvj — GPT-6 Sol/Luna in OpenAI selection
+Resume file: .planning/.continue-here.md
 
 ## Operator Next Steps
 
