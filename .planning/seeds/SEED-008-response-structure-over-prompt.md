@@ -6,6 +6,10 @@ planted_during: v2.1 Phase 14 discuss (mixed prompt + plan-adherence + demo)
 trigger_when: estrutura de resposta, response schema, ExerciseBatch contract, prompt inseguro, schema vs prompt, Structured Outputs authority, prompt injection, formato JSON do exercício, enunciado resposta explicacao
 priority: high
 scope: phase
+audit_acknowledged:
+  milestone: v2.1
+  at: 2026-09-23
+  status: dormant
 ---
 
 # SEED-008: Estrutura de resposta autoritativa (prompt não é contrato seguro)

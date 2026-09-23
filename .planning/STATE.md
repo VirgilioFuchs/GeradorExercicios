@@ -3,19 +3,12 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Lotes dinâmicos
 status: Awaiting next milestone
-stopped_at: v2.1 milestone audit passed; ready for complete-milestone
-last_updated: "2026-09-23T13:39:32.564Z"
+stopped_at: v2.1 archived; awaiting next milestone
+last_updated: "2026-09-23T13:45:00.000Z"
 last_activity: 2026-09-23
-last_activity_desc: Milestone v2.1 completed and archived
-state_head: 92d8fb16abc4936b524d62e7a5a6c6229ab94cc0
-progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 6
-  completed_plans: 6
-  percent: 100
-current_phase: 15
-current_phase_name: CLI / wizard batch-plan UX
+last_activity_desc: Milestone v2.1 archived — ROADMAP/PROJECT/RETROSPECTIVE updated
+current_phase: null
+current_phase_name: null
 ---
 
 # Project State

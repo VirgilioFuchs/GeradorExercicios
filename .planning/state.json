@@ -1,12 +1,12 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v2.1",
+  "milestone": "v2.1 — Lotes dinâmicos",
   "phases": [],
   "next": {
-    "command": "/gsd-discuss-phase",
-    "label": "Discuss the first phase",
-    "reason": "Project initialized — plan your first phase"
+    "command": "/gsd-progress",
+    "label": "Show progress",
+    "reason": "Unsure of state — showing progress"
   },
-  "updated_at": "2026-09-21T12:15:14.796Z"
+  "updated_at": "2026-09-23T13:39:33.232Z"
 }

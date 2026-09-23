@@ -5,9 +5,15 @@ planted: 2026-09-22
 planted_during: mid-UAT Phase 14 (v2.1)
 trigger_when: math_check, endurecer math, BNCC math rules, curriculum-aligned validation, checker por habilidade, symbolic/math rigor after BNCC
 depends_on:
+
   - SEED-001
+
 priority: medium
 scope: phase
+audit_acknowledged:
+  milestone: v2.1
+  at: 2026-09-23
+  status: dormant
 ---
 
 # SEED-009: Endurecer `math_check` alinhado à BNCC
