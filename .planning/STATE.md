@@ -5,11 +5,11 @@ milestone_name: Lotes dinâmicos
 current_phase: 15
 current_phase_name: CLI / wizard batch-plan UX
 status: planning
-stopped_at: Phase 14 complete, ready to plan Phase 15
-last_updated: "2026-09-22T14:58:20.772Z"
-last_activity: 2026-09-22
-last_activity_desc: Phase 14 complete, transitioned to Phase 15
-state_head: 91b3f46a43422d4e0c0156f6b9294b2ccb1c50dc
+stopped_at: Completed quick task 260923-cvj — GPT-6 Sol/Luna picker
+last_updated: "2026-09-23T12:20:00.000Z"
+last_activity: 2026-09-23
+last_activity_desc: Completed quick task 260923-cvj — add GPT-6 Sol/Luna to OpenAI picker
+state_head: 4bba7fd
 progress:
   total_phases: 3
   completed_phases: 1
@@ -33,8 +33,6 @@ Phase: 15 — CLI / wizard batch-plan UX
 Plan: Not started
 Status: Ready to plan
 Last activity: 2026-09-23 — Completed quick task 260923-cvj: GPT-6 Sol/Luna picker
-Last activity: 2026-09-23
-last_activity_desc: Completed quick task 260923-cvj — add GPT-6 Sol/Luna to OpenAI picker
 
 ## Performance Metrics
 
