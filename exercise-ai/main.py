@@ -140,7 +140,7 @@ def _max_retries_type(value: str) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Portuguese argparse surface for CLI-04 (D-01..D-20)."""
+    """Portuguese argparse surface for CLI-04 (D-01..D-20) + Phase 15 --plano."""
     parser = argparse.ArgumentParser(
         prog="main.py",
         description=(
@@ -148,6 +148,13 @@ def build_parser() -> argparse.ArgumentParser:
             f"Defaults da demo quando omitidos: matéria={_DEFAULT_MATERIA}; "
             f"tópico={_DEFAULT_TOPICO}; dificuldade={_DEFAULT_DIFICULDADE}; "
             f"quantidade={_DEFAULT_QUANTIDADE}."
+        ),
+        epilog=(
+            "Plano misto (Phase 15):\n"
+            "  --plano F,M,D   contagens fácil,médio,difícil (ex.: --plano 2,3,1)\n"
+            "  Misto (2+ faixas >0) → GenerationRequest.plano; "
+            "uniforme (1 faixa) → dificuldade+quantidade legados.\n"
+            "  Sem --plano → use --dificuldade e --quantidade como antes."
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -172,6 +179,15 @@ def build_parser() -> argparse.ArgumentParser:
         type=_positive_quantidade,
         default=_DEFAULT_QUANTIDADE,
         help=f"Quantidade de exercícios (1–{_MAX_QUANTIDADE}; padrão: {_DEFAULT_QUANTIDADE})",
+    )
+    parser.add_argument(
+        "--plano",
+        default=None,
+        metavar="F,M,D",
+        help=(
+            "Plano compacto: três inteiros ≥0 fácil,médio,difícil "
+            "(ex.: 2,3,1). Sobrescreve --dificuldade/--quantidade no payload."
+        ),
     )
     parser.add_argument(
         "--provider",
@@ -325,12 +341,32 @@ def main(argv: list[str] | None = None) -> None:
     if args.reasoning is not None:
         os.environ["LLM_REASONING_EFFORT"] = args.reasoning
 
-    request = GenerationRequest(
-        materia=args.materia,
-        topico=args.topico,
-        dificuldade=DificuldadeEnum(args.dificuldade),
-        quantidade=args.quantidade,
-    )
+    if args.plano is not None:
+        import plan_ux
+
+        try:
+            facil, medio, dificil = plan_ux.parse_plano_csv(args.plano)
+            plan_kw = plan_ux.build_request_kwargs(
+                facil,
+                medio,
+                dificil,
+                quantidade_field=args.quantidade,
+            )
+        except ValueError as err:
+            print(str(err), file=sys.stderr)
+            sys.exit(2)
+        request = GenerationRequest(
+            materia=args.materia,
+            topico=args.topico,
+            **plan_kw,
+        )
+    else:
+        request = GenerationRequest(
+            materia=args.materia,
+            topico=args.topico,
+            dificuldade=DificuldadeEnum(args.dificuldade),
+            quantidade=args.quantidade,
+        )
     run(request, out_path=args.out, max_retries=args.max_retries)
 
 
