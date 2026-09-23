@@ -1,11 +1,11 @@
 """Unified reasoning / thinking effort for OpenAI, Gemini, and Grok.
 
 Operator surface: CLI ``--reasoning`` / env ``LLM_REASONING_EFFORT``
-(``none|low|medium|high``, default ``medium``).
+(``none|low|medium|high`` plus OpenAI-extended ``xhigh|max``, default ``medium``).
 
-GPT-6 (and some GPT-5.6) APIs also accept ``xhigh`` / ``max``; those are
-intentionally omitted from this shared surface — they are not compatible with
-Gemini/Grok or non-reasoning OpenAI models in the same picker.
+``xhigh`` / ``max`` belong to OpenAI reasoning models (GPT-5*/GPT-6*/o*).
+Gemini and Grok do not get them — the demo hides those options when the
+selected provider/model does not support them.
 """
 
 from __future__ import annotations
@@ -14,11 +14,19 @@ import os
 import sys
 from typing import Literal
 
-ReasoningLevel = Literal["none", "low", "medium", "high"]
+ReasoningLevel = Literal["none", "low", "medium", "high", "xhigh", "max"]
 
+# Shared by Gemini / Grok / non-extended surfaces.
 REASONING_LEVELS: tuple[ReasoningLevel, ...] = ("none", "low", "medium", "high")
-# API-only levels stripped for cross-model compatibility (do not expose in UI/CLI).
-_API_ONLY_REASONING_LEVELS: frozenset[str] = frozenset({"xhigh", "max"})
+# OpenAI reasoning models (GPT-5*, GPT-6*, o*): include API extended efforts.
+OPENAI_REASONING_LEVELS: tuple[ReasoningLevel, ...] = (
+    "none",
+    "low",
+    "medium",
+    "high",
+    "xhigh",
+    "max",
+)
 DEFAULT_REASONING_EFFORT: ReasoningLevel = "medium"
 ENV_REASONING = "LLM_REASONING_EFFORT"
 
@@ -40,15 +48,9 @@ def resolve_reasoning_effort(explicit: str | None = None) -> ReasoningLevel:
     if not raw:
         return DEFAULT_REASONING_EFFORT
     level = raw.lower()
-    if level in _API_ONLY_REASONING_LEVELS:
+    if level not in OPENAI_REASONING_LEVELS:
         raise ConfigError(
-            f"reasoning '{level}' não é compatível com o surface compartilhado "
-            f"(use {', '.join(REASONING_LEVELS)}).",
-            kind="invalid_reasoning",
-        )
-    if level not in REASONING_LEVELS:
-        raise ConfigError(
-            f"reasoning inválido '{raw}': use {', '.join(REASONING_LEVELS)}.",
+            f"reasoning inválido '{raw}': use {', '.join(OPENAI_REASONING_LEVELS)}.",
             kind="invalid_reasoning",
         )
     return level  # type: ignore[return-value]
@@ -58,6 +60,9 @@ def to_gemini_thinking_level(effort: ReasoningLevel) -> str:
     """Map unified level to Gemini ``thinking_level`` (``none`` → ``minimal``)."""
     if effort == "none":
         return "minimal"
+    if effort in ("xhigh", "max"):
+        # Should not reach here after assert_reasoning_compatible; clamp defensively.
+        return "high"
     return effort
 
 
@@ -68,20 +73,21 @@ def openai_supports_reasoning_effort(model: str) -> bool:
 
 
 def supported_reasoning_levels(api_tag: str, model: str = "") -> tuple[ReasoningLevel, ...]:
-    """Levels this provider/model may use on the shared operator surface.
+    """Levels this provider/model may expose in UI / accept in validation.
 
-    Empty tuple = model does not accept reasoning (UI should hide options).
-    Never includes ``xhigh`` / ``max`` (API-only; incompatible with other models).
+    Empty tuple = model does not accept reasoning (UI shows N/A).
+    OpenAI reasoning models include ``xhigh`` / ``max``; Gemini/Grok do not.
     """
     tag = (api_tag or "").strip().lower()
+    mid = (model or "").strip()
     if tag in ("gemini", "grok"):
         return REASONING_LEVELS
     if tag == "openai":
-        if openai_supports_reasoning_effort(model):
-            return REASONING_LEVELS
+        if not mid or openai_supports_reasoning_effort(mid):
+            return OPENAI_REASONING_LEVELS
         return ()
-    # auto / unknown: shared surface when no model pinned
-    if not (model or "").strip():
+    # auto / unknown provider
+    if not mid:
         return REASONING_LEVELS
     return ()
 
@@ -101,20 +107,9 @@ def assert_reasoning_compatible(
     supported = supported_reasoning_levels(api_tag, model)
     raw = (effort or "").strip().lower()
     if not supported:
-        if raw and raw not in ("",) and raw in _API_ONLY_REASONING_LEVELS:
-            raise ConfigError(
-                f"reasoning '{raw}' não é compatível com o surface compartilhado.",
-                kind="invalid_reasoning",
-            )
         return None
     if not raw:
         return DEFAULT_REASONING_EFFORT
-    if raw in _API_ONLY_REASONING_LEVELS:
-        raise ConfigError(
-            f"reasoning '{raw}' não é compatível com outros modelos "
-            f"(use {', '.join(supported)}).",
-            kind="invalid_reasoning",
-        )
     if raw not in supported:
         raise ConfigError(
             f"reasoning '{raw}' não suportado por {model or api_tag}: "
@@ -132,7 +127,7 @@ def openai_compatible_effort_kwargs(
 ) -> dict[str, str]:
     """Kwargs for ``chat.completions.parse``.
 
-    Grok: always pass ``reasoning_effort``.
+    Grok: always pass ``reasoning_effort`` (base levels only in practice).
     OpenAI: pass only when the model supports it; otherwise omit + stderr tip.
     """
     level = effort if effort is not None else resolve_reasoning_effort()

@@ -24,30 +24,35 @@ def test_resolve_reasoning_invalid():
         reasoning.resolve_reasoning_effort('turbo')
 
 
-def test_api_only_reasoning_rejected():
+def test_resolve_reasoning_accepts_openai_extended():
+    assert reasoning.resolve_reasoning_effort('xhigh') == 'xhigh'
+    assert reasoning.resolve_reasoning_effort('max') == 'max'
+
+
+def test_extended_reasoning_hidden_for_other_providers():
     from service import ConfigError
 
-    with pytest.raises(ConfigError, match='não é compatível'):
-        reasoning.resolve_reasoning_effort('xhigh')
-    with pytest.raises(ConfigError, match='não é compatível'):
-        reasoning.assert_reasoning_compatible('openai', 'gpt-6-luna', 'max')
+    assert reasoning.assert_reasoning_compatible('openai', 'gpt-6-luna', 'max') == 'max'
+    assert reasoning.assert_reasoning_compatible('openai', 'gpt-6-sol', 'xhigh') == 'xhigh'
+    with pytest.raises(ConfigError, match='não suportado'):
+        reasoning.assert_reasoning_compatible('gemini', 'gemini-3.1-flash-lite', 'xhigh')
+    with pytest.raises(ConfigError, match='não suportado'):
+        reasoning.assert_reasoning_compatible('grok', 'grok-4.6', 'max')
 
 
 def test_supported_reasoning_levels_per_model():
-    assert reasoning.supported_reasoning_levels('openai', 'gpt-6-luna') == (
+    openai_ext = (
         'none',
         'low',
         'medium',
         'high',
+        'xhigh',
+        'max',
     )
-    assert reasoning.supported_reasoning_levels('openai', 'gpt-6-sol') == (
-        'none',
-        'low',
-        'medium',
-        'high',
-    )
-    assert 'xhigh' not in reasoning.supported_reasoning_levels('openai', 'gpt-6-luna')
-    assert 'max' not in reasoning.supported_reasoning_levels('openai', 'gpt-6-luna')
+    assert reasoning.supported_reasoning_levels('openai', 'gpt-6-luna') == openai_ext
+    assert reasoning.supported_reasoning_levels('openai', 'gpt-6-sol') == openai_ext
+    assert 'xhigh' in reasoning.supported_reasoning_levels('openai', 'gpt-6-luna')
+    assert 'max' in reasoning.supported_reasoning_levels('openai', 'gpt-6-luna')
     assert reasoning.supported_reasoning_levels('openai', 'gpt-4o-mini') == ()
     assert reasoning.supported_reasoning_levels('gemini', 'gemini-3.1-flash-lite') == (
         'none',
@@ -55,6 +60,7 @@ def test_supported_reasoning_levels_per_model():
         'medium',
         'high',
     )
+    assert 'xhigh' not in reasoning.supported_reasoning_levels('gemini', 'gemini-x')
     assert reasoning.supported_reasoning_levels('grok', 'grok-4.6') == (
         'none',
         'low',

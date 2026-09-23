@@ -177,17 +177,40 @@ def test_models_endpoint(demo_server) -> None:
         assert isinstance(data["openai"], list) and len(data["openai"]) >= 1
         assert data["reasoning_levels"] == ["none", "low", "medium", "high"]
         entry = next(e for e in data["openai"] if e["id"] == "gpt-6-luna")
-        assert entry["reasoning"] == ["none", "low", "medium", "high"]
-        assert "xhigh" not in entry["reasoning"]
+        assert entry["reasoning"] == [
+            "none",
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max",
+        ]
+        gem = next(e for e in data["gemini"] if e["id"] == data["defaults"]["gemini"])
+        assert "xhigh" not in gem["reasoning"]
+        assert "max" not in gem["reasoning"]
         no_think = next(e for e in data["openai"] if e["id"] == "gpt-4o-mini")
         assert no_think["reasoning"] == []
     finally:
         conn.close()
 
 
-def test_gerar_rejects_incompatible_reasoning(demo_server) -> None:
+def test_gerar_accepts_gpt6_xhigh(demo_server) -> None:
     _httpd, port = demo_server
-    with patch.object(serve, "generate_batch") as mock_gen:
+    with patch.object(
+        serve,
+        "generate_batch",
+        return_value=ExerciseBatch(
+            exercicios=[
+                Exercise(
+                    enunciado="1+1",
+                    resposta="2",
+                    explicacao="soma",
+                    dificuldade="facil",
+                )
+            ],
+            dificuldades=["facil"],
+        ),
+    ) as mock_gen:
         status, data = _post_gerar(
             port,
             {
@@ -197,6 +220,26 @@ def test_gerar_rejects_incompatible_reasoning(demo_server) -> None:
                 "quantidade": 1,
                 "provider": "openai",
                 "model": "gpt-6-luna",
+                "reasoning": "xhigh",
+            },
+        )
+        assert status == 200
+        assert data["ok"] is True
+        mock_gen.assert_called_once()
+
+
+def test_gerar_rejects_xhigh_for_gemini(demo_server) -> None:
+    _httpd, port = demo_server
+    with patch.object(serve, "generate_batch") as mock_gen:
+        status, data = _post_gerar(
+            port,
+            {
+                "materia": "Matemática",
+                "topico": "soma",
+                "dificuldade": "facil",
+                "quantidade": 1,
+                "provider": "gemini",
+                "model": "gemini-3.1-flash-lite",
                 "reasoning": "xhigh",
             },
         )

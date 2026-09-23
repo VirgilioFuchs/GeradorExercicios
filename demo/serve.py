@@ -43,7 +43,7 @@ HOST = "::1"
 PORT = 8642
 
 _VALID_PROVIDER = frozenset({"openai", "gemini", "grok"})
-_VALID_REASONING = frozenset({"none", "low", "medium", "high"})
+_VALID_REASONING = frozenset({"none", "low", "medium", "high", "xhigh", "max"})
 _SCOPED_ENV_KEYS = ("LLM_PROVIDER", "LLM_REASONING_EFFORT", "LLM_MODEL")
 _DAY_DIR_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _INDISPONIVEL = "indisponível"
@@ -291,6 +291,7 @@ def _models_payload() -> dict[str, Any]:
         "openai": _entries("openai", OPENAI_MODEL_FALLBACKS),
         "gemini": _entries("gemini", GEMINI_MODEL_FALLBACKS),
         "grok": _entries("grok", GROK_MODEL_FALLBACKS),
+        # Default select when no model pinned (auto): base four — no xhigh/max.
         "reasoning_levels": list(REASONING_LEVELS),
         "defaults": {
             "openai": DEFAULT_OPENAI_MODEL,

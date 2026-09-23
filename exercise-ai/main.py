@@ -181,11 +181,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--reasoning",
-        choices=["none", "low", "medium", "high"],
+        choices=["none", "low", "medium", "high", "xhigh", "max"],
         default=None,
         help=(
-            "Esforço de raciocínio/thinking: none|low|medium|high "
-            "(padrão: medium via LLM_REASONING_EFFORT ou default)"
+            "Esforço de raciocínio/thinking: none|low|medium|high|xhigh|max "
+            "(xhigh/max só OpenAI reasoning; padrão: medium)"
         ),
     )
     parser.add_argument(

@@ -105,6 +105,18 @@
     var entries = modelEntries(provider);
     var modelId = modelSelect ? modelSelect.value : "";
     if (!modelId) {
+      var defaults = (modelsCatalog && modelsCatalog.defaults) || {};
+      var key = provider || "openai";
+      if (key === "") key = "openai";
+      var defId = defaults[key];
+      if (defId) {
+        for (var d = 0; d < entries.length; d++) {
+          if (entries[d].id === defId) {
+            fillReasoningOptions(entries[d].reasoning);
+            return;
+          }
+        }
+      }
       fillReasoningOptions(
         (modelsCatalog && modelsCatalog.reasoning_levels) || null
       );

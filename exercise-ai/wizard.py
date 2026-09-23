@@ -39,7 +39,7 @@ _EXTRA_ARGS_MSG = (
 
 _VALID_DIFICULDADE = frozenset({"facil", "medio", "dificil"})
 _VALID_PROVIDER = frozenset({"openai", "gemini", "grok"})
-_VALID_REASONING = frozenset({"none", "low", "medium", "high"})
+_VALID_REASONING = frozenset({"none", "low", "medium", "high", "xhigh", "max"})
 
 
 @dataclass(frozen=True)
