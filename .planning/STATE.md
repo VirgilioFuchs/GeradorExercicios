@@ -30,9 +30,9 @@ See: .planning/PROJECT.md (updated 2026-09-21)
 ## Current Position
 
 Phase: 15 — CLI / wizard batch-plan UX
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-23 — Completed quick task 260923-da9: xhigh/max per model
+Plan: 0 of 2 executed (15-01, 15-02 planned)
+Status: Ready to execute
+Last activity: 2026-09-23 — Phase 15 discussed + planned
 
 ## Performance Metrics
 
@@ -122,12 +122,11 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-23T12:46:00Z
-Stopped at: Cleared .continue-here; routing to discuss Phase 15
+Last session: 2026-09-23T12:52:00Z
+Stopped at: Phase 15 planned; awaiting `$gsd-execute-phase 15`
 Resume file: (none)
 
 ## Operator Next Steps
 
-- `$gsd-discuss-phase 15` (UX-01, UX-02) — then plan/execute
+- `$gsd-execute-phase 15` — implement CLI/wizard `--plano` / band UX
 - Optional: `$gsd-secure-phase 14` (security_enforcement on; no 14-SECURITY.md yet)
-- Do not treat root `.planning/.continue-here.md` from v2.0 pause as current — replaced on pause
