@@ -28,6 +28,8 @@ def test_gemini_map_none_to_minimal():
 def test_openai_supports_gate():
     assert reasoning.openai_supports_reasoning_effort('gpt-4o-mini') is False
     assert reasoning.openai_supports_reasoning_effort('gpt-5-mini') is True
+    assert reasoning.openai_supports_reasoning_effort('gpt-6-luna') is True
+    assert reasoning.openai_supports_reasoning_effort('gpt-6-sol') is True
     assert reasoning.openai_supports_reasoning_effort('o3-mini') is True
 
 def test_openai_compatible_kwargs_grok_always(monkeypatch):

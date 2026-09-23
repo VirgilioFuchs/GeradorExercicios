@@ -17,6 +17,7 @@ _OPENAI_EXCLUDE_PARTS: tuple[str, ...] = (
     "whisper",
     "search-preview",
     "search-api",
+    "astra",  # GPT-6 flagship — omit from generation/selection fallbacks
 )
 _GEMINI_EXCLUDE_PARTS: tuple[str, ...] = (
     "image",
@@ -107,7 +108,15 @@ def _build_fallbacks(
 OPENAI_MODEL_FALLBACKS: tuple[str, ...] = _build_fallbacks(
     OPENAI_MODELS,
     _OPENAI_EXCLUDE_PARTS,
-    ("gpt-5.6-luna", "gpt-4o-mini", "gpt-4o", "gpt-5-mini", "gpt-5"),
+    (
+        "gpt-5.6-luna",
+        "gpt-6-luna",
+        "gpt-6-sol",
+        "gpt-4o-mini",
+        "gpt-4o",
+        "gpt-5-mini",
+        "gpt-5",
+    ),
 )
 GEMINI_MODEL_FALLBACKS: tuple[str, ...] = _build_fallbacks(
     GEMINI_MODELS,

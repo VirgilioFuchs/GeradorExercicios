@@ -19,6 +19,7 @@ ENV_REASONING = "LLM_REASONING_EFFORT"
 # Conservative allowlist prefixes for OpenAI models that accept reasoning_effort.
 _OPENAI_REASONING_PREFIXES: tuple[str, ...] = (
     "gpt-5",
+    "gpt-6",
     "o1",
     "o3",
     "o4",

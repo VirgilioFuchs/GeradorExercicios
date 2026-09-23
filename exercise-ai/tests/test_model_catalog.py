@@ -11,6 +11,9 @@ def test_catalogs_load_from_modelos_txt() -> None:
     assert len(catalog.OPENAI_MODELS) > 20
     assert "gpt-4o-mini" in catalog.OPENAI_MODELS
     assert "gpt-5.6-luna" in catalog.OPENAI_MODELS
+    assert "gpt-6-luna" in catalog.OPENAI_MODELS
+    assert "gpt-6-sol" in catalog.OPENAI_MODELS
+    assert "gpt-6-astra" in catalog.OPENAI_MODELS
     assert "gemini-3.1-flash-lite" in catalog.GEMINI_MODELS
     assert "grok-4.6" in catalog.GROK_MODELS
 
@@ -19,9 +22,16 @@ def test_fallbacks_exclude_non_chat_models() -> None:
     assert all("image" not in m for m in catalog.OPENAI_MODEL_FALLBACKS)
     assert all("tts" not in m for m in catalog.OPENAI_MODEL_FALLBACKS)
     assert all("realtime" not in m for m in catalog.OPENAI_MODEL_FALLBACKS)
+    assert all("astra" not in m for m in catalog.OPENAI_MODEL_FALLBACKS)
     assert all("image" not in m for m in catalog.GEMINI_MODEL_FALLBACKS)
     assert all("tts" not in m for m in catalog.GEMINI_MODEL_FALLBACKS)
     assert all("multi-agent" not in m for m in catalog.GROK_MODEL_FALLBACKS)
+
+
+def test_openai_fallbacks_include_gpt6_sol_luna() -> None:
+    assert "gpt-6-luna" in catalog.OPENAI_MODEL_FALLBACKS
+    assert "gpt-6-sol" in catalog.OPENAI_MODEL_FALLBACKS
+    assert "gpt-6-astra" not in catalog.OPENAI_MODEL_FALLBACKS
 
 
 def test_fallbacks_capped_and_prefer_defaults() -> None:
