@@ -17,6 +17,7 @@
   var btn = document.getElementById("submit-btn");
   var providerSelect = document.getElementById("provider-select");
   var modelSelect = document.getElementById("model-select");
+  var reasoningSelect = document.getElementById("reasoning-select");
   var errorRegion = document.getElementById("error-region");
   var errorBadge = document.getElementById("error-badge");
   var errorMsg = document.getElementById("error-msg");
@@ -47,6 +48,78 @@
   var banner = document.getElementById("throwaway-banner");
   var bannerDismiss = document.getElementById("banner-dismiss");
 
+  function modelEntries(provider) {
+    if (!modelsCatalog) return [];
+    var key = provider || "openai";
+    if (key === "") key = "openai";
+    var list = modelsCatalog[key] || [];
+    return list.map(function (item) {
+      if (typeof item === "string") {
+        return { id: item, reasoning: modelsCatalog.reasoning_levels || [] };
+      }
+      return {
+        id: item.id,
+        reasoning: Array.isArray(item.reasoning) ? item.reasoning : [],
+      };
+    });
+  }
+
+  function fillReasoningOptions(levels) {
+    if (!reasoningSelect) return;
+    var prev = reasoningSelect.value;
+    var shared = (modelsCatalog && modelsCatalog.reasoning_levels) || [
+      "none",
+      "low",
+      "medium",
+      "high",
+    ];
+    var opts = Array.isArray(levels) ? levels : shared;
+    reasoningSelect.innerHTML = "";
+    if (!opts.length) {
+      var na = document.createElement("option");
+      na.value = "";
+      na.textContent = "n/a (sem pensamento)";
+      reasoningSelect.appendChild(na);
+      reasoningSelect.disabled = true;
+      reasoningSelect.value = "";
+      return;
+    }
+    reasoningSelect.disabled = false;
+    opts.forEach(function (lvl) {
+      var opt = document.createElement("option");
+      opt.value = lvl;
+      opt.textContent = lvl;
+      reasoningSelect.appendChild(opt);
+    });
+    if (prev && opts.indexOf(prev) !== -1) {
+      reasoningSelect.value = prev;
+    } else if (opts.indexOf("medium") !== -1) {
+      reasoningSelect.value = "medium";
+    } else {
+      reasoningSelect.value = opts[0];
+    }
+  }
+
+  function syncReasoningForModel() {
+    var provider = providerSelect ? providerSelect.value : "";
+    var entries = modelEntries(provider);
+    var modelId = modelSelect ? modelSelect.value : "";
+    if (!modelId) {
+      fillReasoningOptions(
+        (modelsCatalog && modelsCatalog.reasoning_levels) || null
+      );
+      return;
+    }
+    var found = null;
+    for (var i = 0; i < entries.length; i++) {
+      if (entries[i].id === modelId) {
+        found = entries[i];
+        break;
+      }
+    }
+    fillReasoningOptions(found ? found.reasoning : []);
+  }
+
   function fillModelOptions(provider) {
     if (!modelSelect) return;
     var prev = modelSelect.value;
@@ -55,20 +128,27 @@
     empty.value = "";
     empty.textContent = "default (auto)";
     modelSelect.appendChild(empty);
-    if (!modelsCatalog) return;
+    var entries = modelEntries(provider);
+    var defaults = (modelsCatalog && modelsCatalog.defaults) || {};
     var key = provider || "openai";
     if (key === "") key = "openai";
-    var list = modelsCatalog[key] || [];
-    var defaults = modelsCatalog.defaults || {};
-    list.forEach(function (id) {
+    entries.forEach(function (entry) {
       var opt = document.createElement("option");
-      opt.value = id;
-      opt.textContent = id === defaults[key] ? id + " (default)" : id;
+      opt.value = entry.id;
+      var label = entry.id;
+      if (entry.id === defaults[key]) label += " (default)";
+      if (entry.reasoning && entry.reasoning.length) {
+        label += " · pensamento: " + entry.reasoning.join("|");
+      } else {
+        label += " · sem pensamento";
+      }
+      opt.textContent = label;
       modelSelect.appendChild(opt);
     });
-    if (prev && list.indexOf(prev) !== -1) {
+    if (prev && entries.some(function (e) { return e.id === prev; })) {
       modelSelect.value = prev;
     }
+    syncReasoningForModel();
   }
 
   function loadModels() {
@@ -88,6 +168,11 @@
   if (providerSelect) {
     providerSelect.addEventListener("change", function () {
       fillModelOptions(providerSelect.value);
+    });
+  }
+  if (modelSelect) {
+    modelSelect.addEventListener("change", function () {
+      syncReasoningForModel();
     });
   }
   loadModels();
@@ -409,7 +494,11 @@
       quantidade: qty,
       provider: fd.get("provider") || "",
       model: fd.get("model") || "",
-      reasoning: fd.get("reasoning") || "medium",
+      reasoning: (function () {
+        var r = fd.get("reasoning");
+        if (r === null || r === undefined || r === "") return "medium";
+        return r;
+      })(),
     };
 
     if (active.length >= 2) {

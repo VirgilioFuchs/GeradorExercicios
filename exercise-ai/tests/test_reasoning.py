@@ -18,8 +18,56 @@ def test_resolve_reasoning_env_and_explicit(monkeypatch):
     assert reasoning.resolve_reasoning_effort('medium') == 'medium'
 
 def test_resolve_reasoning_invalid():
-    with pytest.raises(ValueError, match='reasoning inválido'):
+    from service import ConfigError
+
+    with pytest.raises(ConfigError, match='reasoning inválido'):
         reasoning.resolve_reasoning_effort('turbo')
+
+
+def test_api_only_reasoning_rejected():
+    from service import ConfigError
+
+    with pytest.raises(ConfigError, match='não é compatível'):
+        reasoning.resolve_reasoning_effort('xhigh')
+    with pytest.raises(ConfigError, match='não é compatível'):
+        reasoning.assert_reasoning_compatible('openai', 'gpt-6-luna', 'max')
+
+
+def test_supported_reasoning_levels_per_model():
+    assert reasoning.supported_reasoning_levels('openai', 'gpt-6-luna') == (
+        'none',
+        'low',
+        'medium',
+        'high',
+    )
+    assert reasoning.supported_reasoning_levels('openai', 'gpt-6-sol') == (
+        'none',
+        'low',
+        'medium',
+        'high',
+    )
+    assert 'xhigh' not in reasoning.supported_reasoning_levels('openai', 'gpt-6-luna')
+    assert 'max' not in reasoning.supported_reasoning_levels('openai', 'gpt-6-luna')
+    assert reasoning.supported_reasoning_levels('openai', 'gpt-4o-mini') == ()
+    assert reasoning.supported_reasoning_levels('gemini', 'gemini-3.1-flash-lite') == (
+        'none',
+        'low',
+        'medium',
+        'high',
+    )
+    assert reasoning.supported_reasoning_levels('grok', 'grok-4.6') == (
+        'none',
+        'low',
+        'medium',
+        'high',
+    )
+
+
+def test_assert_reasoning_compatible_ok_and_na():
+    assert (
+        reasoning.assert_reasoning_compatible('openai', 'gpt-6-sol', 'high') == 'high'
+    )
+    assert reasoning.assert_reasoning_compatible('openai', 'gpt-4o-mini', 'medium') is None
 
 def test_gemini_map_none_to_minimal():
     assert reasoning.to_gemini_thinking_level('none') == 'minimal'

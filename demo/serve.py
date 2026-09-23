@@ -269,7 +269,7 @@ def _restore_scoped_env(snapshot: dict[str, Any]) -> None:
 
 
 def _models_payload() -> dict[str, Any]:
-    """Generation fallback lists for the demo model picker."""
+    """Generation fallback lists + per-model reasoning for the demo picker."""
     from model_catalog import (
         DEFAULT_GEMINI_MODEL,
         DEFAULT_GROK_MODEL,
@@ -278,11 +278,20 @@ def _models_payload() -> dict[str, Any]:
         GROK_MODEL_FALLBACKS,
         OPENAI_MODEL_FALLBACKS,
     )
+    from reasoning import REASONING_LEVELS, supported_reasoning_levels
+
+    def _entries(provider: str, models: tuple[str, ...]) -> list[dict[str, Any]]:
+        out: list[dict[str, Any]] = []
+        for mid in models:
+            levels = list(supported_reasoning_levels(provider, mid))
+            out.append({"id": mid, "reasoning": levels})
+        return out
 
     return {
-        "openai": list(OPENAI_MODEL_FALLBACKS),
-        "gemini": list(GEMINI_MODEL_FALLBACKS),
-        "grok": list(GROK_MODEL_FALLBACKS),
+        "openai": _entries("openai", OPENAI_MODEL_FALLBACKS),
+        "gemini": _entries("gemini", GEMINI_MODEL_FALLBACKS),
+        "grok": _entries("grok", GROK_MODEL_FALLBACKS),
+        "reasoning_levels": list(REASONING_LEVELS),
         "defaults": {
             "openai": DEFAULT_OPENAI_MODEL,
             "gemini": DEFAULT_GEMINI_MODEL,
@@ -388,10 +397,44 @@ class DemoHandler(SimpleHTTPRequestHandler):
             provider = body.get("provider")
             reasoning = body.get("reasoning")
             model = body.get("model")
+
+            from reasoning import assert_reasoning_compatible
+            from service import ConfigError as SvcConfigError
+
+            prov_raw = provider if isinstance(provider, str) else ""
+            model_raw = model if isinstance(model, str) else ""
+            reason_raw = reasoning if isinstance(reasoning, str) else None
+            prov_norm = prov_raw.strip().lower()
+            if prov_norm not in _VALID_PROVIDER:
+                mid = model_raw.strip().lower()
+                if mid.startswith("gemini"):
+                    api_tag = "gemini"
+                elif mid.startswith("grok"):
+                    api_tag = "grok"
+                else:
+                    api_tag = "openai"
+            else:
+                api_tag = prov_norm
+            try:
+                assert_reasoning_compatible(api_tag, model_raw, reason_raw)
+            except SvcConfigError as exc:
+                self._send_json(
+                    400,
+                    {
+                        "ok": False,
+                        "error": {
+                            "class": "ConfigError",
+                            "message": str(exc),
+                            "kind": getattr(exc, "kind", None) or "invalid_reasoning",
+                        },
+                    },
+                )
+                return
+
             snapshot = _apply_env(
-                provider if isinstance(provider, str) else None,
-                reasoning if isinstance(reasoning, str) else None,
-                model if isinstance(model, str) else None,
+                prov_raw or None,
+                reason_raw,
+                model_raw or None,
             )
             try:
                 try:

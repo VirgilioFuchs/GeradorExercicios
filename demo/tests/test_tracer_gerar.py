@@ -175,8 +175,35 @@ def test_models_endpoint(demo_server) -> None:
         assert "defaults" in data
         assert data["defaults"]["openai"]
         assert isinstance(data["openai"], list) and len(data["openai"]) >= 1
+        assert data["reasoning_levels"] == ["none", "low", "medium", "high"]
+        entry = next(e for e in data["openai"] if e["id"] == "gpt-6-luna")
+        assert entry["reasoning"] == ["none", "low", "medium", "high"]
+        assert "xhigh" not in entry["reasoning"]
+        no_think = next(e for e in data["openai"] if e["id"] == "gpt-4o-mini")
+        assert no_think["reasoning"] == []
     finally:
         conn.close()
+
+
+def test_gerar_rejects_incompatible_reasoning(demo_server) -> None:
+    _httpd, port = demo_server
+    with patch.object(serve, "generate_batch") as mock_gen:
+        status, data = _post_gerar(
+            port,
+            {
+                "materia": "Matemática",
+                "topico": "soma",
+                "dificuldade": "facil",
+                "quantidade": 1,
+                "provider": "openai",
+                "model": "gpt-6-luna",
+                "reasoning": "xhigh",
+            },
+        )
+        assert status == 400
+        assert data["ok"] is False
+        assert data["error"]["kind"] == "invalid_reasoning"
+        mock_gen.assert_not_called()
 
 
 def test_gerar_sets_llm_model_env(demo_server) -> None:
