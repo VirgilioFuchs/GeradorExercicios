@@ -1,98 +1,68 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-22T15:02:22.576Z",
-  "phase": "15",
-  "phase_name": "cli-/-wizard-batch-plan-ux",
-  "phase_dir": null,
+  "timestamp": "2026-09-23T14:52:28.223Z",
+  "phase": "16",
+  "phase_name": "Domain skill index",
+  "phase_dir": ".planning/phases/16-domain-skill-index",
   "plan": null,
   "task": null,
   "total_tasks": 0,
   "status": "paused",
+  "milestone": "v2.2",
+  "milestone_name": "Contrato de geração",
   "completed_tasks": [
     {
-      "id": "14-01",
-      "name": "Mixed prompt slot enumeration",
+      "id": "discuss",
+      "name": "Phase 16 discuss → 16-CONTEXT.md",
       "status": "done",
-      "commit": "14-01-SUMMARY"
+      "commit": "2d69060"
     },
     {
-      "id": "14-02",
-      "name": "Plan-echo RELY + demo band UX",
+      "id": "milestone",
+      "name": "v2.2 new-milestone (research, REQUIREMENTS, ROADMAP 16–25)",
       "status": "done",
-      "commit": "14-02-SUMMARY"
+      "commit": "4f818d0"
     },
     {
-      "id": "14-03",
-      "name": "Unique-band dificuldades gap-closure G-14-4",
+      "id": "v21-close",
+      "name": "v2.1 complete-milestone + tag push",
       "status": "done",
-      "commit": "80b2dac"
-    },
-    {
-      "id": "14-uat",
-      "name": "Live UAT 4/4 + verification passed",
-      "status": "done",
-      "commit": "91b3f46"
-    },
-    {
-      "id": "seed-009",
-      "name": "Plant SEED-009 BNCC-aligned math_check (after SEED-001)",
-      "status": "done",
-      "commit": "e485693"
+      "commit": "ffebfe0"
     }
   ],
   "remaining_tasks": [
     {
-      "id": "15-discuss",
-      "name": "Discuss Phase 15 CLI/wizard batch-plan UX",
+      "id": "plan-16",
+      "name": "$gsd-plan-phase 16",
       "status": "not_started"
     },
     {
-      "id": "15-plan",
-      "name": "Plan Phase 15",
-      "status": "not_started"
-    },
-    {
-      "id": "15-execute",
-      "name": "Execute Phase 15",
+      "id": "execute-16",
+      "name": "Execute Phase 16 API skills skeleton under exercise-ai/skills/generation/",
       "status": "not_started"
     }
   ],
   "blockers": [],
   "async_jobs": [],
-  "human_actions_pending": [
-    {
-      "action": "Optional: /gsd-secure-phase 14 — config has security_enforcement true; no 14-SECURITY.md yet",
-      "context": "Phase 14 sealed without SECURITY.md; not blocking pause/resume to Phase 15 discuss",
-      "blocking": false
-    }
-  ],
+  "human_actions_pending": [],
   "decisions": [
     {
-      "decision": "verify_plan_echo lives in RELY after validate, not validator.py",
-      "rationale": "D-05; keep math_check ownership",
-      "phase": "14"
+      "decision": "API skill package under exercise-ai/skills/generation/ (persona.py + rules.py), not agent folders (.cursor/.claude/.codex)",
+      "rationale": "User redirected CONTRACT-01 from GSD agent skill to runtime API persona",
+      "phase": "16"
     },
     {
-      "decision": "batch.dificuldades is unique band summary (1–3), not per-exercise padding; compare canonically",
-      "rationale": "G-14-4 uniform path exhausted RELY on ['medio','medio'] vs ['medio']",
-      "phase": "14"
+      "decision": "Phase 16 = skeleton + get_persona_system(); prompts.py not wired yet",
+      "rationale": "CONTRACT-01 index only; wiring is later PROMPT phases",
+      "phase": "16"
     },
     {
-      "decision": "SEED-009 hardens math_check only after SEED-001 BNCC skills land",
-      "rationale": "Rules must align to BNCC habilidades, not generic pack",
-      "phase": "seed"
+      "decision": "v2.2 roadmap = 10 phases (16–25), one REQ per phase",
+      "rationale": "User asked for assertive audit granularity",
+      "phase": "milestone"
     }
   ],
-  "uncommitted_files": [
-    ".planning/.gsd-allow-shrink",
-    ".planning/config.json",
-    ".planning/state.json",
-    ".planning/seeds/SEED-007-exercise-ai-persona-rules.md (untracked)",
-    ".cursor/ (untracked)",
-    ".serena/ (untracked)",
-    "exercise-ai/token-usage-logs/ (untracked — do not commit secrets/logs)",
-    "skills/ (untracked)"
-  ],
-  "next_action": "Run /gsd-discuss-phase 15 (UX-01, UX-02). Ignore any stale v2.0 pause narrative — this handoff supersedes it.",
-  "context_notes": "v2.1 Phase 14 fully sealed (UAT 4/4, VERIFICATION passed, ROADMAP/STATE advanced). Quick tasks this session: demo Uso token panel; SEED-009 planted dormant. Phase 15 has no phase directory yet — discuss creates context."
+  "uncommitted_files": [],
+  "next_action": "Run $gsd-resume-work then $gsd-plan-phase 16 using 16-CONTEXT.md (API skills path, D-01..D-09)",
+  "context_notes": "Paused after Phase 16 discuss. CONTEXT locked API-focused skill package. Do not create .cursor skills for generation contract. Public API: get_persona_system() -> str; PT-BR; rules.py TODO only."
 }

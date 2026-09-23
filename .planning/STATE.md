@@ -5,8 +5,8 @@ milestone_name: Contrato de geração
 status: ready
 last_updated: "2026-09-23T14:30:00.000Z"
 last_activity: 2026-09-23
-last_activity_desc: v2.2 roadmap approved — 10 phases (1 REQ each)
-stopped_at: Ready for Phase 16 discuss/plan
+last_activity_desc: Phase 16 discuss — API skills under exercise-ai/skills/generation
+stopped_at: Phase 16 CONTEXT ready — `$gsd-plan-phase 16`
 progress:
   total_phases: 10
   completed_phases: 0
@@ -24,16 +24,14 @@ current_phase_name: Domain skill index
 See: .planning/PROJECT.md (updated 2026-09-23)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados (incluindo lotes mistos) com validação e adesão ao plano — também via `service.generate_batch`
-**Current focus:** v2.2 Phase 16 — Domain skill index (CONTEXT ready; plan next)
-stopped_at: Phase 16 discuss complete — ready `$gsd-plan-phase 16`
-last_activity_desc: Phase 16 discuss — API skills package under exercise-ai/skills/generation
+**Current focus:** v2.2 Phase 16 — Domain skill index (CONTEXT ready)
 
 ## Current Position
 
-Phase: 16 (Domain skill index) — not started
+Phase: 16 (Domain skill index) — context gathered
 Plan: —
-Status: Ready to discuss/plan
-Last activity: 2026-09-23 — v2.2 roadmap approved (phases 16–25, 1 REQ each)
+Status: Ready to plan
+Last activity: 2026-09-23 — discuss complete (API skills package, not agent folders)
 
 ## Performance Metrics
 
