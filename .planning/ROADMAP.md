@@ -40,16 +40,16 @@
 4. math_check continua sem overhaul; fixtures offline cobrem mismatch de plano
 5. Demo UI permite contagens por banda e `POST /gerar` monta `plano` (caminho misto exercitável sem CLI)
 
-### Phase 15: CLI / wizard batch-plan UX
+### Phase 15: CLI / wizard batch-plan UX ✅
 
 **Goal:** Operador define o plano com UX compacta (wizard + argparse), sem N flags manuais; mesmo contrato já usado pela demo na Phase 14.
 **Requirements:** UX-01, UX-02
 **Success criteria:**
 
-1. Wizard `gerar` permite contagens por banda (ex. fáceis/médios/difíceis) e monta o request
-2. Argparse aceita plano compacto (ex. `--plano`) e deriva `itens`/`quantidade`
-3. Documentação curta: embed/demo/CLI compartilham `GenerationRequest` enriquecido
-4. Caller matrix (CLI, wizard, service, demo) verde offline
+1. ✅ Wizard `gerar` permite contagens por banda (ex. fáceis/médios/difíceis) e monta o request
+2. ✅ Argparse aceita plano compacto (ex. `--plano`) e deriva `itens`/`quantidade`
+3. ✅ Documentação curta: embed/demo/CLI compartilham `GenerationRequest` enriquecido
+4. ✅ Caller matrix (CLI, wizard, service, demo) verde offline
 
 ## Phases (shipped)
 

@@ -30,8 +30,8 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### UX — CLI / wizard
 
-- [ ] **UX-01**: Wizard com plano compacto (contagens por banda de dificuldade)
-- [ ] **UX-02**: Argparse com plano compacto (ex. `--plano`)
+- [x] **UX-01**: Wizard com plano compacto (contagens por banda de dificuldade)
+- [x] **UX-02**: Argparse com plano compacto (ex. `--plano`)
 
 ### CAP — Quantidade
 
@@ -78,8 +78,8 @@ Deferred; tracked but not in current roadmap.
 | VAL-01 | Phase 14 | Complete |
 | VAL-02 | Phase 14 | Complete |
 | DEMO-01 | Phase 14 | Complete |
-| UX-01 | Phase 15 | Pending |
-| UX-02 | Phase 15 | Pending |
+| UX-01 | Phase 15 | Complete |
+| UX-02 | Phase 15 | Complete |
 
 **Coverage:**
 

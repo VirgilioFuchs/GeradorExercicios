@@ -4,18 +4,18 @@ milestone: v2.1
 milestone_name: Lotes dinâmicos
 current_phase: 15
 current_phase_name: CLI / wizard batch-plan UX
-status: ready_to_execute
-stopped_at: Phase 15 planned (15-01, 15-02); ready to execute
-last_updated: "2026-09-23T12:52:00.000Z"
+status: completed
+stopped_at: Phase 15 executed + verified offline; milestone v2.1 plans complete
+last_updated: "2026-09-23T13:00:00.000Z"
 last_activity: 2026-09-23
-last_activity_desc: Phase 15 CONTEXT + 15-01/15-02 plans written
-state_head: 3a97d1f
+last_activity_desc: Phase 15 complete — CLI/wizard --plano + band UX
+state_head: d2660e2
 progress:
   total_phases: 3
-  completed_phases: 1
+  completed_phases: 3
   total_plans: 6
-  completed_plans: 4
-  percent: 33
+  completed_plans: 6
+  percent: 100
 ---
 
 # Project State
@@ -30,9 +30,9 @@ See: .planning/PROJECT.md (updated 2026-09-21)
 ## Current Position
 
 Phase: 15 — CLI / wizard batch-plan UX
-Plan: 0 of 2 executed (15-01, 15-02 planned)
-Status: Ready to execute
-Last activity: 2026-09-23 — Phase 15 discussed + planned
+Plan: 2 of 2 complete
+Status: Phase complete (offline verification passed)
+Last activity: 2026-09-23 — Phase 15 executed (15-01, 15-02)
 
 ## Performance Metrics
 
@@ -122,11 +122,12 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-23T12:52:00Z
-Stopped at: Phase 15 planned; awaiting `$gsd-execute-phase 15`
+Last session: 2026-09-23T13:00:00Z
+Stopped at: Phase 15 complete; v2.1 ready for milestone close / optional live UAT
 Resume file: (none)
 
 ## Operator Next Steps
 
-- `$gsd-execute-phase 15` — implement CLI/wizard `--plano` / band UX
-- Optional: `$gsd-secure-phase 14` (security_enforcement on; no 14-SECURITY.md yet)
+- Optional live smoke: `python exercise-ai/main.py gerar` / `--plano 2,1,0`
+- `$gsd-complete-milestone` when ready to archive v2.1
+- Optional: `$gsd-secure-phase 14` / `$gsd-secure-phase 15`
