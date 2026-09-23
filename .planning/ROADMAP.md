@@ -90,11 +90,11 @@
 </details>
 
 <details>
-<summary>🚧 v2.1 Lotes dinâmicos (Phases 13–15) — IN PROGRESS</summary>
+<summary>✅ v2.1 Lotes dinâmicos (Phases 13–15) — SHIPPED 2026-09-23</summary>
 
 - [x] Phase 13: Request schema & plan contract (1/1 plans) — completed 2026-09-22
 - [x] Phase 14: Mixed prompt + plan-adherence + demo enablement (3/3 plans) — completed 2026-09-22
-- [ ] Phase 15: CLI / wizard batch-plan UX
+- [x] Phase 15: CLI / wizard batch-plan UX (2/2 plans) — completed 2026-09-23
 
 </details>
 
@@ -105,4 +105,4 @@
 - PKG-01, OBS-01, LOG-01, SEED-001/003/005/007/009
 
 ---
-*Roadmap updated: 2026-09-22 — Phase 14 complete (UAT 4/4); next Phase 15*
+*Roadmap updated: 2026-09-23 — Phase 15 complete (UX-01/UX-02); v2.1 plans done*
