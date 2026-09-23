@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import io
 import os
 from unittest.mock import MagicMock, patch
 
@@ -27,14 +26,18 @@ def _scripted_input(answers: list[str]):
 
 
 def test_collect_defaults_and_all_tips(capsys):
-    """Enter accepts demo defaults; JSON re-prompts; all 7 tips on stdout (D-07..D-11)."""
+    """Enter accepts demo defaults; all tips on stdout including band prompts."""
     answers = wizard.collect_wizard_answers(
-        input_fn=_scripted_input(["", "", "", "", "", "", "", "saida.json"]),
+        input_fn=_scripted_input(
+            ["", "", "", "", "", "", "", "", "saida.json"]
+        ),
         isatty_fn=lambda: True,
     )
     assert answers.topico == main_mod._DEFAULT_TOPICO
     assert answers.materia == main_mod._DEFAULT_MATERIA
-    assert answers.dificuldade == main_mod._DEFAULT_DIFICULDADE
+    assert answers.facil == 0
+    assert answers.medio == 0
+    assert answers.dificil == 0
     assert answers.quantidade == main_mod._DEFAULT_QUANTIDADE
     assert answers.provider is None
     assert answers.reasoning == "medium"
@@ -43,9 +46,8 @@ def test_collect_defaults_and_all_tips(capsys):
     out = capsys.readouterr().out
     assert "Equação do primeiro grau" in out
     assert "Matemática" in out
-    assert "facil" in out
+    assert "fáceis" in out.lower() or "Fáceis" in out
     assert "1–40" in out or "1-40" in out
-    assert "Enter = 3" in out
     assert "openai" in out and "gemini" in out and "grok" in out
     assert "Grok/Gemini" in out
     assert "gpt-4o-mini" in out
@@ -65,7 +67,7 @@ def test_non_tty_fails_without_input(capsys):
     assert "argparse" in err.lower() or "flags" in err.lower()
 
 
-def test_gerar_main_calls_run_with_mapped_request(tmp_path, monkeypatch, capsys):
+def test_gerar_main_uniform_via_bands(tmp_path, monkeypatch, capsys):
     monkeypatch.setenv("LLM_API_KEY", "sk-test")
     monkeypatch.delenv("LLM_PROVIDER", raising=False)
     monkeypatch.delenv("LLM_REASONING_EFFORT", raising=False)
@@ -82,8 +84,10 @@ def test_gerar_main_calls_run_with_mapped_request(tmp_path, monkeypatch, capsys)
     script = [
         "Álgebra",
         "Frações",
-        "medio",
+        "0",
         "5",
+        "0",
+        "",  # quantidade → default = band sum 5
         "openai",
         "high",
         "wizard-out.json",
@@ -100,6 +104,7 @@ def test_gerar_main_calls_run_with_mapped_request(tmp_path, monkeypatch, capsys)
     assert req.topico == "Frações"
     assert req.dificuldade == DificuldadeEnum.MEDIO
     assert req.quantidade == 5
+    assert req.plano is None
     assert captured["out_path"] == "wizard-out.json"
     assert captured["max_retries"] is None
     assert captured["provider"] == "openai"
@@ -107,7 +112,37 @@ def test_gerar_main_calls_run_with_mapped_request(tmp_path, monkeypatch, capsys)
 
     out = capsys.readouterr().out
     assert "Grok/Gemini" in out
-    assert "gpt-4o-mini" in out
+
+
+def test_gerar_main_mixed_plano(monkeypatch):
+    monkeypatch.setenv("LLM_API_KEY", "sk-test")
+    captured: dict = {}
+
+    def fake_run(request, out_path, max_retries=None):
+        captured["request"] = request
+
+    script = [
+        "Mat",
+        "Top",
+        "2",
+        "3",
+        "0",
+        "5",
+        "",
+        "",
+        "mixed.json",
+    ]
+    with (
+        patch.object(main_mod, "run", side_effect=fake_run),
+        patch.object(wizard, "is_interactive_stdin", return_value=True),
+        patch("builtins.input", side_effect=script),
+    ):
+        main_mod.main(["gerar"])
+
+    req = captured["request"]
+    assert req.plano is not None
+    assert req.plano.facil == 2 and req.plano.medio == 3
+    assert req.quantidade == 5
 
 
 def test_gerar_rejects_extra_tokens(capsys):
@@ -155,7 +190,7 @@ def test_provider_enter_leaves_unset(monkeypatch):
         patch.object(wizard, "is_interactive_stdin", return_value=True),
         patch(
             "builtins.input",
-            side_effect=["", "", "", "", "", "", "out.json"],
+            side_effect=["", "", "0", "3", "0", "", "", "", "out.json"],
         ),
     ):
         main_mod.main(["gerar"])
@@ -164,17 +199,19 @@ def test_provider_enter_leaves_unset(monkeypatch):
     assert captured["reasoning"] == "medium"
 
 
-def test_invalid_dificuldade_quantidade_reasoning_reprompt(capsys):
+def test_invalid_band_quantidade_reasoning_reprompt(capsys):
     answers = wizard.collect_wizard_answers(
         input_fn=_scripted_input(
             [
-                "",  # materia default
-                "",  # topico default
-                "hard",  # invalid dificuldade
-                "medio",
+                "",  # materia
+                "",  # topico
+                "-1",  # invalid band
+                "0",
+                "2",  # medio
+                "0",  # dificil
                 "99",  # invalid quantidade
                 "2",
-                "",  # provider auto
+                "",  # provider
                 "turbo",  # invalid reasoning
                 "low",
                 "ok.json",
@@ -182,19 +219,21 @@ def test_invalid_dificuldade_quantidade_reasoning_reprompt(capsys):
         ),
         isatty_fn=lambda: True,
     )
-    assert answers.dificuldade == "medio"
+    assert answers.facil == 0
+    assert answers.medio == 2
+    assert answers.dificil == 0
     assert answers.quantidade == 2
     assert answers.reasoning == "low"
     assert answers.out_path == "ok.json"
     err = capsys.readouterr().err
-    assert "Dificuldade inválida" in err
+    assert "Contagem inválida" in err
     assert "Quantidade inválida" in err
     assert "Reasoning inválido" in err
 
 
 def test_no_profile_or_max_retries_prompts(capsys):
     wizard.collect_wizard_answers(
-        input_fn=_scripted_input(["", "", "", "", "", "", "x.json"]),
+        input_fn=_scripted_input(["", "", "", "", "", "", "", "", "x.json"]),
         isatty_fn=lambda: True,
     )
     out = capsys.readouterr().out.lower()

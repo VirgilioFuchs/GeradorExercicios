@@ -6,22 +6,26 @@ import sys
 from dataclasses import dataclass
 from typing import Callable
 
-from models import DificuldadeEnum, GenerationRequest
+from models import GenerationRequest
 
 # Tip strings (D-10); reasoning tip must include both halves of D-09.
 TIP_TOPICO = (
     'Ex.: Equação do primeiro grau. Enter = "Equação do primeiro grau".'
 )
 TIP_MATERIA = 'Ex.: Matemática. Enter = "Matemática".'
-TIP_DIFICULDADE = "Digite facil, medio ou dificil. Enter = facil."
-TIP_QUANTIDADE = "Inteiro 1–40. Enter = 3."
+TIP_FACIL = "Quantos fáceis? Inteiro ≥0. Enter = 0."
+TIP_MEDIO = "Quantos médios? Inteiro ≥0. Enter = 0."
+TIP_DIFICIL = "Quantos difíceis? Inteiro ≥0. Enter = 0."
+TIP_QUANTIDADE = (
+    "Inteiro 1–40 (aviso se ≠ soma das faixas). Enter = 3 ou a soma se faixas >0."
+)
 TIP_PROVIDER = (
     "openai, gemini ou grok (precisa da chave no .env). "
     "Enter = auto-detect pela chave."
 )
 TIP_REASONING = (
-    'none / low / medium / high — quanto o modelo "pensa". Enter = medium. '
-    "Grok/Gemini honram o nível; OpenAI gpt-4o-mini pode ignorar."
+    'none / low / medium / high / xhigh / max — quanto o modelo "pensa". '
+    "Enter = medium. Grok/Gemini honram o nível; OpenAI gpt-4o-mini pode ignorar."
 )
 TIP_OUT = (
     "Arquivo de saída, ex.: exercicios.json ou pasta/saida.json. "
@@ -37,7 +41,6 @@ _EXTRA_ARGS_MSG = (
     "Use apenas: python exercise-ai/main.py gerar"
 )
 
-_VALID_DIFICULDADE = frozenset({"facil", "medio", "dificil"})
 _VALID_PROVIDER = frozenset({"openai", "gemini", "grok"})
 _VALID_REASONING = frozenset({"none", "low", "medium", "high", "xhigh", "max"})
 
@@ -48,7 +51,9 @@ class WizardAnswers:
 
     materia: str
     topico: str
-    dificuldade: str
+    facil: int
+    medio: int
+    dificil: int
     quantidade: int
     provider: str | None
     reasoning: str
@@ -81,22 +86,33 @@ def _ask_text(
     return raw if raw else default
 
 
-def _ask_dificuldade(
+def _ask_band_count(
+    question: str,
+    tip: str,
     *,
-    default: str,
+    default: int,
     input_fn: Callable[[], str],
-) -> str:
+) -> int:
     while True:
-        _print_prompt("Dificuldade:", TIP_DIFICULDADE)
-        raw = input_fn().strip().lower()
+        _print_prompt(question, tip)
+        raw = input_fn().strip()
         if not raw:
             return default
-        if raw in _VALID_DIFICULDADE:
-            return raw
-        print(
-            f"Dificuldade inválida '{raw}': use facil, medio ou dificil.",
-            file=sys.stderr,
-        )
+        try:
+            n = int(raw)
+        except ValueError:
+            print(
+                f"Contagem inválida '{raw}': informe um inteiro ≥0.",
+                file=sys.stderr,
+            )
+            continue
+        if n < 0:
+            print(
+                f"Contagem inválida '{n}': use um inteiro ≥0.",
+                file=sys.stderr,
+            )
+            continue
+        return n
 
 
 def _ask_quantidade(
@@ -150,21 +166,18 @@ def _ask_reasoning(*, input_fn: Callable[[], str]) -> str:
         if raw in _VALID_REASONING:
             return raw
         print(
-            f"Reasoning inválido '{raw}': use none, low, medium ou high.",
+            f"Reasoning inválido '{raw}': use none, low, medium, high, xhigh ou max.",
             file=sys.stderr,
         )
 
 
 def _ask_out_path(*, input_fn: Callable[[], str]) -> str:
     while True:
-        _print_prompt("Nome do JSON (--out):", TIP_OUT)
+        _print_prompt("Arquivo de saída (--out):", TIP_OUT)
         raw = input_fn().strip()
         if raw:
             return raw
-        print(
-            "Caminho do JSON obrigatório. Informe um arquivo de saída.",
-            file=sys.stderr,
-        )
+        print("Informe um caminho de arquivo JSON.", file=sys.stderr)
 
 
 def collect_wizard_answers(
@@ -172,10 +185,10 @@ def collect_wizard_answers(
     input_fn: Callable[[], str] | None = None,
     isatty_fn: Callable[[], bool] | None = None,
 ) -> WizardAnswers:
-    """Run the locked 7-question flow (D-04); raise SystemExit on non-TTY (D-03)."""
+    """Prompt operator for generation parameters (Phase 15 band UX)."""
     import main as main_mod
 
-    if not is_interactive_stdin(isatty_fn):
+    if not is_interactive_stdin(isatty_fn=isatty_fn):
         print(_NON_TTY_MSG, file=sys.stderr)
         raise SystemExit(1)
 
@@ -193,12 +206,13 @@ def collect_wizard_answers(
         default=main_mod._DEFAULT_TOPICO,
         input_fn=read,
     )
-    dificuldade = _ask_dificuldade(
-        default=main_mod._DEFAULT_DIFICULDADE,
-        input_fn=read,
-    )
+    facil = _ask_band_count("Fáceis:", TIP_FACIL, default=0, input_fn=read)
+    medio = _ask_band_count("Médios:", TIP_MEDIO, default=0, input_fn=read)
+    dificil = _ask_band_count("Difíceis:", TIP_DIFICIL, default=0, input_fn=read)
+    band_sum = facil + medio + dificil
+    qty_default = band_sum if band_sum > 0 else main_mod._DEFAULT_QUANTIDADE
     quantidade = _ask_quantidade(
-        default=main_mod._DEFAULT_QUANTIDADE,
+        default=qty_default,
         max_qty=main_mod._MAX_QUANTIDADE,
         input_fn=read,
     )
@@ -209,7 +223,9 @@ def collect_wizard_answers(
     return WizardAnswers(
         materia=materia,
         topico=topico,
-        dificuldade=dificuldade,
+        facil=facil,
+        medio=medio,
+        dificil=dificil,
         quantidade=quantidade,
         provider=provider,
         reasoning=reasoning,
@@ -226,6 +242,7 @@ def run_wizard(
     import os
 
     import main as main_mod
+    import plan_ux
 
     answers = collect_wizard_answers(input_fn=input_fn, isatty_fn=isatty_fn)
 
@@ -239,10 +256,26 @@ def run_wizard(
 
     os.environ["LLM_REASONING_EFFORT"] = answers.reasoning
 
+    plan_ux.soft_warn_bands(
+        answers.facil,
+        answers.medio,
+        answers.dificil,
+        answers.quantidade,
+    )
+    try:
+        plan_kw = plan_ux.build_request_kwargs(
+            answers.facil,
+            answers.medio,
+            answers.dificil,
+            quantidade_field=answers.quantidade,
+        )
+    except ValueError as err:
+        print(str(err), file=sys.stderr)
+        raise SystemExit(1) from err
+
     request = GenerationRequest(
         materia=answers.materia,
         topico=answers.topico,
-        dificuldade=DificuldadeEnum(answers.dificuldade),
-        quantidade=answers.quantidade,
+        **plan_kw,
     )
     main_mod.run(request, out_path=answers.out_path, max_retries=None)

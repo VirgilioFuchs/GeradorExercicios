@@ -33,7 +33,9 @@ Em um terminal interativo (TTY):
 python exercise-ai/main.py gerar
 ```
 
-O fluxo pergunta (com tip sob cada campo): matéria → tipo/tópico → dificuldade → quantidade → provedor → reasoning → nome do JSON. **Enter** aceita o default da demo; o caminho do JSON é obrigatório (re-pergunta se vazio). Reasoning padrão do Enter e do env: **`medium`**.
+O fluxo pergunta (com tip sob cada campo): matéria → tipo/tópico → **fáceis / médios / difíceis** → quantidade → provedor → reasoning → nome do JSON. **Enter** aceita o default; o caminho do JSON é obrigatório (re-pergunta se vazio). Reasoning padrão do Enter e do env: **`medium`**.
+
+Misto (2+ faixas >0) monta `GenerationRequest.plano`; uniforme (1 faixa) usa `dificuldade`+`quantidade` legados — o mesmo contrato da demo e do argparse `--plano`.
 
 Para CI/scripts, continue usando as flags argparse (não use `gerar`).
 
@@ -43,7 +45,15 @@ Para CI/scripts, continue usando as flags argparse (não use `gerar`).
 python exercise-ai/main.py --out exercicios.json
 ```
 
-Com parâmetros explícitos:
+Plano compacto (Phase 15):
+
+```bash
+python exercise-ai/main.py --plano 2,3,1 --out lote-misto.json
+```
+
+`--plano F,M,D` = contagens fácil, médio, difícil. Misto → `plano`; uma só faixa → legado uniforme.
+
+Com parâmetros explícitos (uniforme legado):
 
 ```bash
 python exercise-ai/main.py \
@@ -62,13 +72,16 @@ python exercise-ai/main.py \
 | `--out` | sim | Arquivo JSON. Relativo → `exercicios-gerados/success/<nome>`; absoluto permanece |
 | `--materia` | não | Matéria (padrão: Matemática) |
 | `--topico` | não | Tópico (padrão: Equação do primeiro grau) |
-| `--dificuldade` | não | `facil` \| `medio` \| `dificil` (padrão: facil) |
-| `--quantidade` | não | Inteiro de 1 a 40 (padrão: 3) |
+| `--dificuldade` | não | `facil` \| `medio` \| `dificil` (padrão: facil); ignorado no payload se `--plano` |
+| `--quantidade` | não | Inteiro de 1 a 40 (padrão: 3); com `--plano`, o payload usa soma/contagem das faixas |
+| `--plano` | não | `F,M,D` contagens fácil,médio,difícil (ex.: `2,3,1`) |
 | `--provider` | não | `openai` \| `gemini` \| `grok` para esta execução |
-| `--reasoning` | não | Esforço de raciocínio: `none` \| `low` \| `medium` \| `high` (padrão `medium`) |
+| `--reasoning` | não | `none` \| `low` \| `medium` \| `high` \| `xhigh` \| `max` (padrão `medium`) |
 | `--max-retries` | não | Regenerações após a 1ª tentativa (`0`–`3`). Se omitido: `RELY_MAX_RETRIES` ou padrão `1` |
 
-**Reasoning / thinking:** Grok recebe `reasoning_effort` na API; Gemini usa `ThinkingConfig.thinking_level` (`none` → `minimal`). OpenAI só envia o param em modelos com suporte (ex. família `gpt-5` / `o*`); o default `gpt-4o-mini` **omite** o campo (não é reasoning model).
+**Demo / CLI / wizard** compartilham o mesmo `GenerationRequest` (plano misto ou uniforme legado).
+
+**Reasoning / thinking:** Grok recebe `reasoning_effort` na API; Gemini usa `ThinkingConfig.thinking_level` (`none` → `minimal`). OpenAI só envia o param em modelos com suporte (ex. família `gpt-5` / `gpt-6` / `o*`); o default `gpt-4o-mini` **omite** o campo (não é reasoning model). `xhigh`/`max` só em modelos OpenAI com reasoning.
 
 Ajuda em português: `python exercise-ai/main.py --help`
 
