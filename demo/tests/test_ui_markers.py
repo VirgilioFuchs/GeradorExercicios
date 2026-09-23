@@ -22,6 +22,7 @@ def test_index_html_has_form_and_tab_markers() -> None:
         "usage-run-select",
         "GenerationRequest",
         "model-select",
+        "reasoning-select",
     ):
         assert needle in text, f"missing marker in index.html: {needle!r}"
 
