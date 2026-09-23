@@ -64,15 +64,15 @@ Deferred; tracked but not in current roadmap.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | CONTRACT-01 | Phase 16 | Pending |
-| CONTRACT-02 | Phase 16 | Pending |
-| CONTRACT-03 | Phase 16 | Pending |
-| PROMPT-02 | Phase 17 | Pending |
-| PROMPT-03 | Phase 17 | Pending |
-| PROMPT-04 | Phase 17 | Pending |
-| VAL-03 | Phase 18 | Pending |
-| VAL-04 | Phase 18 | Pending |
-| TEST-01 | Phase 18 | Pending |
-| TEST-02 | Phase 18 | Pending |
+| CONTRACT-02 | Phase 17 | Pending |
+| CONTRACT-03 | Phase 18 | Pending |
+| PROMPT-02 | Phase 19 | Pending |
+| PROMPT-03 | Phase 20 | Pending |
+| PROMPT-04 | Phase 21 | Pending |
+| VAL-03 | Phase 22 | Pending |
+| VAL-04 | Phase 23 | Pending |
+| TEST-01 | Phase 24 | Pending |
+| TEST-02 | Phase 25 | Pending |
 
 **Coverage:**
 

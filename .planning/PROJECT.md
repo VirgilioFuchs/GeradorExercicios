@@ -28,11 +28,17 @@ O usuário consegue gerar exercícios de matemática confiáveis e estruturados 
 **Goal:** Document and enforce a domain AI contract — persona/rules with a clear split of validation vs thinking vs response, and schema (not prompt prose) as format authority.
 
 **Target features:**
-- Domain skill/contract for exercise generation (persona, capabilities, model/agent behavior) — SEED-007
-- Align `SYSTEM_PROMPT` / user prompts to that contract
-- Light validation hooks so shape/adherence stay code-owned
-- Strip field-contract prose from prompts; schema + validator remain sole format authority — SEED-008
-- Offline tests/markers for the prompt policy
+- Domain skill index for exercise generation — SEED-007 / CONTRACT-01
+- Triad docs: validation vs thinking vs response — CONTRACT-02
+- Authority map (format / plan / content) — CONTRACT-03 / SEED-008
+- Prompt persona alignment — PROMPT-02
+- Strip field-contract prose from prompts — PROMPT-03
+- Preserve slot enumeration — PROMPT-04
+- No LLM self-check path — VAL-03
+- Light `materia`/`topico` hygiene — VAL-04
+- Offline policy tests (no schema dumps; slots present) — TEST-01/02
+
+**Phase policy:** one REQ-ID per phase (16–25) for assertive audit/verify.
 
 **Promoted seeds:** SEED-007, SEED-008
 
