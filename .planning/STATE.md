@@ -2,17 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Contrato de geração
-current_phase: 16
-current_phase_name: Domain skill index
-status: phase_complete
-stopped_at: Completed 16-01-PLAN.md
-last_updated: "2026-09-25T13:04:19.750Z"
+current_phase: 17
+current_phase_name: Validation vs thinking vs response docs
+status: ready_to_plan
+stopped_at: Phase 17 discuss complete — CONTEXT ready
+last_updated: "2026-09-25T14:32:00.000Z"
 last_activity: 2026-09-25
-last_activity_desc: Completed 16-01 — skills.generation skeleton + smoke test
-state_head: 95c4fd5
+last_activity_desc: Discussed Phase 17 triad docs (TRIAD.md + rules.py pointer)
 progress:
   total_phases: 10
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 1
   completed_plans: 1
   percent: 10
@@ -25,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-23)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados (incluindo lotes mistos) com validação e adesão ao plano — também via `service.generate_batch`
-**Current focus:** v2.2 Phase 16 — Domain skill index (16-01 complete; await verify/transition)
+**Current focus:** v2.2 Phase 17 — Validation vs thinking vs response docs (CONTEXT ready)
 
 ## Current Position
 
-Phase: 16 (Domain skill index) — PLAN 01 COMPLETE
-Plan: 01 / 01
-Status: Completed 16-01-PLAN.md (orchestrator: verify / transition)
-Last activity: 2026-09-25 — API skills package skeleton + get_persona_system smoke
+Phase: 17 (Validation vs thinking vs response docs) — context gathered
+Plan: —
+Status: Ready to plan
+Last activity: 2026-09-25 — discuss complete (`TRIAD.md` authoritative + `rules.py` pointer)
 
 ## Performance Metrics
 
@@ -120,11 +119,12 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-25T13:04:19.716Z
-Stopped at: Completed 16-01-PLAN.md
-Resume file: None
+Last session: 2026-09-25T14:32:00Z
+Stopped at: Phase 17 discuss complete — ready to plan
+Resume file: (none)
 
 ## Operator Next Steps
 
-- Orchestrator: verify Phase 16 / transition (`--no-transition` was set on executor)
-- Next milestone phases: rules content (17–18), then prompts wiring (19+)
+- `$gsd-plan-phase 17` using `17-CONTEXT.md` (TRIAD.md + rules.py pointer; D-01..D-15)
+- Never-do / authority map → Phase 18; persona wiring → Phase 19
+- Token baseline compare after Phase 19: `exercicios-gerados/baselines/`
