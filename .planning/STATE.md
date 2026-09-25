@@ -2,19 +2,20 @@
 gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Contrato de geração
-status: paused
-last_updated: "2026-09-23T14:52:28.223Z"
-last_activity: 2026-09-23
-last_activity_desc: Paused after Phase 16 discuss — handoff written
-stopped_at: Resume with `$gsd-resume-work` then `$gsd-plan-phase 16`
+current_phase: 16
+current_phase_name: Domain skill index
+status: executing
+stopped_at: Session resumed, proceeding to offer plan-phase 16
+last_updated: "2026-09-25T12:57:37.300Z"
+last_activity: 2026-09-25
+last_activity_desc: Session resumed — Phase 16 CONTEXT ready, awaiting plan-phase
+state_head: 8eabb37a5a03b0a24c6d0b34293060ebc8dc8018
 progress:
   total_phases: 10
   completed_phases: 0
-  total_plans: 0
+  total_plans: 1
   completed_plans: 0
   percent: 0
-current_phase: 16
-current_phase_name: Domain skill index
 ---
 
 # Project State
@@ -28,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 ## Current Position
 
-Phase: 16 (Domain skill index) — context gathered
+Phase: 16 (Domain skill index) — READY TO EXECUTE
 Plan: —
-Status: Ready to plan
+Status: Ready to execute
 Last activity: 2026-09-23 — discuss complete (API skills package, not agent folders)
 
 ## Performance Metrics
@@ -116,10 +117,11 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-23T13:25:00Z
-Stopped at: v2.1 audit **passed** — see `.planning/v2.1-MILESTONE-AUDIT.md`
-Resume file: (none)
+Last session: 2026-09-25T11:36:00Z
+Stopped at: Session resumed, proceeding to offer plan-phase 16
+Resume file: `.planning/phases/16-domain-skill-index/.continue-here.md` (checkpoint; HANDOFF consumed)
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- `$gsd-plan-phase 16` using `16-CONTEXT.md` (API skills under `exercise-ai/skills/generation/`, D-01..D-09)
+- Then execute Phase 16 skeleton + `get_persona_system()`
