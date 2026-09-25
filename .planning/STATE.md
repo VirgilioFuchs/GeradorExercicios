@@ -4,11 +4,11 @@ milestone: v2.2
 milestone_name: Contrato de geração
 current_phase: 17
 current_phase_name: Validation vs thinking vs response docs
-status: executing
-stopped_at: Phase 17 discuss complete — CONTEXT ready
-last_updated: "2026-09-25T14:54:46.655Z"
+status: paused
+stopped_at: Paused after Phase 17 plan — resume with execute-phase 17
+last_updated: "2026-09-25T14:55:38.662Z"
 last_activity: 2026-09-25
-last_activity_desc: Discussed Phase 17 triad docs (TRIAD.md + rules.py pointer)
+last_activity_desc: Paused — Phase 17 researched + planned; handoff written
 state_head: 9f61cecc77f568a541b8561d6ddfdcde7f34721d
 progress:
   total_phases: 10
@@ -25,14 +25,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-23)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados (incluindo lotes mistos) com validação e adesão ao plano — também via `service.generate_batch`
-**Current focus:** v2.2 Phase 17 — Validation vs thinking vs response docs (CONTEXT ready)
+**Current focus:** v2.2 Phase 17 — planned; paused before execute
 
 ## Current Position
 
-Phase: 17 (Validation vs thinking vs response docs) — READY TO EXECUTE
-Plan: —
-Status: Ready to execute
-Last activity: 2026-09-25 — discuss complete (`TRIAD.md` authoritative + `rules.py` pointer)
+Phase: 17 (Validation vs thinking vs response docs) — PLAN ready, paused
+Plan: 01 / 01 (not executed)
+Status: Paused after plan — handoff written
+Last activity: 2026-09-25 — research + plan + VALIDATION; pause-work
 
 ## Performance Metrics
 
@@ -120,12 +120,12 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-25T14:32:00Z
-Stopped at: Phase 17 discuss complete — ready to plan
-Resume file: (none)
+Last session: 2026-09-25T14:55:38Z
+Stopped at: Paused after Phase 17 plan — resume with execute-phase 17
+Resume file: `.planning/phases/17-validation-vs-thinking-vs-response-docs/.continue-here.md` + `.planning/HANDOFF.json`
 
 ## Operator Next Steps
 
-- `$gsd-plan-phase 17` using `17-CONTEXT.md` (TRIAD.md + rules.py pointer; D-01..D-15)
+- `$gsd-resume-work` then `$gsd-execute-phase 17`
 - Never-do / authority map → Phase 18; persona wiring → Phase 19
 - Token baseline compare after Phase 19: `exercicios-gerados/baselines/`
