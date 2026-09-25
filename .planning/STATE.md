@@ -4,18 +4,18 @@ milestone: v2.2
 milestone_name: Contrato de geração
 current_phase: 16
 current_phase_name: Domain skill index
-status: executing
+status: phase_complete
 stopped_at: Completed 16-01-PLAN.md
 last_updated: "2026-09-25T13:04:19.750Z"
 last_activity: 2026-09-25
-last_activity_desc: Session resumed — Phase 16 CONTEXT ready, awaiting plan-phase
-state_head: 87263853c3eb48b366379b5fa5305cd8488e2905
+last_activity_desc: Completed 16-01 — skills.generation skeleton + smoke test
+state_head: 95c4fd5
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 1
   completed_plans: 1
-  percent: 0
+  percent: 10
 ---
 
 # Project State
@@ -25,14 +25,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-23)
 
 **Core value:** Gerar exercícios de matemática confiáveis e estruturados (incluindo lotes mistos) com validação e adesão ao plano — também via `service.generate_batch`
-**Current focus:** v2.2 Phase 16 — Domain skill index (CONTEXT ready)
+**Current focus:** v2.2 Phase 16 — Domain skill index (16-01 complete; await verify/transition)
 
 ## Current Position
 
-Phase: 16 (Domain skill index) — READY TO EXECUTE
-Plan: —
-Status: Ready to execute
-Last activity: 2026-09-23 — discuss complete (API skills package, not agent folders)
+Phase: 16 (Domain skill index) — PLAN 01 COMPLETE
+Plan: 01 / 01
+Status: Completed 16-01-PLAN.md (orchestrator: verify / transition)
+Last activity: 2026-09-25 — API skills package skeleton + get_persona_system smoke
 
 ## Performance Metrics
 
@@ -126,5 +126,5 @@ Resume file: None
 
 ## Operator Next Steps
 
-- `$gsd-plan-phase 16` using `16-CONTEXT.md` (API skills under `exercise-ai/skills/generation/`, D-01..D-09)
-- Then execute Phase 16 skeleton + `get_persona_system()`
+- Orchestrator: verify Phase 16 / transition (`--no-transition` was set on executor)
+- Next milestone phases: rules content (17–18), then prompts wiring (19+)
