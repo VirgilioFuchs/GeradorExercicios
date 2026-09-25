@@ -10,7 +10,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### CONTRACT — Domain skill & authority
 
-- [ ] **CONTRACT-01**: Domain skill index exists for exercise generation (mirrors `skills/python-ai-engineering` pattern)
+- [x] **CONTRACT-01**: Domain skill index exists for exercise generation (mirrors `skills/python-ai-engineering` pattern)
 - [ ] **CONTRACT-02**: Docs/rules separate **validation** (deterministic code) vs **thinking** (API `reasoning_effort`) vs **response** (`Exercise` fields)
 - [ ] **CONTRACT-03**: Authority map documented: format → schema/Structured Outputs · plan → `verify_plan_echo` · content → prompts
 
@@ -63,7 +63,7 @@ Deferred; tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CONTRACT-01 | Phase 16 | Pending |
+| CONTRACT-01 | Phase 16 | Complete |
 | CONTRACT-02 | Phase 17 | Pending |
 | CONTRACT-03 | Phase 18 | Pending |
 | PROMPT-02 | Phase 19 | Pending |

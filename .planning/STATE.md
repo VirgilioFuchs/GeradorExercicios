@@ -5,16 +5,16 @@ milestone_name: Contrato de geração
 current_phase: 16
 current_phase_name: Domain skill index
 status: executing
-stopped_at: Session resumed, proceeding to offer plan-phase 16
-last_updated: "2026-09-25T12:57:37.300Z"
+stopped_at: Completed 16-01-PLAN.md
+last_updated: "2026-09-25T13:04:19.750Z"
 last_activity: 2026-09-25
 last_activity_desc: Session resumed — Phase 16 CONTEXT ready, awaiting plan-phase
-state_head: 8eabb37a5a03b0a24c6d0b34293060ebc8dc8018
+state_head: 87263853c3eb48b366379b5fa5305cd8488e2905
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 1
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -60,6 +60,7 @@ Last activity: 2026-09-23 — discuss complete (API skills package, not agent fo
 | Phase 11 P01 | 6 min | 2 tasks | 7 files |
 | Phase 11 P02 | 14 min | 3 tasks | 11 files |
 | Phase 11 P03 | 6 min | 3 tasks | 8 files |
+| Phase 16 P01 | 5 min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -81,6 +82,8 @@ Recent decisions affecting current work:
 - [Phase 11]: Postmortem CLI-owned; flush OSError-guarded; always-on scoped env restore
 - [Phase 11]: Gemini HttpOptions.timeout=30000 ms (Context7 python-genai) — SDK timeout field is milliseconds; align magnitude to OpenAI 30s
 - [Phase 11]: README Embed contract only; reserved names detection-only — D-12; no CONTRACT.md; packaging parked PKG-01
+- [Phase 16]: API skill under exercise-ai/skills/generation; not agent skill folders (D-01/D-02)
+- [Phase 16]: Public API is get_persona_system() only; rules.py stub deferred to 17-18 (D-06/D-07/D-09)
 
 ### Pending Todos
 
@@ -117,9 +120,9 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-25T11:36:00Z
-Stopped at: Session resumed, proceeding to offer plan-phase 16
-Resume file: `.planning/phases/16-domain-skill-index/.continue-here.md` (checkpoint; HANDOFF consumed)
+Last session: 2026-09-25T13:04:19.716Z
+Stopped at: Completed 16-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
