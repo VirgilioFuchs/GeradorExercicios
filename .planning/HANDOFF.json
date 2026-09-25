@@ -1,44 +1,39 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-23T14:52:28.223Z",
-  "phase": "16",
-  "phase_name": "Domain skill index",
-  "phase_dir": ".planning/phases/16-domain-skill-index",
-  "plan": null,
+  "timestamp": "2026-09-25T14:55:38.662Z",
+  "phase": "17",
+  "phase_name": "Validation vs thinking vs response docs",
+  "phase_dir": ".planning/phases/17-validation-vs-thinking-vs-response-docs",
+  "plan": "01",
   "task": null,
-  "total_tasks": 0,
+  "total_tasks": 3,
   "status": "paused",
   "milestone": "v2.2",
   "milestone_name": "Contrato de geração",
   "completed_tasks": [
     {
       "id": "discuss",
-      "name": "Phase 16 discuss → 16-CONTEXT.md",
+      "name": "Phase 17 discuss → 17-CONTEXT.md (D-01..D-15)",
       "status": "done",
-      "commit": "2d69060"
+      "commit": "0258f88"
     },
     {
-      "id": "milestone",
-      "name": "v2.2 new-milestone (research, REQUIREMENTS, ROADMAP 16–25)",
+      "id": "research",
+      "name": "Phase 17 research → 17-RESEARCH.md",
       "status": "done",
-      "commit": "4f818d0"
+      "commit": "4637b49"
     },
     {
-      "id": "v21-close",
-      "name": "v2.1 complete-milestone + tag push",
+      "id": "plan",
+      "name": "17-01-PLAN.md + checker fixes (VALIDATION.md, Open Questions)",
       "status": "done",
-      "commit": "ffebfe0"
+      "commit": "4d1504a"
     }
   ],
   "remaining_tasks": [
     {
-      "id": "plan-16",
-      "name": "$gsd-plan-phase 16",
-      "status": "not_started"
-    },
-    {
-      "id": "execute-16",
-      "name": "Execute Phase 16 API skills skeleton under exercise-ai/skills/generation/",
+      "id": "execute-17",
+      "name": "$gsd-execute-phase 17 — TRIAD.md + rules.py TRIAD_DOC (3 tasks in 17-01)",
       "status": "not_started"
     }
   ],
@@ -47,22 +42,22 @@
   "human_actions_pending": [],
   "decisions": [
     {
-      "decision": "API skill package under exercise-ai/skills/generation/ (persona.py + rules.py), not agent folders (.cursor/.claude/.codex)",
-      "rationale": "User redirected CONTRACT-01 from GSD agent skill to runtime API persona",
-      "phase": "16"
+      "decision": "TRIAD.md authoritative under exercise-ai/skills/generation/; rules.py points via TRIAD_DOC Path",
+      "rationale": "Discuss Phase 17 D-01..D-04",
+      "phase": "17"
     },
     {
-      "decision": "Phase 16 = skeleton + get_persona_system(); prompts.py not wired yet",
-      "rationale": "CONTRACT-01 index only; wiring is later PROMPT phases",
-      "phase": "16"
+      "decision": "No new pytest this phase (D-12); never-do detail deferred to Phase 18",
+      "rationale": "Discuss D-12/D-13",
+      "phase": "17"
     },
     {
-      "decision": "v2.2 roadmap = 10 phases (16–25), one REQ per phase",
-      "rationale": "User asked for assertive audit granularity",
-      "phase": "milestone"
+      "decision": "Token baseline pre-persona saved for Phase 19 compare",
+      "rationale": "User baseline gpt-6-sol medium plano 5,15,20 → exercicios-gerados/baselines/",
+      "phase": "16"
     }
   ],
   "uncommitted_files": [],
-  "next_action": "Run $gsd-resume-work then $gsd-plan-phase 16 using 16-CONTEXT.md (API skills path, D-01..D-09)",
-  "context_notes": "Paused after Phase 16 discuss. CONTEXT locked API-focused skill package. Do not create .cursor skills for generation contract. Public API: get_persona_system() -> str; PT-BR; rules.py TODO only."
+  "next_action": "Run $gsd-resume-work then $gsd-execute-phase 17 using 17-01-PLAN.md and 17-CONTEXT.md",
+  "context_notes": "Phase 16 code shipped (skills.generation skeleton). Phase 17 planned and verified (VALIDATION.md + RESEARCH Open Questions resolved). Do not auto-execute without resume. Do not touch persona.py/prompts.py/__init__ re-export. Baseline usage JSON ready for post-Phase-19 token compare."
 }
