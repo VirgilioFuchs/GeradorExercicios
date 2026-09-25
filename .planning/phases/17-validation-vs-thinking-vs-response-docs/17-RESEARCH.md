@@ -365,16 +365,13 @@ pass
 
 **If this table is empty:** N/A — three low-risk assumptions above.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **How much to mention `dificuldade` / plan-echo in Response vs Validation?**
-   - What we know: `dificuldade` is an `Exercise` field and also plan-echo input; full FORMAT/PLAN authority map is Phase 18.
-   - What's unclear: whether Response leg should name echo briefly or only Validation.
-   - Recommendation: One short clause under Validação (“adesão ao plano: `verify_plan_echo`”) and list `dificuldade` among Response fields without expanding authority map.
+   - **RESOLVED:** One short clause under Validação (“adesão ao plano: `verify_plan_echo`”); list `dificuldade` among Response fields without expanding authority map (Phase 18). Matches plan Task 1.
 
 2. **Should `rules.py` keep `pass` after adding `TRIAD_DOC`?**
-   - What we know: Current stub ends with `pass`; Path constant makes `pass` optional.
-   - Recommendation: Keep module importable; `pass` fine if no other statements needed after constant+TODO.
+   - **RESOLVED:** Keep `pass` (or equivalent no-op body) after `TRIAD_DOC` + TODO — module stays importable; YAGNI. Matches plan Task 2.
 
 ## Environment Availability
 
