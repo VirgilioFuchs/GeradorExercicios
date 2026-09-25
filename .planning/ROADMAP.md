@@ -30,11 +30,15 @@
 
 **Goal:** Written triad so agents do not invent prompt-side validation or confuse API effort with response fields.
 **Requirements:** CONTRACT-02
+**Plans:** 1 plan
 **Success criteria:**
 
 1. Docs/rules state validation = deterministic code only
 2. Thinking = API `reasoning_effort` (run-level), not an Exercise field
 3. Response = Structured Outputs `Exercise` fields only
+
+Plans:
+- [ ] 17-01-PLAN.md — Authoritative TRIAD.md + rules.py TRIAD_DOC pointer (CONTRACT-02)
 
 ### Phase 18: Authority map (format / plan / content)
 
