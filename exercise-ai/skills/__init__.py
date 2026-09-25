@@ -1,1 +1,1 @@
-"""Pacote de skills de API/runtime para o pipeline de geração."""
+"""Pacote de skills da API de geração (esqueleto Phase 16)."""
